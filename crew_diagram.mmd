@@ -1,0 +1,32 @@
+---
+title: Atom.IO Agent Crew (CrewAI, sequential process)
+---
+flowchart TB
+    GDD[/"Atom.IO GDD<br/>(game rules, art direction, constraints)"/]
+
+    subgraph CREW["CrewAI crew: 3 agents, 5 tasks"]
+        direction TB
+        SCR["<b>Agent 1: Asset Scraper</b><br/>Task 1: scout_assets<br/><i>tools: free_asset_catalog, license_check</i>"]
+        ARC1["<b>Agent 2: Lead Architect</b><br/>Task 2: review_assets_and_plan"]
+        LVL["<b>Agent 3: Level Designer</b><br/>Task 3: design_tiers<br/><i>tools: element_groups, gdd_formula_table</i>"]
+        ARC2["<b>Agent 2: Lead Architect</b><br/>Task 4: implement_core_scripts<br/><i>tool: tier_json_contract</i>"]
+        ARC3["<b>Agent 2: Lead Architect</b><br/>Task 5: validate_outputs<br/><i>tool: run_validation_suite</i>"]
+    end
+
+    GDD --> SCR & ARC1 & ARC2
+    SCR -- "AssetManifest<br/>free assets + licenses" --> ARC1
+    ARC1 -- "ArchitectReview<br/>approved assets + plan" --> LVL
+    ARC1 -- "plan + scene notes" --> ARC2
+    LVL -- "TierDesignSet<br/>spawn curve, group core looks + traits,<br/>landmark overrides, fallback" --> ARC2
+    LVL -- "TierDesignSet" --> ARC3
+    ARC2 -- "CodeBundle<br/>15 C# scripts + CHANGES.md" --> ARC3
+
+    ARC3 -- "ValidationReport" --> GATE{"Manual gate<br/>developer review<br/>main.py promote"}
+    GATE -- "approved" --> UNITY[("Unity 6.3 project<br/>Scripts/AtomIO/*.cs<br/>Resources/AtomIO/Tiers/tier_001-118.json")]
+    GATE -- "rejected" --> REV["Revise or edit by hand<br/>(no auto-retry)"]
+    UNITY --> GAME(["Atom.IO Android build<br/>(zero runtime API calls)"])
+
+    classDef agent fill:#1f3a5f,stroke:#7fd8ff,color:#ffffff
+    classDef store fill:#14301f,stroke:#39ff14,color:#ffffff
+    class SCR,ARC1,LVL,ARC2,ARC3 agent
+    class UNITY,GAME store

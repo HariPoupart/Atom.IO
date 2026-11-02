@@ -1,0 +1,34 @@
+{
+  "approved_assets": [
+    "Kenney Particle Pack",
+    "Kenney Mobile Controls",
+    "Kenney UI Pack",
+    "Kenney Fonts",
+    "Kenney Sci-fi Sounds",
+    "Kenney Interface Sounds",
+    "Unity Universal Render Pipeline",
+    "TextMesh Pro (in uGUI)"
+  ],
+  "rejected_assets": [
+    {
+      "name": "Joystick Pack (Fenerax Studios)",
+      "reason": "Duplicates our own 60-line uGUI TouchStick; Kenney Mobile Controls already gives the sprites."
+    },
+    {
+      "name": "Kenney Space Shooter Redux",
+      "reason": "Spaceship art clashes with the abstract Bohr-model style; enemies will be procedural circles."
+    }
+  ],
+  "implementation_plan": [
+    "Create Lobby and Arena scenes; set landscape orientation, URP 2D renderer with Bloom.",
+    "Core/AtomFormulas: GDD numbers (HP, slots, evolution cost, failure curve).",
+    "Data/TierConfig + TierConfigLoader: read Resources/AtomIO/Tiers/tier_NNN.json with JsonUtility.",
+    "Player/PlayerAtom + Player/ElectronOrbit: movement, HP, Bohr shells, aim and release.",
+    "Combat/Electron + Combat/Enemy: wild/orbit/released states, damage, chase-and-give-up AI.",
+    "Arena/ArenaSpawner + EnergyOrb + ArenaSession: inverse-time spawns, energy, run end.",
+    "Controls/TouchStick + PlayerInputBridge: two on-screen sticks, no extra packages.",
+    "Meta/MetaProgress + LobbyController: banked energy, evolution with pity, tutorial gating.",
+    "UI/ArenaHud: element, HP bar, energy, time, electrons, tutorial hints."
+  ],
+  "prefab_scene_notes": "Physics2D layers: Player, Enemy, Electron, Pickup. Disable Electron-Electron, Pickup-Enemy and Electron-Pickup collisions. Prefabs: Player (Rigidbody2D dynamic, gravity 0, CircleCollider2D, PlayerAtom, ElectronOrbit, child core and rim SpriteRenderers, LineRenderer for aim), Electron (kinematic Rigidbody2D, trigger CircleCollider2D, TrailRenderer, Kenney particle sprite), Enemy (dynamic Rigidbody2D, CircleCollider2D, Enemy, orb prefab reference), EnergyOrb (trigger collider). Arena scene: ArenaSession, ArenaSpawner, Canvas (Screen Space Overlay, scale with screen size 1920x1080) with left/right TouchStick, ArenaHud, exit button wired to ArenaSession.ExitArena, and an EventSystem (use InputSystemUIInputModule if the new Input System is active). Lobby scene: LobbyController with evolve/start buttons. Add both scenes to Build Settings (Lobby first)."
+}

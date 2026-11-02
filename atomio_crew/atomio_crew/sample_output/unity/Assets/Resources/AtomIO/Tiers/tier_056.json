@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 56,
+  "symbol": "Ba",
+  "name": "Barium",
+  "group": "alkaline_earth_metal",
+  "design_source": "group",
+  "player": {
+    "max_hp": 560,
+    "electron_slots": 56,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 57,
+    "cost_to_next": 218,
+    "base_fail_chance_pct": 7.715,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 147.5,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 19,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 38.25,
+    "background_hex": "#12160F",
+    "grid_hex": "#2A3322",
+    "ambient_particle_asset": "none"
+  },
+  "core_visual": {
+    "primary_hex": "#E8E2C8",
+    "secondary_hex": "#B9F0A8",
+    "glow_intensity": 0.9,
+    "pattern": "solid",
+    "texture_asset": "procedural",
+    "shader_note": "Matte chalky core with a faint green rim light."
+  },
+  "trait": {
+    "name": "Sturdy Lattice",
+    "description": "Reliable all-rounder with a slightly tougher core.",
+    "move_speed_mult": 1.0,
+    "orbit_speed_mult": 1.0,
+    "electron_damage_mult": 1.0,
+    "max_hp_mult": 1.1
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 10,
+  "symbol": "Ne",
+  "name": "Neon",
+  "group": "noble_gas",
+  "design_source": "group",
+  "player": {
+    "max_hp": 100,
+    "electron_slots": 10,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 11,
+    "cost_to_next": 80,
+    "base_fail_chance_pct": 0.425,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 32.5,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 8,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 31.35,
+    "background_hex": "#140A1C",
+    "grid_hex": "#3A1A4A",
+    "ambient_particle_asset": "Kenney Particle Pack"
+  },
+  "core_visual": {
+    "primary_hex": "#FF5FD2",
+    "secondary_hex": "#FFD6F4",
+    "glow_intensity": 2.4,
+    "pattern": "rings",
+    "texture_asset": "Kenney Particle Pack",
+    "shader_note": "Neon-sign look: high emission with additive rings rotating slowly."
+  },
+  "trait": {
+    "name": "Inert Shell",
+    "description": "A full outer shell: tougher core, slightly weaker strikes.",
+    "move_speed_mult": 1.0,
+    "orbit_speed_mult": 1.0,
+    "electron_damage_mult": 0.9,
+    "max_hp_mult": 1.2
+  }
+}

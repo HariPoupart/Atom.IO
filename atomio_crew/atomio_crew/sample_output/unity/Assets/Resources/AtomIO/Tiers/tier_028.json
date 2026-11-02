@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 28,
+  "symbol": "Ni",
+  "name": "Nickel",
+  "group": "transition_metal",
+  "design_source": "group",
+  "player": {
+    "max_hp": 280,
+    "electron_slots": 28,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 29,
+    "cost_to_next": 134,
+    "base_fail_chance_pct": 1.895,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 77.5,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 12,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 34.05,
+    "background_hex": "#15110A",
+    "grid_hex": "#3A2E14",
+    "ambient_particle_asset": "none"
+  },
+  "core_visual": {
+    "primary_hex": "#C9A227",
+    "secondary_hex": "#FFE7A3",
+    "glow_intensity": 1.1,
+    "pattern": "lattice",
+    "texture_asset": "procedural",
+    "shader_note": "Metallic lattice pattern with a warm reflective rim."
+  },
+  "trait": {
+    "name": "d-Orbital Armor",
+    "description": "Heavy and durable, built for big electron defenses.",
+    "move_speed_mult": 0.95,
+    "orbit_speed_mult": 1.0,
+    "electron_damage_mult": 1.05,
+    "max_hp_mult": 1.1
+  }
+}

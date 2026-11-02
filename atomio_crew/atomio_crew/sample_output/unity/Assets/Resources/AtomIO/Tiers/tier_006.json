@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 6,
+  "symbol": "C",
+  "name": "Carbon",
+  "group": "reactive_nonmetal",
+  "design_source": "override",
+  "player": {
+    "max_hp": 60,
+    "electron_slots": 6,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 7,
+    "cost_to_next": 68,
+    "base_fail_chance_pct": 0.218,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 22.5,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 7,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 30.75,
+    "background_hex": "#0B1622",
+    "grid_hex": "#16324A",
+    "ambient_particle_asset": "Kenney Particle Pack"
+  },
+  "core_visual": {
+    "primary_hex": "#2B2B2B",
+    "secondary_hex": "#E8F6FF",
+    "glow_intensity": 1.4,
+    "pattern": "crystal",
+    "texture_asset": "procedural",
+    "shader_note": "Graphite core with diamond facets that sparkle on rotation."
+  },
+  "trait": {
+    "name": "Covalent Bond",
+    "description": "Electrons orbit faster, so it is easier to keep enemies at bay.",
+    "move_speed_mult": 1.0,
+    "orbit_speed_mult": 1.15,
+    "electron_damage_mult": 1.0,
+    "max_hp_mult": 1.0
+  }
+}

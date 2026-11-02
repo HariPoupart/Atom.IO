@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 118,
+  "symbol": "Og",
+  "name": "Oganesson",
+  "group": "unknown_properties",
+  "design_source": "override",
+  "player": {
+    "max_hp": 1180,
+    "electron_slots": 118,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 0,
+    "cost_to_next": 0,
+    "base_fail_chance_pct": 0.0,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 302.5,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 35,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 47.55,
+    "background_hex": "#101010",
+    "grid_hex": "#2A2A2A",
+    "ambient_particle_asset": "none"
+  },
+  "core_visual": {
+    "primary_hex": "#FFFFFF",
+    "secondary_hex": "#B388FF",
+    "glow_intensity": 3.0,
+    "pattern": "rings",
+    "texture_asset": "Kenney Particle Pack",
+    "shader_note": "Prismatic white core with violet rings cycling hue over time."
+  },
+  "trait": {
+    "name": "Unstable",
+    "description": "Properties unknown: a neutral baseline.",
+    "move_speed_mult": 1.0,
+    "orbit_speed_mult": 1.0,
+    "electron_damage_mult": 1.0,
+    "max_hp_mult": 1.0
+  }
+}

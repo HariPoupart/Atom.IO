@@ -1,0 +1,105 @@
+{
+  "assets": [
+    {
+      "name": "Kenney Particle Pack",
+      "category": "vfx",
+      "source_url": "https://kenney.nl/assets/particle-pack",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/ParticlePack/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Core glow, electron trails, energy orbs, enemy death bursts"
+    },
+    {
+      "name": "Kenney Mobile Controls",
+      "category": "input",
+      "source_url": "https://kenney.nl/assets/mobile-controls",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/MobileControls/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Left move stick and right aim stick sprites"
+    },
+    {
+      "name": "Kenney UI Pack",
+      "category": "ui",
+      "source_url": "https://kenney.nl/assets/ui-pack",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/UIPack/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "HUD health bar, lobby buttons and panels"
+    },
+    {
+      "name": "Kenney Space Shooter Redux",
+      "category": "sprite",
+      "source_url": "https://kenney.nl/assets/space-shooter-redux",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/SpaceShooterRedux/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Possible enemy sprites"
+    },
+    {
+      "name": "Kenney Fonts",
+      "category": "font",
+      "source_url": "https://kenney.nl/assets/kenney-fonts",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/Fonts/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "HUD and lobby text"
+    },
+    {
+      "name": "Kenney Interface Sounds",
+      "category": "audio",
+      "source_url": "https://kenney.nl/assets/interface-sounds",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/InterfaceSounds/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Shoot, pickup, evolve and UI sounds"
+    },
+    {
+      "name": "Kenney Sci-fi Sounds",
+      "category": "audio",
+      "source_url": "https://kenney.nl/assets/sci-fi-sounds",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Kenney/ScifiSounds/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Shoot, pickup, evolve and UI sounds"
+    },
+    {
+      "name": "Joystick Pack (Fenerax Studios)",
+      "category": "input",
+      "source_url": "https://assetstore.unity.com/packages/tools/input-management/joystick-pack-107631",
+      "license": "Unity-Asset-Store-EULA",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/AssetStore/JoystickPackFeneraxStudios/",
+      "unity_compat_note": "First-party / Asset Store package, supports Unity 6.",
+      "used_for": "Left move stick and right aim stick sprites"
+    },
+    {
+      "name": "Unity Universal Render Pipeline",
+      "category": "shader",
+      "source_url": "https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@17.0/manual/index.html",
+      "license": "Unity-Package",
+      "price_usd": 0.0,
+      "local_path": "Packages/UnityUniversalRenderPipeline",
+      "unity_compat_note": "First-party / Asset Store package, supports Unity 6.",
+      "used_for": "Bloom/glow on the atom core (2D renderer)"
+    },
+    {
+      "name": "TextMesh Pro (in uGUI)",
+      "category": "ui",
+      "source_url": "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/TextMeshPro/index.html",
+      "license": "Unity-Package",
+      "price_usd": 0.0,
+      "local_path": "Packages/TextMeshProinuGUI",
+      "unity_compat_note": "First-party / Asset Store package, supports Unity 6.",
+      "used_for": "HUD health bar, lobby buttons and panels"
+    }
+  ],
+  "search_notes": "Queried free_asset_catalog for particles/glow, joystick/touch, ui/hud, font, sfx and shader/bloom. All licenses passed license_check; no paid, NC or SA assets included."
+}

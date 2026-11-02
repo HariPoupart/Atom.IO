@@ -1,0 +1,33 @@
+{
+  "mode": "mock",
+  "asset_scraper": {
+    "prompt_tokens": 7643,
+    "completion_tokens": 1082,
+    "calls": 3,
+    "total_tokens": 8725,
+    "cap": 45000,
+    "usd": 0.0392
+  },
+  "lead_architect": {
+    "prompt_tokens": 45326,
+    "completion_tokens": 13661,
+    "calls": 5,
+    "total_tokens": 58987,
+    "cap": 480000,
+    "usd": 0.3409
+  },
+  "level_designer": {
+    "prompt_tokens": 10499,
+    "completion_tokens": 2271,
+    "calls": 2,
+    "total_tokens": 12770,
+    "cap": 885000,
+    "usd": 0.0656
+  },
+  "total": {
+    "total_tokens": 80482,
+    "cap": 1410000,
+    "usd": 0.4456,
+    "usd_ceiling": 10.0
+  }
+}

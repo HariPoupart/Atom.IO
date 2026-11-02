@@ -1,0 +1,113 @@
+scout_assets:
+  agent: asset_scraper
+  description: >
+    Source free assets for Atom.IO.
+
+    GAME SUMMARY:
+    {gdd}
+
+    Needs to cover: (1) glowing particles for the atom core, electrons, energy orbs and
+    enemy deaths; (2) virtual joystick / touch controls (left move stick, right aim stick);
+    (3) HUD pieces (health bar, buttons, panels, font); (4) short sci-fi SFX for shooting,
+    pickups and evolving; (5) a way to get bloom/glow on mid-range Android.
+
+    Steps: search with free_asset_catalog (use several keyword queries), check every
+    license with license_check, drop anything paid, non-commercial or share-alike.
+    Plan a local_path for each asset under Assets/ThirdParty/<Vendor>/<Pack>/ (or
+    Packages/ for Unity packages). Return 6 to 10 assets.
+  expected_output: >
+    An AssetManifest JSON object only: assets (name, category, source_url, license,
+    price_usd = 0, local_path, unity_compat_note, used_for) and search_notes.
+
+review_assets_and_plan:
+  agent: lead_architect
+  context: [scout_assets]
+  description: >
+    Review the Asset Scraper's manifest against the Atom.IO GDD below and the constraints
+    (Unity {unity_version}, Android API 24+, 2 GB RAM baseline device, landscape, no runtime
+    network calls, no external dependencies beyond the GDD).
+
+    GDD:
+    {gdd}
+
+    Approve only what the game needs; when two assets do the same job, approve one and
+    reject the other with a reason. Then write an ordered implementation plan for the core
+    features (player atom + orbiting electrons, release attack, enemies, spawner, energy,
+    lobby evolution with failure chance, tier config loading) and prefab/scene setup notes
+    (Lobby scene, Arena scene, prefabs, physics layers).
+  expected_output: >
+    An ArchitectReview JSON object only: approved_assets (exact names from the manifest),
+    rejected_assets (name, reason), implementation_plan, prefab_scene_notes.
+
+design_tiers:
+  agent: level_designer
+  context: [review_assets_and_plan]
+  description: >
+    Design Atom.IO's arena tiers. Use element_groups to see the {group_count} element
+    groups and gdd_formula_table if you want the fixed numbers for any element.
+
+    Produce:
+    1. ONE spawn_curve for the whole game (enemy spawn interval shrinks with time:
+       interval = base / (1 + k * minutes); enemy HP starts at 10 and grows linearly per
+       tier and per minute; energy per orb grows exponentially per minute survived).
+       Early tiers must feel fast and rewarding, late tiers dangerous.
+    2. A group_design for EVERY group: core_visual (primary_hex, secondary_hex as #RRGGBB,
+       glow_intensity 0-3, pattern in solid/rings/swirl/crystal/noise/pulse/lattice,
+       texture_asset = an approved asset name or 'procedural', shader_note), arena_theme
+       (background_hex, grid_hex, ambient_particle_asset = approved asset name or 'none'),
+       and a small trait inspired by the group's chemistry (all multipliers 0.7-1.3).
+    3. tier_overrides with signature cores for 5-10 landmark elements (e.g. H, He, C, Fe,
+       Au, U, Og).
+    4. A neutral fallback design with group = 'fallback'.
+
+    The primary focus is the player core's look. Keep arenas simple.
+    Only these asset names may be referenced (from the Lead Architect's approval):
+    see the approved_assets in your context.
+  expected_output: >
+    A TierDesignSet JSON object only: spawn_curve, group_designs, tier_overrides, fallback.
+
+implement_core_scripts:
+  agent: lead_architect
+  context: [review_assets_and_plan, design_tiers]
+  description: >
+    Write the core Atom.IO gameplay scripts for Unity {unity_version} following your plan.
+
+    GDD:
+    {gdd}
+
+    Hard requirements:
+    - Complete, compilable C# files, each under Assets/Scripts/AtomIO/<Folder>/<TypeName>.cs,
+      one public type per file with the file name equal to the type name, all inside
+      namespace AtomIO (sub-namespaces allowed).
+    - Use only UnityEngine, UnityEngine.UI, UnityEngine.EventSystems, UnityEngine.SceneManagement,
+      TMPro and System/System.Collections.Generic. No networking, no Newtonsoft, no other packages.
+    - Unity 6 APIs (Rigidbody2D.linearVelocity, Object.FindFirstObjectByType).
+    - FIRST call tier_json_contract. It returns a tier file built from the Level Designer's
+      design in this run. Tier configs are loaded at arena start with Resources.Load TextAsset
+      from Resources/AtomIO/Tiers/tier_NNN (fallback: tier_fallback) and parsed with
+      JsonUtility, so your serializable C# classes MUST have a public field for every key of
+      that JSON (same names, same nesting). Core visuals must support every pattern and trait
+      multiplier the Level Designer used.
+    - Implement: GDD formulas (HP = 10 x Z, slots = Z, evolution cost 50 + 3Z, failure
+      chance -1 + 1.04015^(Z-1) percent minus 0.5 per failure at that tier); player movement
+      from a left virtual stick; orbiting electrons (always keep at least 1, release only when
+      more than 1, aim on the newest electron, released hit = 20, orbiting hit = 10); wild
+      electron and energy orb pickup; enemies that chase in sight range and give up when the
+      player escapes; contact damage 10; time-based spawner; run end returns energy to the
+      lobby; lobby evolve button; first-run tutorial flags (starter energy = one evolution).
+    Also write changes_md: a CHANGES.md section listing every file and why it exists.
+  expected_output: >
+    A CodeBundle JSON object only: files (path, content) and changes_md.
+
+validate_outputs:
+  agent: lead_architect
+  context: [design_tiers, implement_core_scripts]
+  description: >
+    Act as the validation gate (GDD 2.4/2.5). Call run_validation_suite exactly once. It
+    expands the tier design into all 118 tier files and checks assets, tier designs, GDD
+    formulas, C# structure, forbidden dependencies and the JSON-to-C# field contract.
+    Report its errors and warnings faithfully; do not invent or hide any. approved_for_gate
+    must be true only when the suite reports zero errors. In notes, tell the developer what
+    to check by hand in the Unity editor (compile, play the tutorial run, etc.).
+  expected_output: >
+    A ValidationReport JSON object only: approved_for_gate, errors, warnings, notes.

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "atomic_number": 33,
+  "symbol": "As",
+  "name": "Arsenic",
+  "group": "metalloid",
+  "design_source": "group",
+  "player": {
+    "max_hp": 330,
+    "electron_slots": 33,
+    "min_orbiting_electrons": 1,
+    "orbiting_electron_damage": 10,
+    "released_electron_damage": 20
+  },
+  "evolution": {
+    "next_atomic_number": 34,
+    "cost_to_next": 149,
+    "base_fail_chance_pct": 2.524,
+    "pity_step_pct": 0.5
+  },
+  "enemy": {
+    "base_hp": 90.0,
+    "hp_per_minute": 6.0,
+    "contact_damage": 10,
+    "move_speed": 3.2,
+    "sight_range": 9.0
+  },
+  "spawn": {
+    "enemy_base_interval_s": 4.0,
+    "enemy_min_interval_s": 0.6,
+    "time_scale_k": 0.6,
+    "max_alive_enemies": 14,
+    "orb_base_interval_s": 1.5,
+    "electron_base_interval_s": 4.0
+  },
+  "energy": {
+    "orb_base_value": 2.0,
+    "growth_per_minute": 1.25
+  },
+  "arena": {
+    "radius": 34.8,
+    "background_hex": "#0E1216",
+    "grid_hex": "#25313C",
+    "ambient_particle_asset": "none"
+  },
+  "core_visual": {
+    "primary_hex": "#8FA3B8",
+    "secondary_hex": "#D0F0FF",
+    "glow_intensity": 1.0,
+    "pattern": "crystal",
+    "texture_asset": "procedural",
+    "shader_note": "Faceted crystal normal map with a cool specular glint."
+  },
+  "trait": {
+    "name": "Semiconductor",
+    "description": "Balanced, with slightly sharper electrons.",
+    "move_speed_mult": 1.0,
+    "orbit_speed_mult": 1.05,
+    "electron_damage_mult": 1.05,
+    "max_hp_mult": 1.0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "deterministic_suite": {
+    "suite": "atomio-validation",
+    "passed": true,
+    "errors": [],
+    "warnings": [
+      "groups not designed, will use fallback: ['unknown_properties']"
+    ]
+  },
+  "lead_architect_report": {
+    "approved_for_gate": true,
+    "errors": [],
+    "warnings": [
+      "groups not designed, will use fallback: ['unknown_properties']"
+    ],
+    "notes": "Open the Unity project, let scripts compile, then check: (1) tutorial run as H, (2) forced evolve to He, (3) throw/pickup lesson, (4) tier 26/79/118 core looks, (5) profiler on a 2 GB Android device with 100+ orbiting electrons."
+  }
+}

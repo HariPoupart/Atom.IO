@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "tier_count": 118,
+  "fallback_file": "tier_fallback",
+  "design_sources": {
+    "group": 102,
+    "override": 7,
+    "fallback": 9
+  },
+  "tiers": [
+    {
+      "atomic_number": 1,
+      "symbol": "H",
+      "file": "tier_001"
+    },
+    {
+      "atomic_number": 2,
+      "symbol": "He",
+      "file": "tier_002"
+    },
+    {
+      "atomic_number": 3,
+      "symbol": "Li",
+      "file": "tier_003"
+    },
+    {
+      "atomic_number": 4,
+      "symbol": "Be",
+      "file": "tier_004"
+    },
+    {
+      "atomic_number": 5,
+      "symbol": "B",
+      "file": "tier_005"
+    },
+    {
+      "atomic_number": 6,
+      "symbol": "C",
+      "file": "tier_006"
+    },
+    {
+      "atomic_number": 7,
+      "symbol": "N",
+      "file": "tier_007"
+    },
+    {
+      "atomic_number": 8,
+      "symbol": "O",
+      "file": "tier_008"
+    },
+    {
+      "atomic_number": 9,
+      "symbol": "F",
+      "file": "tier_009"
+    },
+    {
+      "atomic_number": 10,
+      "symbol": "Ne",
+      "file": "tier_010"
+    },
+    {
+      "atomic_number": 11,
+      "symbol": "Na",
+      "file": "tier_011"
+    },
+    {
+      "atomic_number": 12,
+      "symbol": "Mg",
+      "file": "tier_012"
+    },
+    {
+      "atomic_number": 13,
+      "symbol": "Al",
+      "file": "tier_013"
+    },
+    {
+      "atomic_number": 14,
+      "symbol": "Si",
+      "file": "tier_014"
+    },
+    {
+      "atomic_number": 15,
+      "symbol": "P",
+      "file": "tier_015"
+    },
+    {
+      "atomic_number": 16,
+      "symbol": "S",
+      "file": "tier_016"
+    },
+    {
+      "atomic_number": 17,
+      "symbol": "Cl",
+      "file": "tier_017"
+    },
+    {
+      "atomic_number": 18,
+      "symbol": "Ar",
+      "file": "tier_018"
+    },
+    {
+      "atomic_number": 19,
+      "symbol": "K",
+      "file": "tier_019"
+    },
+    {
+      "atomic_number": 20,
+      "symbol": "Ca",
+      "file": "tier_020"
+    },
+    {
+      "atomic_number": 21,
+      "symbol": "Sc",
+      "file": "tier_021"
+    },
+    {
+      "atomic_number": 22,
+      "symbol": "Ti",
+      "file": "tier_022"
+    },
+    {
+      "atomic_number": 23,
+      "symbol": "V",
+      "file": "tier_023"
+    },
+    {
+      "atomic_number": 24,
+      "symbol": "Cr",
+      "file": "tier_024"
+    },
+    {
+      "atomic_number": 25,
+      "symbol": "Mn",
+      "file": "tier_025"
+    },
+    {
+      "atomic_number": 26,
+      "symbol": "Fe",
+      "file": "tier_026"
+    },
+    {
+      "atomic_number": 27,
+      "symbol": "Co",
+      "file": "tier_027"
+    },
+    {
+      "atomic_number": 28,
+      "symbol": "Ni",
+      "file": "tier_028"
+    },
+    {
+      "atomic_number": 29,
+      "symbol": "Cu",
+      "file": "tier_029"
+    },
+    {
+      "atomic_number": 30,
+      "symbol": "Zn",
+      "file": "tier_030"
+    },
+    {
+      "atomic_number": 31,
+      "symbol": "Ga",
+      "file": "tier_031"
+    },
+    {
+      "atomic_number": 32,
+      "symbol": "Ge",
+      "file": "tier_032"
+    },
+    {
+      "atomic_number": 33,
+      "symbol": "As",
+      "file": "tier_033"
+    },
+    {
+      "atomic_number": 34,
+      "symbol": "Se",
+      "file": "tier_034"
+    },
+    {
+      "atomic_number": 35,
+      "symbol": "Br",
+      "file": "tier_035"
+    },
+    {
+      "atomic_number": 36,
+      "symbol": "Kr",
+      "file": "tier_036"
+    },
+    {
+      "atomic_number": 37,
+      "symbol": "Rb",
+      "file": "tier_037"
+    },
+    {
+      "atomic_number": 38,
+      "symbol": "Sr",
+      "file": "tier_038"
+    },
+    {
+      "atomic_number": 39,
+      "symbol": "Y",
+      "file": "tier_039"
+    },
+    {
+      "atomic_number": 40,
+      "symbol": "Zr",
+      "file": "tier_040"
+    },
+    {
+      "atomic_number": 41,
+      "symbol": "Nb",
+      "file": "tier_041"
+    },
+    {
+      "atomic_number": 42,
+      "symbol": "Mo",
+      "file": "tier_042"
+    },
+    {
+      "atomic_number": 43,
+      "symbol": "Tc",
+      "file": "tier_043"
+    },
+    {
+      "atomic_number": 44,
+      "symbol": "Ru",
+      "file": "tier_044"
+    },
+    {
+      "atomic_number": 45,
+      "symbol": "Rh",
+      "file": "tier_045"
+    },
+    {
+      "atomic_number": 46,
+      "symbol": "Pd",
+      "file": "tier_046"
+    },
+    {
+      "atomic_number": 47,
+      "symbol": "Ag",
+      "file": "tier_047"
+    },
+    {
+      "atomic_number": 48,
+      "symbol": "Cd",
+      "file": "tier_048"
+    },
+    {
+      "atomic_number": 49,
+      "symbol": "In",
+      "file": "tier_049"
+    },
+    {
+      "atomic_number": 50,
+      "symbol": "Sn",
+      "file": "tier_050"
+    },
+    {
+      "atomic_number": 51,
+      "symbol": "Sb",
+      "file": "tier_051"
+    },
+    {
+      "atomic_number": 52,
+      "symbol": "Te",
+      "file": "tier_052"
+    },
+    {
+      "atomic_number": 53,
+      "symbol": "I",
+      "file": "tier_053"
+    },
+    {
+      "atomic_number": 54,
+      "symbol": "Xe",
+      "file": "tier_054"
+    },
+    {
+      "atomic_number": 55,
+      "symbol": "Cs",
+      "file": "tier_055"
+    },
+    {
+      "atomic_number": 56,
+      "symbol": "Ba",
+      "file": "tier_056"
+    },
+    {
+      "atomic_number": 57,
+      "symbol": "La",
+      "file": "tier_057"
+    },
+    {
+      "atomic_number": 58,
+      "symbol": "Ce",
+      "file": "tier_058"
+    },
+    {
+      "atomic_number": 59,
+      "symbol": "Pr",
+      "file": "tier_059"
+    },
+    {
+      "atomic_number": 60,
+      "symbol": "Nd",
+      "file": "tier_060"
+    },
+    {
+      "atomic_number": 61,
+      "symbol": "Pm",
+      "file": "tier_061"
+    },
+    {
+      "atomic_number": 62,
+      "symbol": "Sm",
+      "file": "tier_062"
+    },
+    {
+      "atomic_number": 63,
+      "symbol": "Eu",
+      "file": "tier_063"
+    },
+    {
+      "atomic_number": 64,
+      "symbol": "Gd",
+      "file": "tier_064"
+    },
+    {
+      "atomic_number": 65,
+      "symbol": "Tb",
+      "file": "tier_065"
+    },
+    {
+      "atomic_number": 66,
+      "symbol": "Dy",
+      "file": "tier_066"
+    },
+    {
+      "atomic_number": 67,
+      "symbol": "Ho",
+      "file": "tier_067"
+    },
+    {
+      "atomic_number": 68,
+      "symbol": "Er",
+      "file": "tier_068"
+    },
+    {
+      "atomic_number": 69,
+      "symbol": "Tm",
+      "file": "tier_069"
+    },
+    {
+      "atomic_number": 70,
+      "symbol": "Yb",
+      "file": "tier_070"
+    },
+    {
+      "atomic_number": 71,
+      "symbol": "Lu",
+      "file": "tier_071"
+    },
+    {
+      "atomic_number": 72,
+      "symbol": "Hf",
+      "file": "tier_072"
+    },
+    {
+      "atomic_number": 73,
+      "symbol": "Ta",
+      "file": "tier_073"
+    },
+    {
+      "atomic_number": 74,
+      "symbol": "W",
+      "file": "tier_074"
+    },
+    {
+      "atomic_number": 75,
+      "symbol": "Re",
+      "file": "tier_075"
+    },
+    {
+      "atomic_number": 76,
+      "symbol": "Os",
+      "file": "tier_076"
+    },
+    {
+      "atomic_number": 77,
+      "symbol": "Ir",
+      "file": "tier_077"
+    },
+    {
+      "atomic_number": 78,
+      "symbol": "Pt",
+      "file": "tier_078"
+    },
+    {
+      "atomic_number": 79,
+      "symbol": "Au",
+      "file": "tier_079"
+    },
+    {
+      "atomic_number": 80,
+      "symbol": "Hg",
+      "file": "tier_080"
+    },
+    {
+      "atomic_number": 81,
+      "symbol": "Tl",
+      "file": "tier_081"
+    },
+    {
+      "atomic_number": 82,
+      "symbol": "Pb",
+      "file": "tier_082"
+    },
+    {
+      "atomic_number": 83,
+      "symbol": "Bi",
+      "file": "tier_083"
+    },
+    {
+      "atomic_number": 84,
+      "symbol": "Po",
+      "file": "tier_084"
+    },
+    {
+      "atomic_number": 85,
+      "symbol": "At",
+      "file": "tier_085"
+    },
+    {
+      "atomic_number": 86,
+      "symbol": "Rn",
+      "file": "tier_086"
+    },
+    {
+      "atomic_number": 87,
+      "symbol": "Fr",
+      "file": "tier_087"
+    },
+    {
+      "atomic_number": 88,
+      "symbol": "Ra",
+      "file": "tier_088"
+    },
+    {
+      "atomic_number": 89,
+      "symbol": "Ac",
+      "file": "tier_089"
+    },
+    {
+      "atomic_number": 90,
+      "symbol": "Th",
+      "file": "tier_090"
+    },
+    {
+      "atomic_number": 91,
+      "symbol": "Pa",
+      "file": "tier_091"
+    },
+    {
+      "atomic_number": 92,
+      "symbol": "U",
+      "file": "tier_092"
+    },
+    {
+      "atomic_number": 93,
+      "symbol": "Np",
+      "file": "tier_093"
+    },
+    {
+      "atomic_number": 94,
+      "symbol": "Pu",
+      "file": "tier_094"
+    },
+    {
+      "atomic_number": 95,
+      "symbol": "Am",
+      "file": "tier_095"
+    },
+    {
+      "atomic_number": 96,
+      "symbol": "Cm",
+      "file": "tier_096"
+    },
+    {
+      "atomic_number": 97,
+      "symbol": "Bk",
+      "file": "tier_097"
+    },
+    {
+      "atomic_number": 98,
+      "symbol": "Cf",
+      "file": "tier_098"
+    },
+    {
+      "atomic_number": 99,
+      "symbol": "Es",
+      "file": "tier_099"
+    },
+    {
+      "atomic_number": 100,
+      "symbol": "Fm",
+      "file": "tier_100"
+    },
+    {
+      "atomic_number": 101,
+      "symbol": "Md",
+      "file": "tier_101"
+    },
+    {
+      "atomic_number": 102,
+      "symbol": "No",
+      "file": "tier_102"
+    },
+    {
+      "atomic_number": 103,
+      "symbol": "Lr",
+      "file": "tier_103"
+    },
+    {
+      "atomic_number": 104,
+      "symbol": "Rf",
+      "file": "tier_104"
+    },
+    {
+      "atomic_number": 105,
+      "symbol": "Db",
+      "file": "tier_105"
+    },
+    {
+      "atomic_number": 106,
+      "symbol": "Sg",
+      "file": "tier_106"
+    },
+    {
+      "atomic_number": 107,
+      "symbol": "Bh",
+      "file": "tier_107"
+    },
+    {
+      "atomic_number": 108,
+      "symbol": "Hs",
+      "file": "tier_108"
+    },
+    {
+      "atomic_number": 109,
+      "symbol": "Mt",
+      "file": "tier_109"
+    },
+    {
+      "atomic_number": 110,
+      "symbol": "Ds",
+      "file": "tier_110"
+    },
+    {
+      "atomic_number": 111,
+      "symbol": "Rg",
+      "file": "tier_111"
+    },
+    {
+      "atomic_number": 112,
+      "symbol": "Cn",
+      "file": "tier_112"
+    },
+    {
+      "atomic_number": 113,
+      "symbol": "Nh",
+      "file": "tier_113"
+    },
+    {
+      "atomic_number": 114,
+      "symbol": "Fl",
+      "file": "tier_114"
+    },
+    {
+      "atomic_number": 115,
+      "symbol": "Mc",
+      "file": "tier_115"
+    },
+    {
+      "atomic_number": 116,
+      "symbol": "Lv",
+      "file": "tier_116"
+    },
+    {
+      "atomic_number": 117,
+      "symbol": "Ts",
+      "file": "tier_117"
+    },
+    {
+      "atomic_number": 118,
+      "symbol": "Og",
+      "file": "tier_118"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "status": "pending_review",
+  "code_files": [
+    "Assets/Scripts/AtomIO/Arena/ArenaSession.cs",
+    "Assets/Scripts/AtomIO/Arena/ArenaSpawner.cs",
+    "Assets/Scripts/AtomIO/Arena/EnergyOrb.cs",
+    "Assets/Scripts/AtomIO/Combat/Electron.cs",
+    "Assets/Scripts/AtomIO/Combat/Enemy.cs",
+    "Assets/Scripts/AtomIO/Controls/PlayerInputBridge.cs",
+    "Assets/Scripts/AtomIO/Controls/TouchStick.cs",
+    "Assets/Scripts/AtomIO/Core/AtomFormulas.cs",
+    "Assets/Scripts/AtomIO/Data/TierConfig.cs",
+    "Assets/Scripts/AtomIO/Data/TierConfigLoader.cs",
+    "Assets/Scripts/AtomIO/Meta/LobbyController.cs",
+    "Assets/Scripts/AtomIO/Meta/MetaProgress.cs",
+    "Assets/Scripts/AtomIO/Player/ElectronOrbit.cs",
+    "Assets/Scripts/AtomIO/Player/PlayerAtom.cs",
+    "Assets/Scripts/AtomIO/UI/ArenaHud.cs"
+  ]
+}

@@ -1,0 +1,5 @@
+crewai[anthropic]>=1.15,<2
+pydantic>=2.7
+pyyaml>=6
+# optional: live web search for the Asset Scraper (needs SERPER_API_KEY)
+# crewai-tools>=1.0
