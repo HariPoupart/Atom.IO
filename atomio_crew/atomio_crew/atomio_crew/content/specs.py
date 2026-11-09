@@ -27,8 +27,8 @@ BANNED_LORE = [  # invented-lore markers the style guide forbids (GDD has no sto
 ]
 RULE_BREAKERS = ["invincible", "immune", "immunity", "infinite", "unlimited", "never die", "can't die",
                  "throw all", "throw every", "last electron away"]
-# Every number the GDD fixes, plus small counting numbers used in tutorials.
-ALLOWED_NUMBERS = {"0.5", "1", "2", "3", "8", "10", "18", "20", "32", "50", "118"}
+# Every number the GDD fixes (failure chance starts at 0%), plus small counting numbers.
+ALLOWED_NUMBERS = {"0", "0.5", "1", "2", "3", "8", "10", "18", "20", "32", "50", "118"}
 PLACEHOLDERS = {"{element}", "{symbol}", "{cost}", "{energy}", "{next_fail_pct}", "{time}"}
 
 

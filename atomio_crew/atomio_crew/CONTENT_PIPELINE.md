@@ -51,27 +51,38 @@ Unity-ready copies are written to `content/unity/Assets/Resources/AtomIO/Content
 
 ## Does it sound like Atom.IO?
 
-Mostly, yes, because the GDD and style guide set the voice:
-- **The player is the atom.** Lines talk about protons, shells, orbiting and thrown electrons, and fusing. There are no heroes, ships or story.
-- **The "lore" is the real periodic table.** The GDD has no story, so the critic treats invented lore as a bug. Flavor comes from real chemistry instead: helium lifting balloons, gallium melting in your hand, Bohrium honoring the Bohr model you're playing in, Mendelevium "who built the periodic table you're climbing".
-- **Arcade-length lines** that fit a landscape phone UI, enforced by code.
-- **Mechanics-literate text.** Tutorial lines and tips teach the real rules: 10 HP per proton, cost 50 + 3 per proton, last electron always stays in orbit.
+Mostly, yes. The critic gave all three outputs **4/5 for voice** in the live run. Examples straight from `content/`:
+- **The player is the atom, and the table is the progression.**
+  - Bohrium: *"Niels Bohr's atom model inspired this very game. This element honors him."*
+  - Mendelevium: *"Mendeleev built the periodic table. You're climbing it."*
+  - Oganesson: *"…The heaviest element on the table. Reach it and you win."*
+- **The "lore" is real chemistry.** The GDD has no story, so the critic treats invented lore as a bug:
+  - Helium: *"Named for helios, Greek for sun. It was spotted in sunlight before anyone found it on Earth."*
+  - Caesium: *"…run the atomic clocks that define the second."*
+- **Text that teaches the real rules.** The loading tips repeat GDD numbers exactly:
+  - *"Evolving costs 50 + 3 x your atomic number in energy."*
+  - *"You can only throw an electron when you hold more than one."*
+- **Abilities with a chemistry hook:**
+  - Halogens: *"A kill sprays disinfectant and heals 10 HP."*
+  - Noble gases: *"Your glow draws loose electrons and energy orbs in from 20% farther away."*
 
-What's weaker: across 118 cards, some lines are more trivia than personality. The abilities' numbers are a starting point for playtesting; they're not tuned.
+**Where it's weaker** (the critic flagged this too): the late-game cards (Z=104–118) lean on "Named for…" and read like a list of dedications, just when the player is close to winning. A few ability descriptions are vague about durations ("for a moment"). These are minor issues, so they didn't block approval. They're the first things I'd polish by hand.
 
-## What did the critic catch?
+## What did the critic catch? (live run)
 
-From the run in `content/CRITIC_REPORT.md` (every round has its own section there):
+The full log is in `content/CRITIC_REPORT.md`. Totals: **28 issues across 8 rounds, 8 of them blocking.** All three outputs ended **approved** (element cards and abilities in round 3, UI text in round 2). The run took 14 Claude calls, about 172k tokens and **~$1.42**.
 
-| Content | Caught by code | Caught by the Critic agent |
+| Content | What the critic caught | What changed |
 |---|---|---|
-| Element cards | Gold given symbol **Ag** instead of Au; element **113 missing**; tin's flavor at **124 chars** (limit 110); invented lore ("Proton **King**" guarding a "**realm**") | **False fact:** "Helium, the lightest element". Hydrogen is lighter, and it's the player's starting element. |
-| UI text | A loading tip claiming **25 HP** per proton (GDD: 10); a fail message missing `{next_fail_pct}` | **Contradicted GDD 1.3.3:** "evolving always costs 50 energy" (it's 50 + 3Z). **Contradicted the 1.4.2 balance note:** "throw your last one". The last electron can never be thrown. |
-| Group abilities | Alkali damage multiplier **2.0** (balance cap 1.5); noble gas ability made you "**invincible**"; the **unknown-properties** group had no ability | **Wrong chemistry:** halogens described as having "a full outer shell". That's the noble gases; halogens are one electron short. |
+| **Element cards** | **Round 1:** the Writer's 118-card JSON was malformed, so the rule checker rejected it and sent it back. **Round 2:** the code checks flagged "king" on silver's card as invented lore. The Critic agent flagged a **doubtful fact**: "caesium keeps the world's best clocks" isn't true (ytterbium and strontium optical clocks are better), and it **contradicted the Yb card**. It also found misleading wording on Ytterby (Y) and the iridium impact layer (Ir). | Caesium now reads *"run the atomic clocks that define the second"*. Silver became *"Top Conductor"*. The Y and Ir wording was fixed. Approved in round 3 with only minor polish notes. |
+| **Tutorial / HUD text** | The Critic agent caught a **made-up mechanic**: a tip said *"More protons, bigger orbit"*, but the GDD never says the orbit grows. It also flagged *"Break line of sight"* (the GDD has sight *range*, not walls), and *"Orbit lost!"* as a run-over message, which contradicts the always-one-electron rule. | Rewritten to *"Evolve for more slots and +10 HP"*, *"Outrun them and they give up"* and *"Core down!"*. Approved in round 2. |
+| **Group abilities** | **Round 1:** malformed JSON, caught and sent back. **Round 2:** the Critic agent caught a **description contradicting its own data**: *"Each kill heals you 10 HP"* on an ability with a 12 s cooldown. It also flagged plural wording on cooldown abilities, a weak link between the noble gas glow and its effect, and two pairs of near-duplicate effects. | It became *"A kill sprays disinfectant and heals 10 HP. Ready again after 12 seconds."* The glow ability was retitled *Discharge Glow* with a clear link. Approved in round 3. |
 
-All three passed in round 2 after revision.
+**The critic also got one wrong.** The code check rejected the number **0** in two UI lines (for example "0% failure chance" for the first evolution). The GDD actually says the failure chance *starts at 0%*, so this was a false positive in my rule list. The Writer reworded the lines anyway, and I've since added 0 to the allowed GDD numbers.
 
-> **Mock vs live:** `--mock` runs the whole pipeline offline. Its first drafts have these mistakes planted on purpose, so the loop can be shown without an API key. In a live run Claude writes everything, and the report reflects whatever the critic actually found. The live run's report is the one to read.
+**Takeaway:** the code checks caught structure problems: broken JSON, banned words, numbers. The LLM critic caught the subtle problems code can't see: a fact that's out of date, a mechanic the GDD never defines, and text that contradicts its own cooldown. Each round's feedback got fixed in the next draft.
+
+> `--mock` runs the same loop offline. Its first drafts have mistakes planted on purpose (wrong symbol, missing element, "invincible", a 2.0 multiplier…) so the loop can be demonstrated without an API key.
 
 ## Files
 ```

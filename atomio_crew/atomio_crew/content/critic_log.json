@@ -1,86 +1,136 @@
 {
- "mode": "mock",
+ "mode": "live",
  "status": "completed",
  "usage": {
-  "prompt_tokens": 35110,
-  "completion_tokens": 9250,
-  "calls": 8,
-  "total_tokens": 44360,
-  "usd": 0.2441
+  "prompt_tokens": 95859,
+  "completion_tokens": 75768,
+  "calls": 14,
+  "total_tokens": 171627,
+  "usd": 1.4241
  },
  "results": [
   {
    "key": "element_cards",
    "status": "approved",
-   "rounds": 2,
+   "rounds": 3,
    "history": [
     {
      "round": 1,
      "passed": false,
-     "blocking": 6,
-     "voice_score": 3,
-     "critic_summary": "Found 1 problem(s) the rule checker can't see.",
+     "blocking": 1,
+     "voice_score": null,
+     "critic_summary": "skipped: draft unreadable",
+     "issues": [
+      {
+       "severity": "blocker",
+       "item": "draft",
+       "problem": "not valid JSON for the schema: Expecting ',' delimiter: line 66 column 129 (char 9186)",
+       "fix": "Return only a JSON object that matches the schema",
+       "gdd_ref": "",
+       "source": "rules"
+      }
+     ]
+    },
+    {
+     "round": 2,
+     "passed": false,
+     "blocking": 2,
+     "voice_score": 4,
+     "critic_summary": "Almost every fact checks out, and the card set sounds like Atom.IO: punchy, real chemistry, no invented lore, and the Bohr and win-at-118 winks are on-brand. One flavor line is doubtful and contradicts another card (Z=55), and a few other lines are loose or repetitive. Fix those along with the 'king' item the rule checker already flagged.",
      "issues": [
       {
        "severity": "major",
-       "item": "card Z=14",
+       "item": "card Z=47",
        "problem": "invented-lore word 'king'",
        "fix": "Atom.IO has no story: use a real fact or game mechanic instead",
        "gdd_ref": "style guide rule 1",
        "source": "rules"
       },
       {
-       "severity": "major",
-       "item": "card Z=14",
-       "problem": "invented-lore word 'realm'",
-       "fix": "Atom.IO has no story: use a real fact or game mechanic instead",
-       "gdd_ref": "style guide rule 1",
-       "source": "rules"
-      },
-      {
-       "severity": "major",
-       "item": "card Z=50",
-       "problem": "flavor is 124 chars (max 110)",
-       "fix": "Cut to one punchy line",
-       "gdd_ref": "3.1 UI",
-       "source": "rules"
-      },
-      {
        "severity": "blocker",
-       "item": "card Z=79",
-       "problem": "symbol 'Ag' should be 'Au' (Gold)",
-       "fix": "Use the symbol from the element table",
-       "gdd_ref": "",
-       "source": "rules"
+       "item": "Z=55 Cs: \"Caesium atoms keep the world's best clocks. A second is defined by their vibrations.\"",
+       "problem": "The second is defined by caesium-133, which is true. But 'world's best clocks' is doubtful, because optical clocks built on ytterbium and strontium now outperform caesium clocks. It also clashes with the Z=70 card, which says Yb ticks inside 'super-precise clocks'.",
+       "fix": "Use the safe fact: \"Caesium atoms run the atomic clocks that define the second. Blink and they've ticked billions of times.\"",
+       "gdd_ref": "Style rule 4 (facts must be correct)",
+       "source": "critic"
       },
       {
-       "severity": "blocker",
-       "item": "cards",
-       "problem": "missing elements: [113]",
-       "fix": "Write exactly one card for every element 1-118",
-       "gdd_ref": "1.1 core idea",
-       "source": "rules"
+       "severity": "minor",
+       "item": "Z=39 Y: \"Named for Ytterby, a Swedish village. Four elements share that name.\"",
+       "problem": "The four elements (Y, Tb, Er, Yb) are named after Ytterby. They don't 'share that name', so the wording is misleading.",
+       "fix": "\"Named for Ytterby, a Swedish village. Four elements got their names from it.\"",
+       "gdd_ref": "Style rule 4",
+       "source": "critic"
       },
       {
-       "severity": "blocker",
-       "item": "card Z=2 (He)",
-       "gdd_ref": "style guide rule 4",
-       "problem": "False fact: hydrogen, not helium, is the lightest element (and it is the player's Z=1).",
-       "fix": "Use a true helium fact, e.g. first full shell / lifts balloons.",
+       "severity": "minor",
+       "item": "Z=77 Ir: \"A layer of it in rock points to the dinosaur-era impact.\"",
+       "problem": "The iridium layer marks the impact that ended the dinosaur era, not just an impact from that era. As written it is vague and slightly misleading.",
+       "fix": "\"A thin iridium layer in rock marks the asteroid impact that ended the dinosaurs.\" Check that it still fits 110 characters.",
+       "gdd_ref": "Style rule 4",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Z=96-118 flavors: \"Named for...\" opens roughly 20 cards (Cm, Bk, Cf, Es, Fm, Md, No, Lr, Rf, Db, Sg, Bh, Hs, Mt, Ds, Rg, Cn, Fl, Mc, Lv, Ts, Og).",
+       "problem": "The brief asked for varied sentence shapes. This stretch reads like a list of dedications, which dulls the arcade punch right when the player is close to winning.",
+       "fix": "Rewrite about half of them as punchy hooks, for example Sg: \"Seaborg got his own element while he was still alive. Rare honor.\" Or Rg: \"Röntgen found X-rays. Now he's on the table too.\"",
+       "gdd_ref": "Style rule: Arcade-punchy; brief: vary sentence shapes",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Z=75 Re title \"River Rhenium\"",
+       "problem": "The title just repeats the element name. It is weaker than the nicknames elsewhere and gives away the pun.",
+       "fix": "Use a nickname such as \"Rhine's Last Find\" or \"Last Stable Find\".",
+       "gdd_ref": "Polish (style guide: punchy nickname)",
        "source": "critic"
       }
      ]
     },
     {
-     "round": 2,
+     "round": 3,
      "passed": true,
      "blocking": 0,
-     "voice_score": 5,
-     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
-     "issues": []
+     "voice_score": 4,
+     "critic_summary": "All 118 cards check out on facts, with no invented lore, no GDD number conflicts and no electron-rule contradictions. Titles and flavor lines look within the length limits. The remaining problems are polish: some wording is slightly loose, one title doesn't match its line, and the 'Named for...' pattern is repeated too often.",
+     "issues": [
+      {
+       "severity": "minor",
+       "item": "Z=67 Ho: \"No element has a stronger magnetic moment.\"",
+       "problem": "Slightly overstated. Holmium has the highest magnetic moment of any naturally occurring element, not of every element.",
+       "fix": "Use: \"Named for Holmia, Latin for Stockholm. It has the strongest magnetic moment of any natural element.\" Check that it stays within 110 characters.",
+       "gdd_ref": "Style rule 4 (facts must be correct)",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Z=77 Ir: title \"Rainbow Messenger\" with a flavor line about the dinosaur-extinction layer",
+       "problem": "The title points to the name origin (Iris, rainbow) but the flavor never mentions it, so the card reads as confusing. Z=83 Bi also uses \"Rainbow Crystal\".",
+       "fix": "Retitle Ir to \"Dino Marker\", or rewrite the flavor to \"Named for Iris, the rainbow. A thin iridium layer in rock marks the asteroid that ended the dinosaurs.\"",
+       "gdd_ref": "Style rule: voice, read in one glance",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Z=113 Nh: \"It's the first element named in Asia.\"",
+       "problem": "The usual claim is that it was the first element discovered in an Asian country. \"Named in Asia\" is looser.",
+       "fix": "Use: \"Discovered in Japan and named for Nihon. It's the first element found in Asia.\"",
+       "gdd_ref": "Style rule 4 (facts must be correct)",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Repeated sentence shape: roughly 40 flavor lines open or lean on \"Named for/after X\", especially Z=104-118, which read as a flat list of place and person names",
+       "problem": "The brief asked to vary sentence shapes. The late-game cards lose the arcade punch and the 'you are the atom' voice that the early cards have.",
+       "fix": "Rewrite about 8-10 of the late cards with punchier or second-person hooks. Example for Db: \"Made in Dubna, Russia, and named for the town. Hold your orbit.\" Example for Ds: \"Atom-smashers in Darmstadt, Germany, made it first. The city got the name.\"",
+       "gdd_ref": "Style rules: arcade-punchy, one small wink",
+       "source": "critic"
+      }
+     ]
     }
    ],
-   "final_round": 2
+   "final_round": 3
   },
   {
    "key": "ui_text",
@@ -90,40 +140,56 @@
     {
      "round": 1,
      "passed": false,
-     "blocking": 4,
-     "voice_score": 3,
-     "critic_summary": "Found 2 problem(s) the rule checker can't see.",
+     "blocking": 3,
+     "voice_score": 4,
+     "critic_summary": "The text is punchy and on-voice. Every GDD number I checked is correct: 10 per orbit hit, 20 per thrown electron, 10 per enemy contact, +10 HP per evolve, 2 slots at Helium, the 0.5% fail reduction, the cost formula and 118. The Oganessian fact is true. One loading tip claims a mechanic the GDD never defines (a bigger orbit). Two smaller lines are imprecise or confusing.",
      "issues": [
       {
        "severity": "blocker",
-       "item": "evolve_fail[1]",
-       "problem": "missing placeholder {next_fail_pct}",
-       "fix": "Include {next_fail_pct} exactly",
-       "gdd_ref": "",
-       "source": "rules"
-      },
-      {
-       "severity": "blocker",
-       "item": "loading_tips[0]",
-       "problem": "number 25 is not a GDD value",
+       "item": "tutorial_evolve_prompt",
+       "problem": "number 0 is not a GDD value",
        "fix": "Only state numbers the GDD fixes (10 HP/proton, 50 + 3Z, 0.5%, 10/20 dmg, 118)",
        "gdd_ref": "1.3.1 / 1.3.3",
        "source": "rules"
       },
       {
        "severity": "blocker",
-       "item": "loading_tips[1]",
-       "gdd_ref": "1.3.3",
-       "problem": "Contradicts the GDD: evolving costs 50 + 3 x current atomic number, not a flat 50.",
-       "fix": "State the real formula: 50 + 3 per proton you already have.",
+       "item": "run_over[0]",
+       "problem": "number 0 is not a GDD value",
+       "fix": "Only state numbers the GDD fixes (10 HP/proton, 50 + 3Z, 0.5%, 10/20 dmg, 118)",
+       "gdd_ref": "1.3.1 / 1.3.3",
+       "source": "rules"
+      },
+      {
+       "severity": "major",
+       "item": "loading_tips[4]: \"Electron slots equal your atomic number. More protons, bigger orbit.\"",
+       "problem": "The GDD says protons raise HP and electron slots. It never says the orbit gets bigger, so this teaches a mechanic that may not exist. Loading tips must teach real mechanics.",
+       "fix": "Replace the second sentence with something GDD-backed, e.g. \"Electron slots equal your atomic number. Evolve for more slots and +10 HP.\"",
+       "gdd_ref": "1.3.1 / 1.4.1; style rule 2 (numbers and mechanics must match GDD)",
        "source": "critic"
       },
       {
-       "severity": "blocker",
-       "item": "tutorial_run2[3]",
-       "gdd_ref": "1.4.2 balance note",
-       "problem": "Contradicts the electron rule: the last electron always stays in orbit.",
-       "fix": "Teach that the last electron can't be thrown and protects the core.",
+       "severity": "minor",
+       "item": "loading_tips[6]: \"Break line of sight and they give up.\"",
+       "problem": "The GDD says enemies chase within sight range and give up when the player escapes. \"Line of sight\" adds a specific rule (walls blocking vision) the GDD does not state.",
+       "fix": "\"Enemies chase when they spot you. Outrun them and they give up.\"",
+       "gdd_ref": "1.4.2",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "run_over[2]: \"Orbit lost! {energy} energy kept.\"",
+       "problem": "The run ends because HP hits 0, not because the orbit is lost. The line is confusing, especially since the player always keeps at least 1 electron in orbit.",
+       "fix": "\"Core down! {energy} energy kept. Next run goes further.\"",
+       "gdd_ref": "1.3.3; style rule 3 (electron rule)",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "tutorial_evolve_prompt / not_enough_energy: \"Tap Evolve\"",
+       "problem": "The GDD does not name the lobby button. Using \"Evolve\" as a label is an assumption that could mismatch the UI.",
+       "fix": "Confirm the button label with UI, or use a neutral phrase such as \"Evolve now:\".",
+       "gdd_ref": "1.3.2",
        "source": "critic"
       }
      ]
@@ -132,8 +198,8 @@
      "round": 2,
      "passed": true,
      "blocking": 0,
-     "voice_score": 5,
-     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
+     "voice_score": 4,
+     "critic_summary": "No blocker or major issues. Every number matches the GDD: 10 HP per proton, orbit hit 10, thrown hit 20, contact 10, 50 + 3 x Z cost, 0.5% fail reduction, slots equal to atomic number. The tutorial order follows GDD 1.4.3: run 1 teaches moving and orbiting-electron damage, the lobby forces H to He, and run 2 teaches grabbing wild electrons and throwing spares. The electron rule is respected, and the Oganessian fact is correct. There is no invented lore. The voice is punchy, second person and atom-focused. Character limits were not given, and the lines are short enough for small landscape labels.",
      "issues": []
     }
    ],
@@ -142,59 +208,125 @@
   {
    "key": "group_abilities",
    "status": "approved",
-   "rounds": 2,
+   "rounds": 3,
    "history": [
     {
      "round": 1,
      "passed": false,
-     "blocking": 4,
-     "voice_score": 3,
-     "critic_summary": "Found 1 problem(s) the rule checker can't see.",
+     "blocking": 1,
+     "voice_score": null,
+     "critic_summary": "skipped: draft unreadable",
      "issues": [
       {
        "severity": "blocker",
-       "item": "ability 'noble_gas'",
-       "problem": "'invincible' contradicts the core rules",
-       "fix": "Keep effects temporary/bounded and never break the 1-electron rule",
-       "gdd_ref": "1.4.2 balance note",
+       "item": "draft",
+       "problem": "not valid JSON for the schema: Expecting ',' delimiter: line 1 column 3132 (char 3131)",
+       "fix": "Return only a JSON object that matches the schema",
+       "gdd_ref": "",
        "source": "rules"
-      },
-      {
-       "severity": "blocker",
-       "item": "ability 'alkali_metal'",
-       "problem": "damage_mult=2.0 outside balance range (1.05, 1.5)",
-       "fix": "Bring the value inside the range",
-       "gdd_ref": "1.4.4 retention / balance",
-       "source": "rules"
-      },
-      {
-       "severity": "blocker",
-       "item": "abilities",
-       "problem": "groups with no ability: ['unknown_properties']",
-       "fix": "Write exactly one ability for each of the 11 groups",
-       "gdd_ref": "1.4.5 bonus features",
-       "source": "rules"
-      },
-      {
-       "severity": "blocker",
-       "item": "ability 'halogen'",
-       "gdd_ref": "style guide rule 4",
-       "problem": "Wrong chemistry: halogens are ONE electron short of a full shell (that's noble gases).",
-       "fix": "Base it on halogens grabbing electrons eagerly.",
-       "source": "critic"
       }
      ]
     },
     {
      "round": 2,
+     "passed": false,
+     "blocking": 1,
+     "voice_score": 4,
+     "critic_summary": "Mostly strong. Every chemistry_basis is true, every value is in range, nothing invents lore, and nothing lets the player throw their last electron or become immune. One description contradicts its own cooldown (Sanitize). A few others are ambiguous the same way, and one glow-to-pickup link is weak.",
+     "issues": [
+      {
+       "severity": "major",
+       "item": "Sanitize: \"Each kill heals you 10 HP. Ready again after 12 seconds.\"",
+       "problem": "\"Each kill\" contradicts the 12 s cooldown. With the cooldown, only one kill per 12 s heals. A player reading this expects every kill to heal and will think it is bugged.",
+       "fix": "Reword to \"A kill sprays disinfectant and heals 10 HP. Ready again after 12 seconds.\" Alternatively, keep \"each kill\" and set cooldown_s to 0, but a heal on every kill is likely too strong.",
+       "gdd_ref": "Style guide: voice (read in one glance, no confusion); GDD 1.3.1 player health",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Flare Burst: \"Thrown electrons flare up for 15% extra damage. Ready again after 8 seconds.\" (same pattern in Phosphor Flash: \"Kills drop 30% more energy. Ready again after 5 seconds.\")",
+       "problem": "The plural subject (\"Thrown electrons\", \"Kills\") clashes with a single cooldown. It is unclear whether one throw or one kill gets the bonus, or whether the bonus lasts 8 s.",
+       "fix": "Use the singular: \"Your next thrown electron flares for 15% extra damage. Ready again after 8 seconds.\" and \"A kill drops 30% more energy. Ready again after 5 seconds.\"",
+       "gdd_ref": "Style guide: voice (clarity)",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Neon Glow: noble gas glow -> pickup_radius_mult",
+       "problem": "The discharge-tube glow is a true fact, but the link to a bigger pickup radius is arbitrary. It also skips the group's signature property, the full outer shell, which Inert Shell already covers. The name \"Neon\" also fits only one of the six members.",
+       "fix": "Keep it, but make the description tie the glow to the pull. For example: \"Your glow draws loose electrons and energy orbs in from 20% farther away.\" The name could become \"Discharge Glow\" to cover the whole group.",
+       "gdd_ref": "Style guide: real science, light touch",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Fleeting Flux chemistry_basis: \"Superheavy atoms are made one at a time\"",
+       "problem": "Slightly loose. Superheavy elements are made in tiny numbers of atoms in accelerators, not strictly one at a time. The slow-enemies effect also has no link to decay.",
+       "fix": "Use the safer wording \"Superheavy atoms are made a few at a time and decay in moments\". The ability still fits the \"fleeting\" theme.",
+       "gdd_ref": "Style guide hard rule 4 (facts must be correct)",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Chain Reaction (alkali_metal) and Decay Chain (actinide) both use chain_hit; Doped Gains and Phosphor Flash both use energy_mult",
+       "problem": "Mechanically near-duplicate effects across groups reduce the variety that the bonus feature is meant to deliver. Only the trigger and flavor differ.",
+       "fix": "Optional: swap one of the repeats for an unused effect. For example, make the alkali metal ability a short orbit-based damage_mult on kill. Or keep the pairs and make the numbers and triggers clearly different.",
+       "gdd_ref": "GDD 1.4.5 (groups should get different abilities)",
+       "source": "critic"
+      }
+     ]
+    },
+    {
+     "round": 3,
      "passed": true,
      "blocking": 0,
-     "voice_score": 5,
-     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
-     "issues": []
+     "voice_score": 4,
+     "critic_summary": "No blockers or majors. All 11 abilities use valid triggers, effects and values. The cooldowns in the descriptions match cooldown_s, and none can leave the player without an orbiting electron or permanently immune. Chemistry bases are accurate (covalent sharing, discharge-tube glow, Mg white flame, Si doping, Cl/I disinfectants, Al oxide layer, Pt/Fe catalysts, Eu/Tb phosphors, U/Th decay chains, short-lived superheavies). No invented lore. Voice is punchy and atom-centric, with only a few small wording and clarity nits.",
+     "issues": [
+      {
+       "severity": "minor",
+       "item": "Fleeting Flux: \"Thrown electrons slow enemies to 80% speed for a moment.\"",
+       "problem": "It is unclear whether this slows only the enemy hit or all enemies. The link from \"decays in moments\" to slowing enemies is also tenuous. \"For a moment\" gives no duration.",
+       "fix": "Make the target explicit, e.g. \"Hit an enemy with a thrown electron and it slows to 80% speed for 2 seconds. Ready again after 10 seconds.\" Or tie the basis to instability: \"Superheavy atoms flicker out in moments.\"",
+       "gdd_ref": "Style: read in one glance; GDD 1.4.5",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Flare Burst: trigger \"on_release\" with description \"Your next thrown electron flares...\"",
+       "problem": "\"Next thrown\" reads like a pre-armed buff, but the trigger fires on the throw itself. This is slightly ambiguous for implementation and for players.",
+       "fix": "Reword to \"Every thrown electron flares for 15% extra damage, once every 8 seconds.\" Or keep \"next\" and say it arms when the cooldown is ready.",
+       "gdd_ref": "GDD 1.3.1 Player attack",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Catalyst Rush: \"speed up 20% for a moment\"; Oxide Skin: \"At low HP\"",
+       "problem": "Vague, undefined durations and thresholds. This is fine for flavor text but may confuse players about how long each effect lasts.",
+       "fix": "Give a short concrete duration, e.g. \"speed up 20% for 3 seconds\", and define the threshold, e.g. \"Below 30% HP\", if those are set elsewhere.",
+       "gdd_ref": "Style: punchy, clear",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Doped Gains: \"Doped for flow: you collect 15% more energy from every orb.\"",
+       "problem": "\"Doped for flow\" is a slightly cryptic phrase, and \"doped\" can read as drug slang.",
+       "fix": "\"Doped like silicon: you collect 15% more energy from every orb.\"",
+       "gdd_ref": "Style: one-glance clarity",
+       "source": "critic"
+      },
+      {
+       "severity": "minor",
+       "item": "Oxide Skin chemistry_basis: \"Aluminium forms...\"",
+       "problem": "British spelling, while the rest of the text is US-style or neutral. It is inconsistent if the game uses \"aluminum\" elsewhere.",
+       "fix": "Use one spelling project-wide, e.g. \"Aluminum\" for a US audience.",
+       "gdd_ref": "Style: polish",
+       "source": "critic"
+      }
+     ]
     }
    ],
-   "final_round": 2
+   "final_round": 3
   }
  ]
 }

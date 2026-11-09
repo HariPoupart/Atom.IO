@@ -1,127 +1,127 @@
 {
   "status": "approved",
-  "rounds": 2,
+  "rounds": 3,
   "abilities": [
     {
       "group": "reactive_nonmetal",
-      "name": "Covalent Link",
-      "description": "Every 4 s, an orbit hit arcs to 1 more nearby enemy, like a shared bond.",
-      "trigger": "on_orbit_hit",
-      "effect": "chain_hit",
-      "value": 1.0,
-      "cooldown_s": 4.0,
-      "visual_cue": "Thin cyan bond line between two enemies",
-      "chemistry_basis": "Nonmetals share electrons in covalent bonds"
-    },
-    {
-      "group": "noble_gas",
-      "name": "Full Shell",
-      "description": "Drop below 30% HP and your full shell blocks contact damage for 2 s.",
-      "trigger": "on_low_hp",
-      "effect": "shield_seconds",
-      "value": 2.0,
-      "cooldown_s": 20.0,
-      "visual_cue": "Neon ring flashes around the core",
-      "chemistry_basis": "A full outer shell makes noble gases unreactive"
-    },
-    {
-      "group": "alkali_metal",
-      "name": "Violent Reaction",
-      "description": "Every 6 s, your next thrown electron hits 30% harder.",
-      "trigger": "on_release",
-      "effect": "damage_mult",
-      "value": 1.3,
-      "cooldown_s": 6.0,
-      "visual_cue": "Orange flare trail on the thrown electron",
-      "chemistry_basis": "One loose outer electron makes alkali metals react violently"
-    },
-    {
-      "group": "alkaline_earth_metal",
-      "name": "Mineral Mend",
-      "description": "Grabbing an energy orb restores 5 HP, at most once every 8 s.",
+      "name": "Shared Bond",
+      "description": "Grab a wild electron and share the bond: heal 5 HP. Ready again after 8 seconds.",
       "trigger": "on_pickup",
       "effect": "heal_hp",
       "value": 5.0,
       "cooldown_s": 8.0,
-      "visual_cue": "Chalk-white pulse from the core",
-      "chemistry_basis": "Calcium and magnesium are building blocks of bone and minerals"
+      "visual_cue": "Green link pulses from the new electron to your core",
+      "chemistry_basis": "Nonmetals like carbon share electrons in covalent bonds"
     },
     {
-      "group": "metalloid",
-      "name": "Semiconductor",
-      "description": "Pull in orbs and loose electrons from 20% farther away.",
+      "group": "noble_gas",
+      "name": "Discharge Glow",
+      "description": "Your glow draws loose electrons and energy orbs in from 20% farther away.",
       "trigger": "passive",
       "effect": "pickup_radius_mult",
       "value": 1.2,
       "cooldown_s": 0.0,
-      "visual_cue": "Faint crystal grid around the core",
-      "chemistry_basis": "Metalloids conduct partway, like silicon in chips"
+      "visual_cue": "Soft glowing ring around your core",
+      "chemistry_basis": "Noble gases glow brightly when excited in discharge tubes"
     },
     {
-      "group": "halogen",
-      "name": "Electron Hunger",
-      "description": "Enemies you destroy drop 25% more energy.",
-      "trigger": "on_kill",
-      "effect": "energy_mult",
-      "value": 1.25,
-      "cooldown_s": 0.0,
-      "visual_cue": "Green swirl sucks the orb toward you",
-      "chemistry_basis": "Halogens are one electron short and grab them eagerly"
-    },
-    {
-      "group": "post_transition_metal",
-      "name": "Malleable Guard",
-      "description": "Once every 25 s, dropping below 30% HP restores 15 HP.",
-      "trigger": "on_low_hp",
-      "effect": "heal_hp",
-      "value": 15.0,
-      "cooldown_s": 25.0,
-      "visual_cue": "Core dents, then pops back into shape",
-      "chemistry_basis": "Soft metals like tin and lead bend instead of breaking"
-    },
-    {
-      "group": "transition_metal",
-      "name": "Catalyst",
-      "description": "Your electrons orbit 15% faster, sweeping enemies more often.",
-      "trigger": "passive",
-      "effect": "orbit_speed_mult",
-      "value": 1.15,
-      "cooldown_s": 0.0,
-      "visual_cue": "Warm metallic shimmer on each orbit",
-      "chemistry_basis": "Transition metals speed up reactions as catalysts"
-    },
-    {
-      "group": "lanthanide",
-      "name": "Magnetic Field",
-      "description": "Every 5 s, an orbit hit slows that enemy to 70% speed for a moment.",
-      "trigger": "on_orbit_hit",
-      "effect": "slow_enemies",
-      "value": 0.7,
-      "cooldown_s": 5.0,
-      "visual_cue": "Teal field lines wrap the enemy",
-      "chemistry_basis": "Rare earths like neodymium make the strongest magnets"
-    },
-    {
-      "group": "actinide",
-      "name": "Half-Life",
-      "description": "Every 10 s, a destroyed enemy releases radiation that hits 2 nearby enemies.",
+      "group": "alkali_metal",
+      "name": "Chain Reaction",
+      "description": "Kill an enemy and the blast leaps to 2 nearby foes. Ready again after 6 seconds.",
       "trigger": "on_kill",
       "effect": "chain_hit",
       "value": 2.0,
+      "cooldown_s": 6.0,
+      "visual_cue": "Orange sparks arc from the kill to nearby enemies",
+      "chemistry_basis": "Alkali metals react violently with water, releasing sudden energy"
+    },
+    {
+      "group": "alkaline_earth_metal",
+      "name": "Flare Burst",
+      "description": "Your next thrown electron flares for 15% extra damage. Ready again after 8 seconds.",
+      "trigger": "on_release",
+      "effect": "damage_mult",
+      "value": 1.15,
+      "cooldown_s": 8.0,
+      "visual_cue": "Thrown electron burns bright white",
+      "chemistry_basis": "Magnesium burns with a dazzling white flame"
+    },
+    {
+      "group": "metalloid",
+      "name": "Doped Gains",
+      "description": "Doped for flow: you collect 15% more energy from every orb.",
+      "trigger": "passive",
+      "effect": "energy_mult",
+      "value": 1.15,
+      "cooldown_s": 0.0,
+      "visual_cue": "Energy orbs stream into your core as blue sparks",
+      "chemistry_basis": "Doping silicon with impurities boosts its electrical conductivity"
+    },
+    {
+      "group": "halogen",
+      "name": "Sanitize",
+      "description": "A kill sprays disinfectant and heals 10 HP. Ready again after 12 seconds.",
+      "trigger": "on_kill",
+      "effect": "heal_hp",
+      "value": 10.0,
+      "cooldown_s": 12.0,
+      "visual_cue": "Yellow-green mist puffs out and fades into your core",
+      "chemistry_basis": "Chlorine and iodine are widely used as disinfectants"
+    },
+    {
+      "group": "post_transition_metal",
+      "name": "Oxide Skin",
+      "description": "At low HP, a thin shield blocks damage for 1.5 seconds. Ready again after 30 seconds.",
+      "trigger": "on_low_hp",
+      "effect": "shield_seconds",
+      "value": 1.5,
+      "cooldown_s": 30.0,
+      "visual_cue": "Pale gray shell flashes around your core",
+      "chemistry_basis": "Aluminium forms a thin protective oxide layer on its surface"
+    },
+    {
+      "group": "transition_metal",
+      "name": "Catalyst Rush",
+      "description": "Grab an electron and speed up 20% for a moment. Ready again after 10 seconds.",
+      "trigger": "on_pickup",
+      "effect": "move_speed_mult",
+      "value": 1.2,
       "cooldown_s": 10.0,
-      "visual_cue": "Bright green burst with a dark outline",
-      "chemistry_basis": "Actinides are radioactive and release energy as they decay"
+      "visual_cue": "Silver speed streaks trail behind your core",
+      "chemistry_basis": "Transition metals such as platinum and iron act as catalysts"
+    },
+    {
+      "group": "lanthanide",
+      "name": "Phosphor Flash",
+      "description": "A kill drops 30% more energy. Ready again after 5 seconds.",
+      "trigger": "on_kill",
+      "effect": "energy_mult",
+      "value": 1.3,
+      "cooldown_s": 5.0,
+      "visual_cue": "Red-green glow bursts from the fallen enemy",
+      "chemistry_basis": "Europium and terbium are used in glowing screen and lamp phosphors"
+    },
+    {
+      "group": "actinide",
+      "name": "Decay Chain",
+      "description": "An orbiting electron hit sets off a decay chain to 1 more enemy. Ready again after 10 seconds.",
+      "trigger": "on_orbit_hit",
+      "effect": "chain_hit",
+      "value": 1.0,
+      "cooldown_s": 10.0,
+      "visual_cue": "Pale green sparks hop from the hit enemy to another",
+      "chemistry_basis": "Uranium and thorium decay through a series of radioactive steps"
     },
     {
       "group": "unknown_properties",
-      "name": "Island of Stability",
-      "description": "Properties unknown, momentum isn't: you move 10% faster.",
-      "trigger": "passive",
-      "effect": "move_speed_mult",
-      "value": 1.1,
-      "cooldown_s": 0.0,
-      "visual_cue": "Shimmering afterimage behind the core",
-      "chemistry_basis": "Superheavy atoms may sit near a predicted island of stability"
+      "name": "Fleeting Flux",
+      "description": "Thrown electrons slow enemies to 80% speed for a moment. Ready again after 10 seconds.",
+      "trigger": "on_release",
+      "effect": "slow_enemies",
+      "value": 0.8,
+      "cooldown_s": 10.0,
+      "visual_cue": "Violet ripple flickers out from the thrown electron",
+      "chemistry_basis": "Superheavy atoms are made a few at a time and decay in moments"
     }
   ]
 }
