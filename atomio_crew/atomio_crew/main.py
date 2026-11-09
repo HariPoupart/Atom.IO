@@ -22,6 +22,22 @@ os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 os.environ.setdefault("CREWAI_DISABLE_TELEMETRY", "true")
 
 
+def _use_project_venv() -> None:
+    """If started with a Python that isn't a virtual environment (you forgot to
+    activate .venv), re-run this command with the project's .venv Python so the
+    installed packages are always found."""
+    if sys.prefix != sys.base_prefix or os.environ.get("ATOMIO_VENV_RELAUNCHED"):
+        return  # already inside a virtual environment
+    venv_python = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    if venv_python.exists():
+        import subprocess
+        os.environ["ATOMIO_VENV_RELAUNCHED"] = "1"
+        sys.exit(subprocess.call([str(venv_python), str(Path(__file__).resolve()), *sys.argv[1:]]))
+
+
+_use_project_venv()
+
+
 def _load_dotenv() -> None:
     env = ROOT / ".env"
     if not env.exists():
