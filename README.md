@@ -2,6 +2,8 @@
 
 **Game: Atom.IO.** This is my capstone game: a single-player Android .io-style arcade game based on the Bohr atomic model. You start as Hydrogen and evolve up the periodic table to Oganesson (element 118). It's built in Unity 6.3 LTS.
 
+> **Assignment 4 (Dynamic Content Pipeline):** see [`atomio_crew/atomio_crew/CONTENT_PIPELINE.md`](atomio_crew/atomio_crew/CONTENT_PIPELINE.md). Generated content: [`content/`](atomio_crew/atomio_crew/content/). Run `python main.py generate --mock` from `atomio_crew/atomio_crew/`.
+
 This repo is a **CrewAI** system of **3 agents** (Asset Scraper, Lead Architect, Level Designer). They work together to produce game-ready content for Atom.IO, which can be dropped straight into the Unity project.
 
 ## What the crew produces

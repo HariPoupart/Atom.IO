@@ -1,0 +1,49 @@
+_Status: **approved** after 2 round(s). Required by the GDD 1.4.3 tutorial and by every evolve / run-end screen._
+
+# UI, tutorial and lobby text
+
+## tutorial_run1
+- Drag the left stick to move your atom.
+- Your orbiting electron hurts enemies. Swing it into them!
+- Grab glowing energy orbs. Energy lets you evolve.
+- Keep enemies off your core: each touch costs 10 HP.
+
+## tutorial_evolve_prompt
+- Spend your energy to evolve into Helium: 2 protons, 2 electron slots, 20 HP.
+
+## tutorial_run2
+- Loose electrons drift in the arena. Touch one to fill a slot.
+- Holding 2 electrons? Drag the right stick to aim the newest.
+- Let go to throw it. A thrown electron deals 20 damage.
+- Your last electron always stays in orbit to guard you.
+
+## evolve_success
+- Fusion complete! You are now {element}.
+- +1 proton. Welcome to {element} ({symbol}).
+- Evolved into {element}: more HP, one more slot.
+
+## evolve_fail
+- The nucleus fell apart. Energy lost. Next try: {next_fail_pct}%.
+- Unstable! Evolution failed. Odds improve to {next_fail_pct}%.
+- Decay! Energy gone, but next time is safer: {next_fail_pct}%.
+
+## not_enough_energy
+- You need {cost} energy to evolve. Back to the arena!
+
+## run_over
+- Core breached! You banked {energy} energy.
+- Run over: {energy} energy in {time}.
+- Your atom broke apart. {energy} energy saved.
+
+## win_oganesson
+- Oganesson reached: element 118. The periodic table is complete, from one proton to all of them.
+
+## loading_tips
+- Each evolution adds 1 proton: +10 HP and one more electron slot.
+- Evolving costs 50 + 3 energy for every proton you already have.
+- A failed evolution lowers your next failure chance by 0.5%.
+- Orbiting electrons deal 10 damage. Thrown electrons deal 20.
+- Enemies give up the chase if you escape their sight range.
+- The longer you survive, the more energy each orb is worth.
+- Shells fill like the Bohr model: 2, then 8, then 18.
+- Each element group plays differently. Try a noble gas's full shell.

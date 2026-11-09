@@ -4,6 +4,7 @@
     python main.py run --mock          # offline, no API key needed
     python main.py run                 # real run with Claude (needs ANTHROPIC_API_KEY)
     python main.py run --mock --without level_designer   # prove each agent is required
+    python main.py generate --mock     # Assignment 4: content pipeline (Writer + Critic loop)
     python main.py validate            # re-run the validation suite on output/latest
     python main.py promote --unity-project ~/Unity/AtomIO   # manual gate -> copy into Unity
 """
@@ -101,6 +102,32 @@ def cmd_promote(args) -> int:
     return promote(Path(args.run).resolve(), Path(args.unity_project).expanduser(), args.yes)
 
 
+def cmd_generate(args) -> int:
+    """Assignment 4: GDD-grounded content pipeline (Writer -> Critic -> revise loop)."""
+    from atomio_crew.content.pipeline import run as run_content
+    from atomio_crew.content.specs import SPECS
+
+    mock = args.mock or os.getenv("ATOMIO_MOCK", "").lower() in ("1", "true", "yes")
+    if not mock and not os.getenv("ANTHROPIC_API_KEY"):
+        print("ANTHROPIC_API_KEY is not set. Add it to .env, or run with --mock for an offline demo.")
+        return 2
+    keys = args.only or list(SPECS)
+    print(f"== Atom.IO content pipeline ({'mock' if mock else 'live'}): Writer -> Critic -> revise, "
+          f"max {args.max_rounds} rounds ==")
+    res = run_content(keys, mock, args.max_rounds, Path(args.out), Path(args.content_dir))
+
+    print(f"\nPipeline {res['status']}.")
+    for r in res["results"]:
+        caught = sum(len(h["issues"]) for h in r["history"])
+        print(f"  {SPECS[r['key']].title:<30} {r['status'].upper():<13} rounds={r['rounds']}  "
+              f"critic caught {caught} issue(s)")
+    u = res["usage"]
+    print(f"Tokens: {u['total_tokens']:,}  cost ~${u['usd']:.3f}")
+    print(f"Content: {Path(args.content_dir)}   (read CRITIC_REPORT.md first)")
+    ok = res["status"] == "completed" and all(r["status"] == "approved" for r in res["results"])
+    return 0 if ok else 1
+
+
 def main() -> int:
     _load_dotenv()
     p = argparse.ArgumentParser(description="Atom.IO multi-agent content crew (CrewAI)")
@@ -123,6 +150,15 @@ def main() -> int:
     g.add_argument("--run", default=str(ROOT / "output" / "latest"))
     g.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
     g.set_defaults(func=cmd_promote)
+
+    c = sub.add_parser("generate", help="Assignment 4: generate GDD-grounded content with a critic loop")
+    c.add_argument("--mock", action="store_true", help="offline mock LLM, no API key needed")
+    c.add_argument("--only", nargs="+", choices=["element_cards", "ui_text", "group_abilities"],
+                   help="generate only these content types")
+    c.add_argument("--max-rounds", type=int, default=3, help="max Writer/Critic rounds per content type")
+    c.add_argument("--out", default=str(ROOT / "output"))
+    c.add_argument("--content-dir", default=str(ROOT / "content"))
+    c.set_defaults(func=cmd_generate)
 
     args = p.parse_args()
     return args.func(args)

@@ -1,0 +1,200 @@
+{
+ "mode": "mock",
+ "status": "completed",
+ "usage": {
+  "prompt_tokens": 35110,
+  "completion_tokens": 9250,
+  "calls": 8,
+  "total_tokens": 44360,
+  "usd": 0.2441
+ },
+ "results": [
+  {
+   "key": "element_cards",
+   "status": "approved",
+   "rounds": 2,
+   "history": [
+    {
+     "round": 1,
+     "passed": false,
+     "blocking": 6,
+     "voice_score": 3,
+     "critic_summary": "Found 1 problem(s) the rule checker can't see.",
+     "issues": [
+      {
+       "severity": "major",
+       "item": "card Z=14",
+       "problem": "invented-lore word 'king'",
+       "fix": "Atom.IO has no story: use a real fact or game mechanic instead",
+       "gdd_ref": "style guide rule 1",
+       "source": "rules"
+      },
+      {
+       "severity": "major",
+       "item": "card Z=14",
+       "problem": "invented-lore word 'realm'",
+       "fix": "Atom.IO has no story: use a real fact or game mechanic instead",
+       "gdd_ref": "style guide rule 1",
+       "source": "rules"
+      },
+      {
+       "severity": "major",
+       "item": "card Z=50",
+       "problem": "flavor is 124 chars (max 110)",
+       "fix": "Cut to one punchy line",
+       "gdd_ref": "3.1 UI",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "card Z=79",
+       "problem": "symbol 'Ag' should be 'Au' (Gold)",
+       "fix": "Use the symbol from the element table",
+       "gdd_ref": "",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "cards",
+       "problem": "missing elements: [113]",
+       "fix": "Write exactly one card for every element 1-118",
+       "gdd_ref": "1.1 core idea",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "card Z=2 (He)",
+       "gdd_ref": "style guide rule 4",
+       "problem": "False fact: hydrogen, not helium, is the lightest element (and it is the player's Z=1).",
+       "fix": "Use a true helium fact, e.g. first full shell / lifts balloons.",
+       "source": "critic"
+      }
+     ]
+    },
+    {
+     "round": 2,
+     "passed": true,
+     "blocking": 0,
+     "voice_score": 5,
+     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
+     "issues": []
+    }
+   ],
+   "final_round": 2
+  },
+  {
+   "key": "ui_text",
+   "status": "approved",
+   "rounds": 2,
+   "history": [
+    {
+     "round": 1,
+     "passed": false,
+     "blocking": 4,
+     "voice_score": 3,
+     "critic_summary": "Found 2 problem(s) the rule checker can't see.",
+     "issues": [
+      {
+       "severity": "blocker",
+       "item": "evolve_fail[1]",
+       "problem": "missing placeholder {next_fail_pct}",
+       "fix": "Include {next_fail_pct} exactly",
+       "gdd_ref": "",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "loading_tips[0]",
+       "problem": "number 25 is not a GDD value",
+       "fix": "Only state numbers the GDD fixes (10 HP/proton, 50 + 3Z, 0.5%, 10/20 dmg, 118)",
+       "gdd_ref": "1.3.1 / 1.3.3",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "loading_tips[1]",
+       "gdd_ref": "1.3.3",
+       "problem": "Contradicts the GDD: evolving costs 50 + 3 x current atomic number, not a flat 50.",
+       "fix": "State the real formula: 50 + 3 per proton you already have.",
+       "source": "critic"
+      },
+      {
+       "severity": "blocker",
+       "item": "tutorial_run2[3]",
+       "gdd_ref": "1.4.2 balance note",
+       "problem": "Contradicts the electron rule: the last electron always stays in orbit.",
+       "fix": "Teach that the last electron can't be thrown and protects the core.",
+       "source": "critic"
+      }
+     ]
+    },
+    {
+     "round": 2,
+     "passed": true,
+     "blocking": 0,
+     "voice_score": 5,
+     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
+     "issues": []
+    }
+   ],
+   "final_round": 2
+  },
+  {
+   "key": "group_abilities",
+   "status": "approved",
+   "rounds": 2,
+   "history": [
+    {
+     "round": 1,
+     "passed": false,
+     "blocking": 4,
+     "voice_score": 3,
+     "critic_summary": "Found 1 problem(s) the rule checker can't see.",
+     "issues": [
+      {
+       "severity": "blocker",
+       "item": "ability 'noble_gas'",
+       "problem": "'invincible' contradicts the core rules",
+       "fix": "Keep effects temporary/bounded and never break the 1-electron rule",
+       "gdd_ref": "1.4.2 balance note",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "ability 'alkali_metal'",
+       "problem": "damage_mult=2.0 outside balance range (1.05, 1.5)",
+       "fix": "Bring the value inside the range",
+       "gdd_ref": "1.4.4 retention / balance",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "abilities",
+       "problem": "groups with no ability: ['unknown_properties']",
+       "fix": "Write exactly one ability for each of the 11 groups",
+       "gdd_ref": "1.4.5 bonus features",
+       "source": "rules"
+      },
+      {
+       "severity": "blocker",
+       "item": "ability 'halogen'",
+       "gdd_ref": "style guide rule 4",
+       "problem": "Wrong chemistry: halogens are ONE electron short of a full shell (that's noble gases).",
+       "fix": "Base it on halogens grabbing electrons eagerly.",
+       "source": "critic"
+      }
+     ]
+    },
+    {
+     "round": 2,
+     "passed": true,
+     "blocking": 0,
+     "voice_score": 5,
+     "critic_summary": "Consistent with the GDD, factually sound, and reads like Atom.IO.",
+     "issues": []
+    }
+   ],
+   "final_round": 2
+  }
+ ]
+}
