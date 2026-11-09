@@ -18,10 +18,11 @@ CONFIG = ROOT / "config"
 GDD_PATH = ROOT.parent / "data" / "gdd_atomio.md"
 UNITY_VERSION = "6.3 LTS"
 
+# Model tier per agent; real IDs are resolved by models.pick() (see models.py).
 DEFAULT_MODELS = {
-    "asset_scraper": "anthropic/claude-haiku-4-5",
-    "lead_architect": "anthropic/claude-sonnet-4-5",
-    "level_designer": "anthropic/claude-sonnet-4-5",
+    "asset_scraper": "haiku",
+    "lead_architect": "sonnet",
+    "level_designer": "sonnet",
 }
 
 
@@ -65,7 +66,8 @@ def make_llms(mock: bool) -> dict:
             from .mock_llm import MockLLM
             llms[key] = MockLLM(model=f"mock/{key}")
         else:
-            model = os.getenv(f"ATOMIO_MODEL_{key.upper()}") or os.getenv("ATOMIO_MODEL") or default
+            from .models import pick
+            model = pick(default, f"ATOMIO_MODEL_{key.upper()}")
             llms[key] = LLM(model=model, temperature=0.4 if key == "level_designer" else 0.2,
                             max_tokens=budget.MAX_OUTPUT_TOKENS[key])
     return llms

@@ -25,8 +25,6 @@ from .. import budget
 from . import context as C
 from .specs import SPECS, ContentSpec
 
-DEFAULT_WRITER = "anthropic/claude-sonnet-4-5"
-DEFAULT_CRITIC = "anthropic/claude-sonnet-4-5"
 CONTENT_TOKEN_CAP = 700_000
 CONTENT_USD_CAP = float(os.getenv("ATOMIO_CONTENT_USD_CAP", "5"))
 BLOCKING = {"blocker", "major"}
@@ -105,8 +103,9 @@ def make_llms(mock: bool):
         return (lambda spec: ContentMockLLM(model="mock/writer", role="writer")), \
             ContentMockLLM(model="mock/critic", role="critic")
     from crewai import LLM
-    writer_model = os.getenv("ATOMIO_MODEL_WRITER") or os.getenv("ATOMIO_MODEL") or DEFAULT_WRITER
-    critic_model = os.getenv("ATOMIO_MODEL_CRITIC") or os.getenv("ATOMIO_MODEL") or DEFAULT_CRITIC
+    from ..models import pick
+    writer_model = pick("sonnet", "ATOMIO_MODEL_WRITER")
+    critic_model = pick("sonnet", "ATOMIO_MODEL_CRITIC")
     return (lambda spec: LLM(model=writer_model, temperature=0.7, max_tokens=spec.max_tokens)), \
         LLM(model=critic_model, temperature=0.1, max_tokens=8000)
 
@@ -250,6 +249,9 @@ def run(keys: list[str], mock: bool, max_rounds: int, out_root: Path, content_di
             status = f"stopped on {key}: {type(e).__name__}: {e}"
             say(f"  ERROR: {status}")
             break
+
+    if not results:  # nothing finished: keep the previous content and report untouched
+        return {"status": status, "results": results, "usage": usage.total(), "run_dir": run_dir}
 
     content_dir.mkdir(parents=True, exist_ok=True)
     unity_dir = content_dir / "unity" / "Assets" / "Resources" / "AtomIO" / "Content"

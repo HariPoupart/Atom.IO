@@ -26,9 +26,9 @@ Nothing touches the real Unity project until you run `promote`. That's the manua
 
 | # | Agent | Model (default) | Tools | Contract (Pydantic output) |
 |---|---|---|---|---|
-| 1 | **Asset Scraper** | Claude Haiku 4.5 | `free_asset_catalog`, `license_check`, optional `SerperDevTool` | `AssetManifest`: free assets only, with license, URL, local path and Unity note |
-| 2 | **Lead Architect** | Claude Sonnet 4.5 | `gdd_formula_table`, `tier_json_contract`, `run_validation_suite` | `ArchitectReview` → `CodeBundle` (compilable C# + CHANGES.md) → `ValidationReport` |
-| 3 | **Level Designer** | Claude Sonnet 4.5 | `element_groups`, `gdd_formula_table` | `TierDesignSet`: spawn curve, group designs, overrides, required fallback |
+| 1 | **Asset Scraper** | Claude Haiku 5.5 | `free_asset_catalog`, `license_check`, optional `SerperDevTool` | `AssetManifest`: free assets only, with license, URL, local path and Unity note |
+| 2 | **Lead Architect** | Claude Sonnet 5.5 | `gdd_formula_table`, `tier_json_contract`, `run_validation_suite` | `ArchitectReview` → `CodeBundle` (compilable C# + CHANGES.md) → `ValidationReport` |
+| 3 | **Level Designer** | Claude Sonnet 5.5 | `element_groups`, `gdd_formula_table` | `TierDesignSet`: spawn curve, group designs, overrides, required fallback |
 
 The crew runs 5 tasks in a sequential process:
 
