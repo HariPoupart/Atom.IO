@@ -104,10 +104,11 @@ def make_llms(mock: bool):
             ContentMockLLM(model="mock/critic", role="critic")
     from crewai import LLM
     from ..models import pick
+    # No temperature: current Claude models reject it (they choose sampling themselves).
     writer_model = pick("sonnet", "ATOMIO_MODEL_WRITER")
     critic_model = pick("sonnet", "ATOMIO_MODEL_CRITIC")
-    return (lambda spec: LLM(model=writer_model, temperature=0.7, max_tokens=spec.max_tokens)), \
-        LLM(model=critic_model, temperature=0.1, max_tokens=8000)
+    return (lambda spec: LLM(model=writer_model, max_tokens=spec.max_tokens)), \
+        LLM(model=critic_model, max_tokens=8000)
 
 
 class Usage:

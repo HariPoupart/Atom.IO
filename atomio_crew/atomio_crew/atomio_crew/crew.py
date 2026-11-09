@@ -68,7 +68,7 @@ def make_llms(mock: bool) -> dict:
         else:
             from .models import pick
             model = pick(default, f"ATOMIO_MODEL_{key.upper()}")
-            llms[key] = LLM(model=model, temperature=0.4 if key == "level_designer" else 0.2,
+            llms[key] = LLM(model=model,
                             max_tokens=budget.MAX_OUTPUT_TOKENS[key])
     return llms
 
