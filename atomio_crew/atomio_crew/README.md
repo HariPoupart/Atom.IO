@@ -4,6 +4,8 @@
 
 > **Rescope (2026-11-12):** the game now ends at **Neon**, so there are **10 levels** (one arena configuration per element, H to Ne) instead of 118 tiers. Evolution has **no cost and no failure chance** any more: an **energy bar** of 50 + 3Z fills with every bit of energy collected; when it is full the player evolves on the spot (mid-run, straight into the next level) and the bar **empties to 0**. The bar keeps its progress between runs. The GDD, agents, rules, validators, reference C#, content pipeline and sample output were all updated, and the Unity project gets a one-click scene builder (`unity_bootstrap/`).
 
+> **Assignment 5 (Goal-Oriented Coding Agent):** see [`CODING_AGENT.md`](CODING_AGENT.md). Run `python main.py build --dry-run` from `atomio_crew/atomio_crew/` to see the gaps and priority scores.
+
 > **Assignment 4 (Dynamic Content Pipeline):** see [`CONTENT_PIPELINE.md`](CONTENT_PIPELINE.md). Run `python main.py generate --mock`.
 
 This repo is a **CrewAI** system of **3 agents** (Asset Scraper, Lead Architect, Level Designer). They work together to produce game-ready content for Atom.IO, which can be dropped straight into the Unity project.

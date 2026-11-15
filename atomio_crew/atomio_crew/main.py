@@ -5,6 +5,8 @@
     python main.py run                 # real run with Claude (needs ANTHROPIC_API_KEY)
     python main.py run --mock --without level_designer   # prove each agent is required
     python main.py generate --mock     # Assignment 4: content pipeline (Writer + Critic loop)
+    python main.py build --dry-run     # Assignment 5: coding agent, plan only (gaps + priority scores)
+    python main.py build               # Assignment 5: build missing GDD features into the Unity project
     python main.py validate            # re-run the validation suite on output/latest
     python main.py promote --unity-project ~/Unity/AtomIO   # manual gate -> copy into Unity
 """
@@ -191,6 +193,39 @@ def cmd_generate(args) -> int:
     return 0 if ok else 1
 
 
+def cmd_build(args) -> int:
+    """Assignment 5: goal-oriented coding agent (GDD -> gaps -> priority -> write -> re-scan)."""
+    from atomio_crew.coder.agent import run as run_agent
+
+    mock = args.mock or os.getenv("ATOMIO_MOCK", "").lower() in ("1", "true", "yes")
+    if args.extract_requirements:
+        from atomio_crew.coder.agent import extract_requirements
+        if not mock and not os.getenv("ANTHROPIC_API_KEY"):
+            print("ANTHROPIC_API_KEY is not set.")
+            return 2
+        extract_requirements(mock, ROOT / "data" / "requirements.proposed.json")
+        return 0
+    if not mock and not args.dry_run and not os.getenv("ANTHROPIC_API_KEY"):
+        print("ANTHROPIC_API_KEY is not set. Add it to .env, or use --mock (offline) or --dry-run (plan only).")
+        return 2
+    unity = Path(args.unity_project or os.getenv("ATOMIO_UNITY_PROJECT", "")).expanduser()
+    if not (unity / "Assets").is_dir():
+        print(f"Unity project not found: '{unity}'. Pass --unity-project or set ATOMIO_UNITY_PROJECT in .env.")
+        return 2
+    sandbox = args.sandbox or mock  # mock code never lands in the real project
+    print(f"== Atom.IO coding agent ({'mock' if mock else 'live'}{', dry run' if args.dry_run else ''}"
+          f"{', sandbox' if sandbox else ''}): scan -> gaps -> priority -> write -> re-scan ==")
+    res = run_agent(unity, mock=mock, dry_run=args.dry_run, max_iterations=args.max_iterations,
+                    sandbox=sandbox, out_root=Path(args.out), report_dir=Path(args.report_dir), only=args.only)
+    log = res["log"]
+    built = [s["picked"]["id"] for s in log["iterations"] if s.get("outcome") == "written"]
+    print(f"\nStopped: {log['stop_reason']}.  Built: {', '.join(built) or 'nothing'}.")
+    print(f"Report: {Path(args.report_dir) / 'AGENT_REPORT.md'}   Run folder: {res['run_dir']}")
+    if built and not sandbox:
+        print("Next: open Unity, let it compile, and play. Review the diff in git before committing.")
+    return 0
+
+
 def main() -> int:
     _load_dotenv()
     p = argparse.ArgumentParser(description="Atom.IO multi-agent content crew (CrewAI)")
@@ -229,6 +264,19 @@ def main() -> int:
     c.add_argument("--out", default=str(ROOT / "output"))
     c.add_argument("--content-dir", default=str(ROOT / "content"))
     c.set_defaults(func=cmd_generate)
+
+    b = sub.add_parser("build", help="Assignment 5: coding agent that builds missing GDD features in Unity")
+    b.add_argument("--unity-project", help="path to the Unity project (default: ATOMIO_UNITY_PROJECT in .env)")
+    b.add_argument("--mock", action="store_true", help="offline mock LLM, no API key; runs in a sandbox copy")
+    b.add_argument("--dry-run", action="store_true", help="scan, find gaps and score them, but write nothing")
+    b.add_argument("--sandbox", action="store_true", help="work on a copy of the scripts instead of the project")
+    b.add_argument("--max-iterations", type=int, default=5, help="max features to build in one run")
+    b.add_argument("--only", help="build only this requirement id (e.g. R16)")
+    b.add_argument("--extract-requirements", action="store_true",
+                   help="re-derive the requirement list from the GDD with Claude (writes a proposed file to review)")
+    b.add_argument("--out", default=str(ROOT / "output"))
+    b.add_argument("--report-dir", default=str(ROOT / "agent_report"))
+    b.set_defaults(func=cmd_build)
 
     args = p.parse_args()
     return args.func(args)
