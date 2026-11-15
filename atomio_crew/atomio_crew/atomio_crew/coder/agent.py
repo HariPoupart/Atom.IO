@@ -16,6 +16,8 @@ import difflib
 import json
 import os
 import shutil
+import threading
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -28,6 +30,33 @@ from .scanner import scan
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 MAX_ATTEMPTS = 3
+CALL_TIMEOUT_S = int(os.getenv("ATOMIO_CODER_CALL_TIMEOUT", "900"))  # one Claude reply, wall clock
+
+
+def call_with_heartbeat(llm, messages, say=print, label="Claude"):
+    """Run one LLM call in a worker thread, print progress every 30 s and give up after
+    CALL_TIMEOUT_S so a stuck request can never hang the agent."""
+    box: dict = {}
+
+    def work():
+        try:
+            box["text"] = llm.call(messages)
+        except Exception as e:  # surfaced to the attempt loop below
+            box["error"] = e
+
+    t = threading.Thread(target=work, daemon=True)
+    start = time.time()
+    t.start()
+    while t.is_alive():
+        t.join(timeout=30)
+        if t.is_alive():
+            waited = int(time.time() - start)
+            if waited >= CALL_TIMEOUT_S:
+                raise TimeoutError(f"{label} did not answer within {CALL_TIMEOUT_S}s")
+            say(f"     ...waiting for {label} to finish writing ({waited}s)")
+    if "error" in box:
+        raise box["error"]
+    return box.get("text", "")
 TOKEN_CAP = int(os.getenv("ATOMIO_CODER_TOKEN_CAP", "800000"))
 USD_CAP = float(os.getenv("ATOMIO_CODER_USD_CAP", "8"))
 
@@ -125,7 +154,9 @@ def run(unity_root: Path, mock: bool, dry_run: bool, max_iterations: int, sandbo
     else:
         from crewai import LLM
         from ..models import pick
-        llm = LLM(model=pick("sonnet", "ATOMIO_MODEL_CODER"), max_tokens=32000)
+        # Streaming: long code replies arrive in chunks instead of one long silent request.
+        llm = LLM(model=pick("sonnet", "ATOMIO_MODEL_CODER"), max_tokens=32000, stream=True,
+                  timeout=180, max_retries=1)
         judge = LLM(model=pick("sonnet", "ATOMIO_MODEL_JUDGE"), max_tokens=1000)
 
     log = {"mode": "mock" if mock else "live", "project": str(unity_root), "sandbox": sandbox,
@@ -181,7 +212,8 @@ def run(unity_root: Path, mock: bool, dry_run: bool, max_iterations: int, sandbo
         for attempt in range(1, MAX_ATTEMPTS + 1):
             raw = None
             try:
-                raw = llm.call(W.build_messages(req, ix, reqs_by_id, feedback, previous))
+                say(f"     attempt {attempt}: asking Claude to write {req['id']}...")
+                raw = call_with_heartbeat(llm, W.build_messages(req, ix, reqs_by_id, feedback, previous), say)
                 reply = W.parse_reply(raw)
                 errors = W.static_checks(reply["files"], req, ix)
                 comp = {"backend": compiler.backend, "ok": True, "errors": [], "warning": ""}
