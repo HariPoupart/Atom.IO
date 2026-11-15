@@ -13,10 +13,10 @@ namespace AtomIO.Arena
     {
         [SerializeField] private Enemy enemyPrefab;
         [SerializeField] private EnergyOrb orbPrefab;
-        [SerializeField] private Electron electronPrefab;
+        [SerializeField] private ElectronPool electronPool;
+        [SerializeField] private Electron electronPrefab; // fallback when there is no pool
         [SerializeField] private float minEnemyDistanceFromPlayer = 12f;
         [SerializeField] private int maxIdleOrbs = 40;
-        [SerializeField] private int maxIdleElectrons = 15;
 
         private readonly List<Enemy> enemies = new List<Enemy>();
         private readonly List<EnergyOrb> orbs = new List<EnergyOrb>();
@@ -43,9 +43,15 @@ namespace AtomIO.Arena
             active = false;
         }
 
+        /// <summary>Switches to a new level's spawn values (after a mid-run evolution).</summary>
+        public void SetConfig(TierConfig tier)
+        {
+            config = tier;
+        }
+
         private void Update()
         {
-            if (!active || session == null)
+            if (!active || session == null || config == null)
             {
                 return;
             }
@@ -53,7 +59,7 @@ namespace AtomIO.Arena
             float minutes = session.Minutes;
             enemies.RemoveAll(e => e == null);
             orbs.RemoveAll(o => o == null);
-            wildElectrons.RemoveAll(e => e == null || e.State != ElectronState.Wild);
+            wildElectrons.RemoveAll(e => e == null || !e.gameObject.activeSelf || e.State != ElectronState.Wild);
 
             if (Time.time >= nextEnemy)
             {
@@ -75,15 +81,36 @@ namespace AtomIO.Arena
                 }
             }
 
-            if (Time.time >= nextElectron)
+            if (Time.time >= nextElectron && config.electrons != null)
             {
-                nextElectron = Time.time + config.ScaledIntervalAt(config.spawn.electron_base_interval_s, minutes);
-                if (wildElectrons.Count < maxIdleElectrons && electronPrefab != null)
+                nextElectron = Time.time + config.ElectronIntervalAt(minutes);
+                int wild = electronPool != null ? electronPool.WildCount : wildElectrons.Count;
+                if (wild < config.electrons.max_wild)
                 {
-                    var e = Instantiate(electronPrefab, RandomPointInArena(0f), Quaternion.identity);
-                    e.MakeWild();
-                    wildElectrons.Add(e);
+                    SpawnElectron();
                 }
+            }
+        }
+
+        /// <summary>One wild electron at a free point at least min_spawn_distance from the player.
+        /// Skips this tick if no free point is found (never spawns on top of the player).</summary>
+        private void SpawnElectron()
+        {
+            if (!TryRandomPoint(config.electrons.min_spawn_distance, out var point))
+            {
+                return;
+            }
+
+            Electron e = electronPool != null ? electronPool.Get(point) : null;
+            if (e == null && electronPrefab != null)
+            {
+                e = Instantiate(electronPrefab, point, Quaternion.identity);
+                wildElectrons.Add(e);
+            }
+
+            if (e != null)
+            {
+                e.MakeWild();
             }
         }
 
@@ -105,23 +132,37 @@ namespace AtomIO.Arena
             enemies.Add(enemy);
         }
 
-        /// <summary>Random point in the circular arena, at least minDistance from the player.</summary>
+        /// <summary>Random free point in the circular arena, at least minDistance from the player.</summary>
         private Vector2 RandomPointInArena(float minDistance)
         {
-            float radius = config.arena.radius;
-            Vector2 playerPos = session.Player.transform.position;
-            Vector2 point = Vector2.zero;
-            for (int attempt = 0; attempt < 12; attempt++)
+            if (TryRandomPoint(minDistance, out var free))
             {
-                point = Random.insideUnitCircle * radius;
-                if ((point - playerPos).sqrMagnitude >= minDistance * minDistance)
-                {
-                    return point;
-                }
+                return free;
             }
 
             // Fallback: opposite side of the arena from the player.
-            return playerPos.sqrMagnitude > 0.01f ? -playerPos.normalized * radius * 0.9f : point;
+            Vector2 p = session.Player.transform.position;
+            return p.sqrMagnitude > 0.01f ? -p.normalized * config.arena.radius * 0.9f : free;
+        }
+
+        private bool TryRandomPoint(float minDistance, out Vector2 result)
+        {
+            float radius = config.arena.radius;
+            var layout = session.Layout;
+            Vector2 playerPos = session.Player.transform.position;
+            result = Vector2.zero;
+            for (int attempt = 0; attempt < 16; attempt++)
+            {
+                Vector2 point = Random.insideUnitCircle * radius * 0.95f;
+                bool blocked = layout != null && layout.IsBlocked(point, 0.6f);
+                if (!blocked && (point - playerPos).sqrMagnitude >= minDistance * minDistance)
+                {
+                    result = point;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

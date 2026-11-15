@@ -4,15 +4,15 @@
     "passed": true,
     "errors": [],
     "warnings": [
-      "groups not designed, will use fallback: ['unknown_properties']"
+      "compile check skipped: install Mono `mcs` to compile C# against Unity stubs"
     ]
   },
   "lead_architect_report": {
     "approved_for_gate": true,
     "errors": [],
     "warnings": [
-      "groups not designed, will use fallback: ['unknown_properties']"
+      "compile check skipped: install Mono `mcs` to compile C# against Unity stubs"
     ],
-    "notes": "Open the Unity project, let scripts compile, then check: (1) tutorial run as H, (2) forced evolve to He, (3) throw/pickup lesson, (4) tier 26/79/118 core looks, (5) profiler on a 2 GB Android device with 100+ orbiting electrons."
+    "notes": "Open the Unity project, let scripts compile, then check: (1) tutorial run as H, (2) the bar fills and evolves you to He mid-run, then empties to 0, (3) throw/pickup lesson, (4) every level's core look and obstacle layout up to Neon, (5) the win banner at Neon, (6) profiler on a 2 GB Android device with 10 orbiting electrons."
   }
 }

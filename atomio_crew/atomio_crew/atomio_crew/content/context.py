@@ -53,6 +53,8 @@ def level_designer_traits() -> str:
               root / "atomio_crew" / "mock_data" / "tier_design_set.json"):
         if p.exists():
             d = json.loads(p.read_text(encoding="utf-8"))
-            return "\n".join(f"{g['group']}: {g['trait']['name']} ({g['trait']['description']})"
-                             for g in d.get("group_designs", []))
+            return "\n".join(f"Z={lv['atomic_number']} {R.element(lv['atomic_number'])['symbol']} "
+                             f"({R.element(lv['atomic_number'])['group']}): {lv['trait']['name']} "
+                             f"({lv['trait']['description']})"
+                             for lv in d.get("level_designs", []) if 1 <= lv["atomic_number"] <= R.MAX_ATOMIC_NUMBER)
     return "(none)"

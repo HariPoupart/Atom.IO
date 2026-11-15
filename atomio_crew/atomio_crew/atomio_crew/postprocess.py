@@ -67,10 +67,11 @@ def write_run(out_root: Path, usage: dict, mode: str) -> tuple[Path, dict]:
         changes += [s.code.changes_md.strip(), ""]
     if s.tier_index:
         src = s.tier_index["design_sources"]
-        changes += ["## Level Designer: tier configs", "",
-                    f"- 118 tier files + `tier_fallback.json` + `index.json` in `Assets/Resources/AtomIO/Tiers/`",
-                    f"- Design sources: {src['group']} by group, {src['override']} landmark overrides, "
-                    f"{src['fallback']} fallback", ""]
+        changes += ["## Level Designer: level configs", "",
+                    f"- {s.tier_index['tier_count']} level files (H..Ne) + `tier_fallback.json` + `index.json` "
+                    f"in `Assets/Resources/AtomIO/Tiers/`",
+                    f"- Design sources: {src['level']} designed levels, {src['fallback']} fallback",
+                    *[f"  - {t['symbol']}: {t['level_name']}" for t in s.tier_index["tiers"]], ""]
     if s.review is not None:
         changes += ["## Lead Architect: asset decisions", "",
                     *[f"- Approved: {a}" for a in s.review.approved_assets],
@@ -105,7 +106,13 @@ def promote(run: Path, unity_project: Path, assume_yes: bool = False) -> int:
 
     src = run / "unity" / "Assets"
     files = [p for p in src.rglob("*") if p.is_file()]
-    print(f"About to copy {len(files)} files into {unity_project / 'Assets'}:")
+    # Also ship the editor-only scene builder and the Assignment 4 content, if present.
+    repo = Path(__file__).resolve().parents[1]
+    extras = [(p, unity_project / p.relative_to(repo / "unity_bootstrap"))
+              for p in (repo / "unity_bootstrap" / "Assets").rglob("*") if p.is_file()]
+    extras += [(p, unity_project / p.relative_to(repo / "content" / "unity"))
+               for p in (repo / "content" / "unity" / "Assets").rglob("*") if p.is_file()]
+    print(f"About to copy {len(files) + len(extras)} files into {unity_project / 'Assets'}:")
     for p in files[:12]:
         print("   ", p.relative_to(run / "unity"))
     if len(files) > 12:
@@ -118,10 +125,26 @@ def promote(run: Path, unity_project: Path, assume_yes: bool = False) -> int:
         dest = unity_project / p.relative_to(run / "unity")
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(p, dest)
+    for p, dest in extras:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(p, dest)
+
+    # Remove tier files left over from an older, larger scope (e.g. tier_011..118 from
+    # before the Neon rescope) so the game can never load a level that no longer exists.
+    tiers_dest = unity_project / "Assets" / "Resources" / "AtomIO" / "Tiers"
+    shipped = {p.name for p in (src / "Resources" / "AtomIO" / "Tiers").glob("*.json")}
+    for stale in sorted(tiers_dest.glob("tier_*.json")) if tiers_dest.is_dir() else []:
+        if stale.name not in shipped:
+            stale.unlink()
+            meta = stale.with_name(stale.name + ".meta")
+            if meta.exists():
+                meta.unlink()
+            print(f"    removed stale {stale.name}")
     log = unity_project / "CHANGES.md"
     with log.open("a") as fh:
         fh.write("\n\n" + (run / "CHANGES.md").read_text())
     gate["status"] = "promoted"
     gate_file.write_text(json.dumps(gate, indent=2))
-    print(f"Promoted. Appended to {log}. Open Unity and let it compile.")
+    print(f"Promoted. Appended to {log}. Open Unity and let it compile; the first time, "
+          "Atom.IO > Build Game Scenes runs by itself and creates the Lobby and Arena scenes.")
     return 0

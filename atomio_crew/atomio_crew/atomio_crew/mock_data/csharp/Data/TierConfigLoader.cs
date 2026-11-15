@@ -16,6 +16,7 @@ namespace AtomIO.Data
 
         public static TierConfig Load(int atomicNumber)
         {
+            atomicNumber = UnityEngine.Mathf.Clamp(atomicNumber, 1, AtomFormulas.MaxAtomicNumber);
             if (Cache.TryGetValue(atomicNumber, out var cached))
             {
                 return cached;
@@ -32,10 +33,15 @@ namespace AtomIO.Data
                     config.atomic_number = atomicNumber;
                     config.player.max_hp = AtomFormulas.MaxHp(atomicNumber);
                     config.player.electron_slots = AtomFormulas.ElectronSlots(atomicNumber);
-                    config.evolution.next_atomic_number =
-                        atomicNumber < AtomFormulas.MaxAtomicNumber ? atomicNumber + 1 : 0;
-                    config.evolution.cost_to_next =
-                        atomicNumber < AtomFormulas.MaxAtomicNumber ? AtomFormulas.EvolutionCost(atomicNumber) : 0;
+                    bool last = AtomFormulas.IsFinalElement(atomicNumber);
+                    config.evolution.next_atomic_number = last ? 0 : atomicNumber + 1;
+                    config.evolution.energy_to_evolve = AtomFormulas.EnergyToEvolve(atomicNumber);
+                    config.evolution.bar_reset_value = AtomFormulas.BarResetValue;
+                    config.evolution.is_final_element = last;
+                    if (config.electrons != null)
+                    {
+                        config.electrons.max_wild = atomicNumber == 1 ? 0 : Mathf.Max(config.electrons.max_wild, atomicNumber);
+                    }
                 }
             }
 

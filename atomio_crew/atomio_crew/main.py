@@ -118,6 +118,53 @@ def cmd_promote(args) -> int:
     return promote(Path(args.run).resolve(), Path(args.unity_project).expanduser(), args.yes)
 
 
+def cmd_scout(args) -> int:
+    """Run only the Asset Scraper agent on a focused brief (e.g. one feature's art)."""
+    import json as _json
+    from datetime import datetime
+
+    import yaml
+    from crewai import Agent, Crew, Process, Task
+
+    from atomio_crew import budget
+    from atomio_crew.crew import CONFIG, UNITY_VERSION, crew_inputs, make_llms
+    from atomio_crew.schemas import AssetManifest
+    from atomio_crew.tools import free_asset_catalog, license_check, optional_web_search_tools
+
+    mock = args.mock or os.getenv("ATOMIO_MOCK", "").lower() in ("1", "true", "yes")
+    if not mock and not os.getenv("ANTHROPIC_API_KEY"):
+        print("ANTHROPIC_API_KEY is not set. Add it to .env, or run with --mock.")
+        return 2
+    llm = make_llms(mock)["asset_scraper"]
+    cfg = yaml.safe_load((CONFIG / "agents.yaml").read_text())["asset_scraper"]
+    cfg = {k: v.replace("{unity_version}", UNITY_VERSION) for k, v in cfg.items()}
+    agent = Agent(**cfg, llm=llm, tools=[free_asset_catalog, license_check, *optional_web_search_tools()],
+                  max_iter=8, allow_delegation=False, verbose=args.verbose)
+    task = Task(
+        name="scout_assets",
+        description=(f"Source free assets for ONE Atom.IO feature.\n\nGAME SUMMARY:\n{crew_inputs()['gdd']}\n\n"
+                     f"FEATURE BRIEF:\n{args.brief}\n\nSteps: search free_asset_catalog with several keyword "
+                     "queries, check every license with license_check, drop anything paid, non-commercial or "
+                     "share-alike. Plan a local_path under Assets/ThirdParty/<Vendor>/<Pack>/. In used_for, say "
+                     "exactly how the asset would be used for this feature (and any tinting needed). "
+                     "Return 2 to 6 assets, best fit first."),
+        expected_output="An AssetManifest JSON object only: assets and search_notes.",
+        agent=agent, output_pydantic=AssetManifest)
+    Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=args.verbose).kickoff()
+    manifest = task.output.pydantic
+    usage = budget.usage_of(llm)
+    out = Path(args.out) / f"scout_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(_json.dumps({"brief": args.brief, "mode": "mock" if mock else "live",
+                                "manifest": manifest.model_dump() if manifest else None, "usage": usage},
+                               indent=2, ensure_ascii=False) + "\n")
+    print(f"\nAsset Scraper finished: {len(manifest.assets) if manifest else 0} assets -> {out}")
+    for a in (manifest.assets if manifest else []):
+        print(f"  - {a.name} [{a.license}, ${a.price_usd:g}] {a.used_for}")
+    print(f"Tokens: {usage['prompt_tokens'] + usage['completion_tokens']:,}  cost ~${budget.cost_usd(usage):.3f}")
+    return 0 if manifest else 1
+
+
 def cmd_generate(args) -> int:
     """Assignment 4: GDD-grounded content pipeline (Writer -> Critic -> revise loop)."""
     from atomio_crew.content.pipeline import run as run_content
@@ -166,6 +213,13 @@ def main() -> int:
     g.add_argument("--run", default=str(ROOT / "output" / "latest"))
     g.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
     g.set_defaults(func=cmd_promote)
+
+    sc = sub.add_parser("scout", help="run only the Asset Scraper on a focused feature brief")
+    sc.add_argument("--brief", required=True, help="what the assets are for")
+    sc.add_argument("--mock", action="store_true")
+    sc.add_argument("--verbose", action="store_true")
+    sc.add_argument("--out", default=str(ROOT / "output"))
+    sc.set_defaults(func=cmd_scout)
 
     c = sub.add_parser("generate", help="Assignment 4: generate GDD-grounded content with a critic loop")
     c.add_argument("--mock", action="store_true", help="offline mock LLM, no API key needed")

@@ -2,41 +2,41 @@
   "tutorial_run1": [
     "Drag the left stick to move your atom.",
     "Your orbiting electron hurts enemies. Swing it into them!",
-    "Grab glowing energy orbs. Energy lets you evolve.",
+    "Grab glowing energy orbs. Each one fills your energy bar.",
     "Keep enemies off your core: each touch costs 10 HP."
   ],
-  "tutorial_evolve_prompt": "Spend your energy to evolve into Helium: 2 protons, 2 electron slots, 20 HP.",
-  "tutorial_run2": [
+  "tutorial_first_evolve": "Bar full! You fused a proton and became Helium. The bar starts again from 0.",
+  "tutorial_helium": [
     "Loose electrons drift in the arena. Touch one to fill a slot.",
     "Holding 2 electrons? Drag the right stick to aim the newest.",
     "Let go to throw it. A thrown electron deals 20 damage.",
     "Your last electron always stays in orbit to guard you."
   ],
-  "evolve_success": [
+  "evolve_banner": [
     "Fusion complete! You are now {element}.",
     "+1 proton. Welcome to {element} ({symbol}).",
     "Evolved into {element}: more HP, one more slot."
   ],
-  "evolve_fail": [
-    "The nucleus fell apart. Energy lost. Next try: {next_fail_pct}%.",
-    "Unstable! Evolution failed. Odds improve to {next_fail_pct}%.",
-    "Decay! Energy gone, but next time is safer: {next_fail_pct}%."
+  "level_intro": [
+    "Level: {level}. Fill the bar to evolve.",
+    "Entering {level}. Watch the new layout.",
+    "{level}: new arena, same goal. Grab energy!"
   ],
-  "not_enough_energy": "You need {cost} energy to evolve. Back to the arena!",
+  "energy_bar_label": "Energy {energy}/{goal}",
   "run_over": [
-    "Core breached! You banked {energy} energy.",
-    "Run over: {energy} energy in {time}.",
-    "Your atom broke apart. {energy} energy saved."
+    "Core breached! You collected {energy} energy.",
+    "Run over: {energy} energy in {time}. The bar keeps it.",
+    "Your atom broke apart. {energy} energy stays in the bar."
   ],
-  "win_oganesson": "Oganesson reached: element 118. The periodic table is complete, from one proton to all of them.",
+  "win_neon": "Neon reached: element 10. Two full shells, 2 + 8 electrons, and a glow worth a sign. You climbed the whole table!",
   "loading_tips": [
     "Each evolution adds 1 proton: +10 HP and one more electron slot.",
-    "Evolving costs 50 + 3 energy for every proton you already have.",
-    "A failed evolution lowers your next failure chance by 0.5%.",
+    "Your bar needs 50 energy plus 3 for every proton you have.",
+    "A full bar evolves you on the spot, then empties back to 0.",
     "Orbiting electrons deal 10 damage. Thrown electrons deal 20.",
     "Enemies give up the chase if you escape their sight range.",
     "The longer you survive, the more energy each orb is worth.",
-    "Shells fill like the Bohr model: 2, then 8, then 18.",
-    "Each element group plays differently. Try a noble gas's full shell."
+    "Shells fill like the Bohr model: 2, then 8. Neon fills both.",
+    "Dying never empties your bar. Your progress is always saved."
   ]
 }

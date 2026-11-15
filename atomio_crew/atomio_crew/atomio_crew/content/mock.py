@@ -30,22 +30,22 @@ def flawed(key: str) -> dict:
     if key == "element_cards":
         cards = {c["atomic_number"]: c for c in d["cards"]}
         cards[2]["flavor"] = "The lightest element in the universe. Its full shell shrugs off every fight."
-        cards[14]["flavor"] = "Chosen by the Proton King to guard the realm of microchips."
-        cards[50]["flavor"] = ("Bend a tin bar and it cries with a crackle that metalworkers have heard for "
-                               "centuries, and it is still used in solder today.")
-        cards[79]["symbol"] = "Ag"
-        d["cards"] = [c for c in d["cards"] if c["atomic_number"] != 113]
+        cards[5]["flavor"] = "Chosen by the Proton King to guard the realm of hard fibers."
+        cards[6]["flavor"] = ("Four bonds, endless shapes: graphite in your pencil, diamond on a ring, and the "
+                              "chains of every living thing on Earth.")
+        cards[9]["symbol"] = "Fl"
+        d["cards"] = [c for c in d["cards"] if c["atomic_number"] != 7]
     elif key == "ui_text":
-        d["loading_tips"][1] = "Evolving always costs 50 energy, so save up."
+        d["loading_tips"][1] = "The energy bar always holds 50 energy, so fill it fast."
         d["loading_tips"][0] = "Each evolution adds 25 HP per proton."
-        d["tutorial_run2"][3] = "Out of spares? Throw your last one to finish off an enemy!"
-        d["evolve_fail"][1] = "Unstable! Evolution failed. Try again soon."
+        d["tutorial_helium"][3] = "Out of spares? Throw your last one to finish off an enemy!"
+        d["tutorial_first_evolve"] = "Spend your energy to evolve! Careful: failed fusions refund nothing."
     elif key == "group_abilities":
         ab = {a["group"]: a for a in d["abilities"]}
         ab["alkali_metal"]["value"] = 2.0
         ab["noble_gas"]["description"] = "Your full shell makes you invincible while below 30% HP."
         ab["halogen"]["chemistry_basis"] = "Halogens have a full outer shell"
-        d["abilities"] = [a for a in d["abilities"] if a["group"] != "unknown_properties"]
+        d["abilities"] = [a for a in d["abilities"] if a["group"] != "metalloid"]
     return d
 
 
@@ -53,23 +53,23 @@ def flawed(key: str) -> dict:
 CRITIC_FINDINGS = {
     "element_cards": [
         ("The lightest element in the universe", {
-            "severity": "blocker", "item": "card Z=2 (He)", "gdd_ref": "style guide rule 4",
+            "severity": "blocker", "item": "card Z=2 (He)", "gdd_ref": "style guide rule 5",
             "problem": "False fact: hydrogen, not helium, is the lightest element (and it is the player's Z=1).",
             "fix": "Use a true helium fact, e.g. first full shell / lifts balloons."}),
     ],
     "ui_text": [
-        ("always costs 50 energy", {
+        ("always holds 50 energy", {
             "severity": "blocker", "item": "loading_tips[1]", "gdd_ref": "1.3.3",
-            "problem": "Contradicts the GDD: evolving costs 50 + 3 x current atomic number, not a flat 50.",
-            "fix": "State the real formula: 50 + 3 per proton you already have."}),
+            "problem": "Contradicts the GDD: the bar holds 50 + 3 x current atomic number, not a flat 50.",
+            "fix": "State the real formula: 50 plus 3 for every proton you have."}),
         ("Throw your last one", {
-            "severity": "blocker", "item": "tutorial_run2[3]", "gdd_ref": "1.4.2 balance note",
+            "severity": "blocker", "item": "tutorial_helium[3]", "gdd_ref": "1.4.2 balance note",
             "problem": "Contradicts the electron rule: the last electron always stays in orbit.",
             "fix": "Teach that the last electron can't be thrown and protects the core."}),
     ],
     "group_abilities": [
         ("Halogens have a full outer shell", {
-            "severity": "blocker", "item": "ability 'halogen'", "gdd_ref": "style guide rule 4",
+            "severity": "blocker", "item": "ability 'halogen'", "gdd_ref": "style guide rule 5",
             "problem": "Wrong chemistry: halogens are ONE electron short of a full shell (that's noble gases).",
             "fix": "Base it on halogens grabbing electrons eagerly."}),
     ],

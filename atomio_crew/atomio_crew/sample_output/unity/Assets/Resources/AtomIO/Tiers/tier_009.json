@@ -1,10 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "atomic_number": 9,
   "symbol": "F",
   "name": "Fluorine",
   "group": "halogen",
-  "design_source": "group",
+  "level_name": "Electron Thief",
+  "design_source": "level",
   "player": {
     "max_hp": 90,
     "electron_slots": 9,
@@ -14,12 +15,12 @@
   },
   "evolution": {
     "next_atomic_number": 10,
-    "cost_to_next": 77,
-    "base_fail_chance_pct": 0.37,
-    "pity_step_pct": 0.5
+    "energy_to_evolve": 77,
+    "bar_reset_value": 0,
+    "is_final_element": false
   },
   "enemy": {
-    "base_hp": 30.0,
+    "base_hp": 34.0,
     "hp_per_minute": 6.0,
     "contact_damage": 10,
     "move_speed": 3.2,
@@ -29,34 +30,42 @@
     "enemy_base_interval_s": 4.0,
     "enemy_min_interval_s": 0.6,
     "time_scale_k": 0.6,
-    "max_alive_enemies": 8,
-    "orb_base_interval_s": 1.5,
-    "electron_base_interval_s": 4.0
+    "max_alive_enemies": 13,
+    "orb_base_interval_s": 1.2
+  },
+  "electrons": {
+    "base_interval_s": 4.6,
+    "max_wild": 12,
+    "lifetime_s": 25.0,
+    "min_spawn_distance": 6.0
   },
   "energy": {
     "orb_base_value": 2.0,
-    "growth_per_minute": 1.25
+    "growth_per_minute": 1.2
   },
   "arena": {
-    "radius": 31.2,
-    "background_hex": "#0D1408",
-    "grid_hex": "#223614",
-    "ambient_particle_asset": "Kenney Particle Pack"
+    "radius": 38.0,
+    "background_hex": "#121604",
+    "grid_hex": "#323C10",
+    "ambient_particle_asset": "Kenney Particle Pack",
+    "obstacle_pattern": "cross",
+    "obstacle_count": 14,
+    "obstacle_size": 1.2
   },
   "core_visual": {
-    "primary_hex": "#B6FF4D",
-    "secondary_hex": "#F2FFD1",
-    "glow_intensity": 1.8,
-    "pattern": "swirl",
+    "primary_hex": "#D4FF3D",
+    "secondary_hex": "#F6FFD0",
+    "glow_intensity": 2.4,
+    "pattern": "pulse",
     "texture_asset": "Kenney Particle Pack",
-    "shader_note": "Toxic green swirl scrolling UVs, high saturation."
+    "shader_note": "Pale yellow-green core with a sharp, hungry pulse."
   },
   "trait": {
     "name": "Electronegative",
-    "description": "Grabs electrons aggressively and hits harder; weaker core.",
-    "move_speed_mult": 1.0,
+    "description": "Grabs electrons hard: big hits, fragile core.",
+    "move_speed_mult": 1.05,
     "orbit_speed_mult": 1.0,
     "electron_damage_mult": 1.2,
-    "max_hp_mult": 0.9
+    "max_hp_mult": 0.85
   }
 }

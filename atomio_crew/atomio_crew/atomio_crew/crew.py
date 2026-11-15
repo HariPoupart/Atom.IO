@@ -130,5 +130,5 @@ def crew_inputs() -> dict:
     return {
         "gdd": GDD_PATH.read_text().strip(),
         "unity_version": UNITY_VERSION,
-        "group_count": len(gdd_rules.GROUPS),
+        "level_count": gdd_rules.MAX_ATOMIC_NUMBER,
     }

@@ -1,33 +1,33 @@
 {
   "mode": "mock",
   "asset_scraper": {
-    "prompt_tokens": 7643,
-    "completion_tokens": 1082,
+    "prompt_tokens": 8563,
+    "completion_tokens": 1375,
     "calls": 3,
-    "total_tokens": 8725,
+    "total_tokens": 9938,
     "cap": 45000,
-    "usd": 0.0392
+    "usd": 0.0463
   },
   "lead_architect": {
-    "prompt_tokens": 45326,
-    "completion_tokens": 13661,
+    "prompt_tokens": 61531,
+    "completion_tokens": 21088,
     "calls": 5,
-    "total_tokens": 58987,
+    "total_tokens": 82619,
     "cap": 480000,
-    "usd": 0.3409
+    "usd": 0.5009
   },
   "level_designer": {
-    "prompt_tokens": 10499,
-    "completion_tokens": 2271,
+    "prompt_tokens": 12230,
+    "completion_tokens": 2310,
     "calls": 2,
-    "total_tokens": 12770,
-    "cap": 885000,
-    "usd": 0.0656
+    "total_tokens": 14540,
+    "cap": 150000,
+    "usd": 0.0713
   },
   "total": {
-    "total_tokens": 80482,
-    "cap": 1410000,
-    "usd": 0.4456,
+    "total_tokens": 107097,
+    "cap": 675000,
+    "usd": 0.6186,
     "usd_ceiling": 10.0
   }
 }

@@ -11,6 +11,36 @@
       "used_for": "Core glow, electron trails, energy orbs, enemy death bursts"
     },
     {
+      "name": "Wenrexa Magic Sphere Sprites",
+      "category": "sprite",
+      "source_url": "https://wenrexa.itch.io/item-magics",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Itch/WenrexaMagicSphereSprites/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Possible enemy sprites"
+    },
+    {
+      "name": "Basic Glowy Shapes (Sunset Arena)",
+      "category": "sprite",
+      "source_url": "https://unprecedented.itch.io/basic-glowy-shapes-assets-from-sunset-arena",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Itch/BasicGlowyShapesSunsetArena/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Possible enemy sprites"
+    },
+    {
+      "name": "Basic 2D Shapes (Reactorcore)",
+      "category": "sprite",
+      "source_url": "https://reactorcore.itch.io/basic-2d-shapes-primitive-128px",
+      "license": "CC0-1.0",
+      "price_usd": 0.0,
+      "local_path": "Assets/ThirdParty/Itch/Basic2DShapesReactorcore/",
+      "unity_compat_note": "Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version.",
+      "used_for": "Possible enemy sprites"
+    },
+    {
       "name": "Kenney Mobile Controls",
       "category": "input",
       "source_url": "https://kenney.nl/assets/mobile-controls",

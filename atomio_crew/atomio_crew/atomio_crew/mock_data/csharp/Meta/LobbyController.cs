@@ -8,25 +8,29 @@ using UnityEngine.UI;
 namespace AtomIO.Meta
 {
     /// <summary>
-    /// Lobby: shows the current element and energy, evolves (with failure chance) or starts a run.
-    /// After the first death the tutorial forces the H to He evolution before the next run.
+    /// Lobby: shows the current element, its level and the energy bar, and starts a run.
+    /// There is no evolve button: evolving happens in the arena the moment the bar is full.
     /// </summary>
     public class LobbyController : MonoBehaviour
     {
         [SerializeField] private string arenaSceneName = "Arena";
         [SerializeField] private TMP_Text elementLabel;
+        [SerializeField] private TMP_Text levelLabel;
+        [SerializeField] private Image energyFill;
         [SerializeField] private TMP_Text energyLabel;
-        [SerializeField] private TMP_Text evolveInfoLabel;
-        [SerializeField] private TMP_Text resultLabel;
-        [SerializeField] private Button evolveButton;
+        [SerializeField] private TMP_Text infoLabel;
         [SerializeField] private Button startButton;
+        [SerializeField] private Button resetButton;
         [SerializeField] private Image corePreview;
 
         private void Start()
         {
-            evolveButton.onClick.AddListener(OnEvolve);
             startButton.onClick.AddListener(OnStart);
-            resultLabel.text = string.Empty;
+            if (resetButton != null)
+            {
+                resetButton.onClick.AddListener(OnReset);
+            }
+
             Refresh();
         }
 
@@ -36,59 +40,47 @@ namespace AtomIO.Meta
             var config = TierConfigLoader.Load(z);
             string title = config != null ? $"{config.symbol}  {config.name}" : $"Z={z}";
             elementLabel.text = $"{title}  (Z={z})";
-            energyLabel.text = $"Energy: {MetaProgress.Energy}";
+            if (levelLabel != null)
+            {
+                levelLabel.text = config != null
+                    ? $"Level {z}/{AtomFormulas.MaxAtomicNumber}: {config.level_name}"
+                    : $"Level {z}/{AtomFormulas.MaxAtomicNumber}";
+            }
 
             if (corePreview != null && config != null)
             {
                 corePreview.color = TierConfig.ParseHex(config.core_visual.primary_hex, Color.white);
             }
 
+            if (energyFill != null)
+            {
+                energyFill.fillAmount = MetaProgress.BarFill01;
+            }
+
             if (MetaProgress.HasWon)
             {
-                evolveInfoLabel.text = "You reached Oganesson. The table is complete!";
-                evolveButton.interactable = false;
-                startButton.interactable = true;
+                energyLabel.text = "Energy: MAX";
+                infoLabel.text = "Neon reached! Two full shells. Play Neon's arena as long as you like.";
                 return;
             }
 
-            int cost = MetaProgress.NextCost;
-            float fail = MetaProgress.CurrentFailChance;
-            evolveInfoLabel.text = $"Evolve to Z={z + 1}: {cost} energy, {fail:0.0}% failure chance";
-            evolveButton.interactable = MetaProgress.Energy >= cost;
-
-            // Tutorial: after the first death the player must evolve before playing again.
-            bool mustEvolve = MetaProgress.TutorialStage == 1;
-            startButton.interactable = !mustEvolve;
-            if (mustEvolve)
-            {
-                resultLabel.text = "Spend your energy to evolve into Helium!";
-            }
-        }
-
-        private void OnEvolve()
-        {
-            switch (MetaProgress.TryEvolve())
-            {
-                case EvolveResult.Success:
-                    resultLabel.text = "Evolution successful!";
-                    break;
-                case EvolveResult.Failed:
-                    resultLabel.text = $"Evolution failed. Energy lost. Next try: -{AtomFormulas.PityStepPercent}% failure chance.";
-                    break;
-                case EvolveResult.NotEnoughEnergy:
-                    resultLabel.text = "Not enough energy. Go collect more in the arena.";
-                    break;
-                case EvolveResult.AlreadyMaxElement:
-                    resultLabel.text = "Already at Oganesson.";
-                    break;
-            }
-
-            Refresh();
+            energyLabel.text = $"Energy {Mathf.FloorToInt(MetaProgress.BarEnergy)}/{MetaProgress.BarCapacity}";
+            var next = TierConfigLoader.Load(z + 1);
+            string nextName = next != null ? next.name : $"Z={z + 1}";
+            infoLabel.text = MetaProgress.TutorialStage == 0
+                ? "Collect energy orbs to fill the bar. A full bar evolves you on the spot!"
+                : $"Fill the bar to evolve into {nextName}.";
         }
 
         private void OnStart()
         {
             SceneManager.LoadScene(arenaSceneName);
+        }
+
+        private void OnReset()
+        {
+            MetaProgress.ResetAll();
+            Refresh();
         }
     }
 }

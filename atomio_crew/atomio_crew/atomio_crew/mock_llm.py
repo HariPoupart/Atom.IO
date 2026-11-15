@@ -40,7 +40,8 @@ def _canned_manifest() -> dict:
     }
     assets = []
     for a in FREE_ASSET_CATALOG:
-        vendor = "Kenney" if a["name"].startswith("Kenney") else "AssetStore"
+        vendor = ("Kenney" if a["name"].startswith("Kenney")
+                  else "Itch" if "itch.io" in a["source_url"] else "AssetStore")
         pack = re.sub(r"[^A-Za-z0-9]", "", a["name"].replace("Kenney ", ""))
         local = (f"Packages/{pack}" if a["license"] == "Unity-Package"
                  else f"Assets/ThirdParty/{vendor}/{pack}/")
@@ -48,7 +49,7 @@ def _canned_manifest() -> dict:
             "name": a["name"], "category": a["category"], "source_url": a["source_url"],
             "license": a["license"], "price_usd": 0, "local_path": local,
             "unity_compat_note": ("Plain PNG/OGG files, import as Sprite (2D) / AudioClip. Works in any Unity version."
-                                  if vendor == "Kenney" else "First-party / Asset Store package, supports Unity 6."),
+                                  if vendor in ("Kenney", "Itch") else "First-party / Asset Store package, supports Unity 6."),
             "used_for": used_for.get(a["category"], "General"),
         })
     return {"assets": assets,
@@ -69,25 +70,30 @@ def _canned_review() -> dict:
         ],
         "implementation_plan": [
             "Create Lobby and Arena scenes; set landscape orientation, URP 2D renderer with Bloom.",
-            "Core/AtomFormulas: GDD numbers (HP, slots, evolution cost, failure curve).",
-            "Data/TierConfig + TierConfigLoader: read Resources/AtomIO/Tiers/tier_NNN.json with JsonUtility.",
+            "Core/AtomFormulas: GDD numbers (HP, slots, energy bar size 50 + 3Z, final element Neon).",
+            "Data/TierConfig + TierConfigLoader: read Resources/AtomIO/Tiers/tier_001..010.json with JsonUtility.",
             "Player/PlayerAtom + Player/ElectronOrbit: movement, HP, Bohr shells, aim and release.",
             "Combat/Electron + Combat/Enemy: wild/orbit/released states, damage, chase-and-give-up AI.",
-            "Arena/ArenaSpawner + EnergyOrb + ArenaSession: inverse-time spawns, energy, run end.",
+            "Arena/ElectronPool: pooled electrons; spawner caps wild electrons per level (tier 'electrons' block).",
+            "Arena/ArenaSpawner + EnergyOrb + ArenaSession: inverse-time spawns, energy into the bar, "
+            "mid-run evolution (bar full -> next level, bar empties to 0), run end.",
+            "Arena/ArenaLayoutBuilder: per-level static obstacles (ring/scatter/cross/spiral/lattice).",
             "Controls/TouchStick + PlayerInputBridge: two on-screen sticks, no extra packages.",
-            "Meta/MetaProgress + LobbyController: banked energy, evolution with pity, tutorial gating.",
-            "UI/ArenaHud: element, HP bar, energy, time, electrons, tutorial hints.",
+            "Meta/MetaProgress + LobbyController: element, saved bar progress, win at Neon, tutorial flags.",
+            "UI/ArenaHud: element, level name, HP bar, energy bar, time, electrons, evolve banner, hints.",
         ],
         "prefab_scene_notes": (
             "Physics2D layers: Player, Enemy, Electron, Pickup. Disable Electron-Electron, Pickup-Enemy and "
             "Electron-Pickup collisions. Prefabs: Player (Rigidbody2D dynamic, gravity 0, CircleCollider2D, "
             "PlayerAtom, ElectronOrbit, child core and rim SpriteRenderers, LineRenderer for aim), Electron "
-            "(kinematic Rigidbody2D, trigger CircleCollider2D, TrailRenderer, Kenney particle sprite), Enemy "
+            "(kinematic Rigidbody2D, trigger CircleCollider2D, TrailRenderer, Kenney particle sprite), Obstacle "
+            "(static CircleCollider2D on Default), Enemy "
             "(dynamic Rigidbody2D, CircleCollider2D, Enemy, orb prefab reference), EnergyOrb (trigger collider). "
             "Arena scene: ArenaSession, ArenaSpawner, Canvas (Screen Space Overlay, scale with screen size "
             "1920x1080) with left/right TouchStick, ArenaHud, exit button wired to ArenaSession.ExitArena, and an "
             "EventSystem (use InputSystemUIInputModule if the new Input System is active). Lobby scene: "
-            "LobbyController with evolve/start buttons. Add both scenes to Build Settings (Lobby first)."
+            "LobbyController with an energy bar and a start button (no evolve button: evolving happens in the "
+            "arena when the bar is full). Add both scenes to Build Settings (Lobby first)."
         ),
     }
 
@@ -101,21 +107,27 @@ def _canned_code() -> dict:
              "Generated against Unity 6.3 LTS. No external packages and no networking.", "",
              "| File | Purpose |", "|---|---|"]
     purpose = {
-        "AtomFormulas": "GDD constants and formulas (HP, slots, evolution cost, failure chance, pity).",
+        "AtomFormulas": "GDD constants and formulas (HP, slots, energy bar size, final element Neon).",
         "TierConfig": "Serializable mirror of tier_NNN.json and the spawn/energy/HP curves.",
         "TierConfigLoader": "Loads tier JSON from Resources with fallback; zero network calls.",
-        "MetaProgress": "PlayerPrefs save: element, banked energy, pity counter, tutorial stage.",
-        "LobbyController": "Lobby UI: evolve with failure chance, forced first evolution, start run.",
+        "MetaProgress": "PlayerPrefs save: element, energy bar progress, tutorial stage; bar full = evolve, bar to 0.",
+        "LobbyController": "Lobby UI: element, energy bar, win message at Neon, start run.",
         "PlayerAtom": "Player nucleus: movement, HP = 10 x Z, trait multipliers, core colours.",
-        "ElectronOrbit": "Bohr shells (2/8/18/32), slot cap = Z, keep >= 1, aim line, release.",
-        "Electron": "Wild / orbiting / released states, 10 and 20 damage, pickup.",
+        "ElectronOrbit": "Bohr shells (2 then 8: Neon fills both), slot cap = Z, keep >= 1, aim line, release; "
+                         "smooth per-electron orbit set in LateUpdate (after the developer's demo script).",
+        "Electron": "Glowing yellow sphere; wild (bob, pulse, lifetime fade) / orbiting / released states, "
+                    "10 and 20 damage, pickup flash, returns to the pool.",
+        "ElectronPool": "Re-uses electron objects (no GC spikes) and counts wild electrons for the per-level cap.",
         "Enemy": "Chase in sight range, give up at 1.5x range, contact damage, orb drop.",
         "EnergyOrb": "Energy pickup.",
-        "ArenaSession": "Run lifecycle, time and energy tracking, return to lobby.",
-        "ArenaSpawner": "Inverse-time spawning of enemies, orbs and wild electrons.",
+        "ArenaSession": "Run lifecycle, energy into the bar, mid-run evolution into the next level, return to lobby.",
+        "ArenaLayoutBuilder": "Builds each level's boundary ring and static obstacles from the tier's arena layout.",
+        "ArenaCamera": "Smooth camera follow for the player atom.",
+        "ArenaSpawner": "Inverse-time spawning of enemies and orbs; pooled wild electrons per the level's "
+                        "electrons block (cap, min distance, none at H).",
         "TouchStick": "uGUI virtual joystick (move / aim).",
         "PlayerInputBridge": "Connects sticks to the player and orbit.",
-        "ArenaHud": "Top-left HUD and tutorial hints.",
+        "ArenaHud": "Top-left HUD (HP bar, energy bar), evolve banner and tutorial hints.",
     }
     for f in files:
         stem = Path(f["path"]).stem
@@ -184,7 +196,7 @@ class MockLLM(BaseLLM):
             if n == 1:
                 return ("Thought: I need the exact tier JSON the Level Designer's design produces.\n"
                         "Action: tier_json_contract\n"
-                        'Action Input: {"atomic_number": "26"}')
+                        'Action Input: {"atomic_number": "5"}')
             return _final(_canned_code())
         if task == "validate_outputs":
             if n == 1:
@@ -207,6 +219,7 @@ class MockLLM(BaseLLM):
             "errors": result.get("errors", []),
             "warnings": result.get("warnings", []),
             "notes": ("Open the Unity project, let scripts compile, then check: (1) tutorial run as H, "
-                      "(2) forced evolve to He, (3) throw/pickup lesson, (4) tier 26/79/118 core looks, "
-                      "(5) profiler on a 2 GB Android device with 100+ orbiting electrons."),
+                      "(2) the bar fills and evolves you to He mid-run, then empties to 0, (3) throw/pickup "
+                      "lesson, (4) every level's core look and obstacle layout up to Neon, (5) the win "
+                      "banner at Neon, (6) profiler on a 2 GB Android device with 10 orbiting electrons."),
         }

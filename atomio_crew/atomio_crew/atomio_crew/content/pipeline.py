@@ -32,7 +32,8 @@ BLOCKING = {"blocker", "major"}
 
 # --------------------------------------------------------------------------- prompts
 WRITER_SYSTEM = """You are the Atom.IO Writer agent. You write game-ready content for Atom.IO, an Android \
-arcade .io game where the player is an atom climbing the periodic table (Bohr model). You ALWAYS ground \
+arcade .io game where the player is an atom climbing the periodic table from Hydrogen to Neon \
+(Bohr model, 10 levels, evolution by filling an energy bar). You ALWAYS ground \
 your writing in the GDD excerpt you are given and follow the style guide exactly. Output ONLY one JSON \
 object matching the schema. No markdown, no commentary.
 

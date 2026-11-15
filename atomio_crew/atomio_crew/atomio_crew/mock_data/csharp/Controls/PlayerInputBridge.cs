@@ -5,7 +5,8 @@ namespace AtomIO.Controls
 {
     /// <summary>
     /// Wires the two on-screen sticks to the player: left moves, right aims and fires on release.
-    /// In the editor (legacy input enabled), WASD / arrow keys move for quick testing.
+    /// In the editor, WASD / arrow keys also move for quick testing (new Input System or legacy).
+    /// The sticks themselves work with the mouse in the editor.
     /// </summary>
     public class PlayerInputBridge : MonoBehaviour
     {
@@ -48,7 +49,23 @@ namespace AtomIO.Controls
 
         private void OnFire(Vector2 v) => orbit.Release(v);
 
-#if UNITY_EDITOR && ENABLE_LEGACY_INPUT_MANAGER
+#if UNITY_EDITOR && ENABLE_INPUT_SYSTEM
+        private void Update()
+        {
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb == null || (moveStick != null && moveStick.Held))
+            {
+                return;
+            }
+
+            var keys = Vector2.zero;
+            if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) keys.x -= 1f;
+            if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) keys.x += 1f;
+            if (kb.sKey.isPressed || kb.downArrowKey.isPressed) keys.y -= 1f;
+            if (kb.wKey.isPressed || kb.upArrowKey.isPressed) keys.y += 1f;
+            player.SetMoveInput(keys);
+        }
+#elif UNITY_EDITOR && ENABLE_LEGACY_INPUT_MANAGER
         private void Update()
         {
             if (moveStick != null && moveStick.Held)

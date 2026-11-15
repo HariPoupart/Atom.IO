@@ -21,14 +21,16 @@
   ],
   "implementation_plan": [
     "Create Lobby and Arena scenes; set landscape orientation, URP 2D renderer with Bloom.",
-    "Core/AtomFormulas: GDD numbers (HP, slots, evolution cost, failure curve).",
-    "Data/TierConfig + TierConfigLoader: read Resources/AtomIO/Tiers/tier_NNN.json with JsonUtility.",
+    "Core/AtomFormulas: GDD numbers (HP, slots, energy bar size 50 + 3Z, final element Neon).",
+    "Data/TierConfig + TierConfigLoader: read Resources/AtomIO/Tiers/tier_001..010.json with JsonUtility.",
     "Player/PlayerAtom + Player/ElectronOrbit: movement, HP, Bohr shells, aim and release.",
     "Combat/Electron + Combat/Enemy: wild/orbit/released states, damage, chase-and-give-up AI.",
-    "Arena/ArenaSpawner + EnergyOrb + ArenaSession: inverse-time spawns, energy, run end.",
+    "Arena/ElectronPool: pooled electrons; spawner caps wild electrons per level (tier 'electrons' block).",
+    "Arena/ArenaSpawner + EnergyOrb + ArenaSession: inverse-time spawns, energy into the bar, mid-run evolution (bar full -> next level, bar empties to 0), run end.",
+    "Arena/ArenaLayoutBuilder: per-level static obstacles (ring/scatter/cross/spiral/lattice).",
     "Controls/TouchStick + PlayerInputBridge: two on-screen sticks, no extra packages.",
-    "Meta/MetaProgress + LobbyController: banked energy, evolution with pity, tutorial gating.",
-    "UI/ArenaHud: element, HP bar, energy, time, electrons, tutorial hints."
+    "Meta/MetaProgress + LobbyController: element, saved bar progress, win at Neon, tutorial flags.",
+    "UI/ArenaHud: element, level name, HP bar, energy bar, time, electrons, evolve banner, hints."
   ],
-  "prefab_scene_notes": "Physics2D layers: Player, Enemy, Electron, Pickup. Disable Electron-Electron, Pickup-Enemy and Electron-Pickup collisions. Prefabs: Player (Rigidbody2D dynamic, gravity 0, CircleCollider2D, PlayerAtom, ElectronOrbit, child core and rim SpriteRenderers, LineRenderer for aim), Electron (kinematic Rigidbody2D, trigger CircleCollider2D, TrailRenderer, Kenney particle sprite), Enemy (dynamic Rigidbody2D, CircleCollider2D, Enemy, orb prefab reference), EnergyOrb (trigger collider). Arena scene: ArenaSession, ArenaSpawner, Canvas (Screen Space Overlay, scale with screen size 1920x1080) with left/right TouchStick, ArenaHud, exit button wired to ArenaSession.ExitArena, and an EventSystem (use InputSystemUIInputModule if the new Input System is active). Lobby scene: LobbyController with evolve/start buttons. Add both scenes to Build Settings (Lobby first)."
+  "prefab_scene_notes": "Physics2D layers: Player, Enemy, Electron, Pickup. Disable Electron-Electron, Pickup-Enemy and Electron-Pickup collisions. Prefabs: Player (Rigidbody2D dynamic, gravity 0, CircleCollider2D, PlayerAtom, ElectronOrbit, child core and rim SpriteRenderers, LineRenderer for aim), Electron (kinematic Rigidbody2D, trigger CircleCollider2D, TrailRenderer, Kenney particle sprite), Obstacle (static CircleCollider2D on Default), Enemy (dynamic Rigidbody2D, CircleCollider2D, Enemy, orb prefab reference), EnergyOrb (trigger collider). Arena scene: ArenaSession, ArenaSpawner, Canvas (Screen Space Overlay, scale with screen size 1920x1080) with left/right TouchStick, ArenaHud, exit button wired to ArenaSession.ExitArena, and an EventSystem (use InputSystemUIInputModule if the new Input System is active). Lobby scene: LobbyController with an energy bar and a start button (no evolve button: evolving happens in the arena when the bar is full). Add both scenes to Build Settings (Lobby first)."
 }

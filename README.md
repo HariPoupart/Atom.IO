@@ -1,6 +1,8 @@
 # Atom.IO Agent Crew
 
-**Game: Atom.IO.** This is my capstone game: a single-player Android .io-style arcade game based on the Bohr atomic model. You start as Hydrogen and evolve up the periodic table to Oganesson (element 118). It's built in Unity 6.3 LTS.
+**Game: Atom.IO.** This is my capstone game: a single-player Android .io-style arcade game based on the Bohr atomic model. You start as Hydrogen and evolve up the periodic table to Neon (element 10), through 10 levels. It's built in Unity 6.3 LTS.
+
+> **Rescope (2026-11-12):** the game now ends at **Neon**, so there are **10 levels** (one arena configuration per element, H to Ne) instead of 118 tiers. Evolution has **no cost and no failure chance** any more: an **energy bar** of 50 + 3Z fills with every bit of energy collected; when it is full the player evolves on the spot (mid-run, straight into the next level) and the bar **empties to 0**. The bar keeps its progress between runs. The GDD, agents, rules, validators, reference C#, content pipeline and sample output were all updated, and the Unity project gets a one-click scene builder (`unity_bootstrap/`).
 
 > **Assignment 4 (Dynamic Content Pipeline):** see [`atomio_crew/atomio_crew/CONTENT_PIPELINE.md`](atomio_crew/atomio_crew/CONTENT_PIPELINE.md). Generated content: [`content/`](atomio_crew/atomio_crew/content/). Run `python main.py generate --mock` from `atomio_crew/atomio_crew/`.
 
@@ -14,9 +16,9 @@ Each run writes a staging folder, `output/run_<timestamp>/`, laid out like a Uni
 |---|---|---|
 | `01_asset_manifest.json` | Asset Scraper | Free, license-checked assets (particles, touch controls, UI, fonts, SFX, URP bloom) |
 | `02_architect_review.json` | Lead Architect | Approved and rejected assets, implementation plan, prefab and scene setup |
-| `03_tier_design_set.json` | Level Designer | Spawn curve, core look and trait per element group, landmark overrides, fallback |
-| `unity/Assets/Resources/AtomIO/Tiers/tier_001…118.json` + `tier_fallback.json` + `index.json` | Level Designer + expander | Loaded by `TierConfigLoader` when the player enters the arena |
-| `unity/Assets/Scripts/AtomIO/**.cs` (15 files) | Lead Architect | Core gameplay: atom, Bohr electron shells, enemies, spawner, energy, lobby evolution with failure chance, tutorial, HUD, touch sticks |
+| `03_tier_design_set.json` | Level Designer | Spawn curve, one hand-made design per level (H..Ne: level name, core look, arena theme, obstacle layout, trait), fallback |
+| `unity/Assets/Resources/AtomIO/Tiers/tier_001…010.json` + `tier_fallback.json` + `index.json` | Level Designer + expander | Loaded by `TierConfigLoader` when the player enters the arena and on every mid-run evolution |
+| `unity/Assets/Scripts/AtomIO/**.cs` (17 files) | Lead Architect | Core gameplay: atom, Bohr electron shells, enemies, spawner, per-level obstacles, energy bar that evolves you when full, camera, tutorial, HUD, lobby, touch sticks |
 | `CHANGES.md` | Lead Architect | Change log required by the GDD |
 | `05_validation_report.json`, `GATE.json`, `usage.json` | Validation suite + Lead Architect | Gate status and token/cost use |
 
@@ -28,7 +30,7 @@ Nothing touches the real Unity project until you run `promote`. That's the manua
 |---|---|---|---|---|
 | 1 | **Asset Scraper** | Claude Haiku 4.5 | `free_asset_catalog`, `license_check`, optional `SerperDevTool` | `AssetManifest`: free assets only, with license, URL, local path and Unity note |
 | 2 | **Lead Architect** | Claude Sonnet 4.5 | `gdd_formula_table`, `tier_json_contract`, `run_validation_suite` | `ArchitectReview` → `CodeBundle` (compilable C# + CHANGES.md) → `ValidationReport` |
-| 3 | **Level Designer** | Claude Sonnet 4.5 | `element_groups`, `gdd_formula_table` | `TierDesignSet`: spawn curve, group designs, overrides, required fallback |
+| 3 | **Level Designer** | Claude Sonnet 4.5 | `element_groups`, `gdd_formula_table` | `TierDesignSet`: spawn curve, 10 level designs, required fallback |
 
 The crew runs 5 tasks in a sequential process:
 
@@ -64,12 +66,12 @@ flowchart TB
     SCR -- "AssetManifest<br/>free assets + licenses" --> ARC1
     ARC1 -- "ArchitectReview<br/>approved assets + plan" --> LVL
     ARC1 -- "plan + scene notes" --> ARC2
-    LVL -- "TierDesignSet<br/>spawn curve, group core looks + traits,<br/>landmark overrides, fallback" --> ARC2
+    LVL -- "TierDesignSet<br/>spawn curve, 10 level designs<br/>(core look, arena, obstacles, trait), fallback" --> ARC2
     LVL -- "TierDesignSet" --> ARC3
-    ARC2 -- "CodeBundle<br/>15 C# scripts + CHANGES.md" --> ARC3
+    ARC2 -- "CodeBundle<br/>17 C# scripts + CHANGES.md" --> ARC3
 
     ARC3 -- "ValidationReport" --> GATE{"Manual gate<br/>developer review<br/>main.py promote"}
-    GATE -- "approved" --> UNITY[("Unity 6.3 project<br/>Scripts/AtomIO/*.cs<br/>Resources/AtomIO/Tiers/tier_001-118.json")]
+    GATE -- "approved" --> UNITY[("Unity 6.3 project<br/>Scripts/AtomIO/*.cs<br/>Resources/AtomIO/Tiers/tier_001-010.json")]
     GATE -- "rejected" --> REV["Revise or edit by hand<br/>(no auto-retry)"]
     UNITY --> GAME(["Atom.IO Android build<br/>(zero runtime API calls)"])
 
@@ -91,34 +93,36 @@ python main.py run --mock --without level_designer
 
 | Agent removed | What breaks | Result |
 |---|---|---|
-| **Asset Scraper** | No `AssetManifest`, so the Architect's approvals have no source. Every asset the Level Designer uses for core textures and particles becomes untrusted. | Gate **BLOCKED** (27 errors) |
-| **Lead Architect** | No asset approvals (the Level Designer's asset references are all rejected), no C# to load the tier files, no plan, no validation report. | Gate **BLOCKED** (19 errors) |
-| **Level Designer** | No `TierDesignSet`, so no 118 tier files. `tier_json_contract` returns an error, so the Architect's C# has no data contract to match. | Gate **BLOCKED** (2 errors) |
+| **Asset Scraper** | No `AssetManifest`, so the Architect's approvals have no source. Every asset the Level Designer uses for core textures and particles becomes untrusted. | Gate **BLOCKED** (31 errors) |
+| **Lead Architect** | No asset approvals (the Level Designer's asset references are all rejected), no C# to load the tier files, no plan, no validation report. | Gate **BLOCKED** (23 errors) |
+| **Level Designer** | No `TierDesignSet`, so no 10 level files. `tier_json_contract` returns an error, so the Architect's C# has no data contract to match. | Gate **BLOCKED** (2 errors) |
 | none | | Gate **READY FOR REVIEW** (0 errors) |
 
 ### How the crew stays faithful to the GDD
 - **The agents never do the GDD math.** `gdd_rules.py` holds every fixed rule:
   - HP = 10·Z
   - electron slots = Z
-  - evolution cost = 50 + 3Z
-  - failure chance = (−1 + 1.04015^(Z−1))%, minus 0.5% per failure
+  - energy bar size = 50 + 3Z (53 at H … 77 at F, none at Ne); a full bar evolves you and empties to 0
+  - no evolution cost, no failure chance (the validators reject both in tier JSON and C#)
+  - final element = Neon (Z = 10)
   - damage values of 10/20
 
-  The Level Designer only picks style and tuning values. `tiers.py` multiplies those out to all 118 tiers.
-- **Every tier is covered.** Any group the designer skips gets the fallback block. In the sample run, elements 109–118 use the fallback, except Og, which has its own landmark design.
+  The Level Designer only picks style and tuning values. `tiers.py` combines those with the fixed rules into the 10 level files.
+- **Every level is covered.** The Level Designer hand-designs all 10 levels; any level it skips gets the fallback block (and a warning). In the sample run all 10 are designed, from the open tutorial arena *Proton Nursery* (H) to the *Neon Sign* finale (Ne).
 - **Validation suite** (`validators.py`), run by the Architect's tool and run again independently before the gate:
   - free and commercial-safe licenses only
   - spawn values within range
   - valid `#RRGGBB` colours
   - every agent's output must be present, and the Architect must approve at least one sourced asset
   - assets referenced by the designer must be approved by the Architect, and it must use at least one of them
-  - GDD numbers re-checked on all 118 files
+  - GDD numbers and energy-bar rules re-checked on all 10 files; no tier beyond Neon may exist
+  - level layouts: obstacle pattern, count and size in range
   - C# paths, file name must match the type name, no networking or external packages (GDD 3.1.2)
   - **JSON-to-C# contract:** every tier JSON key must have a public C# field, otherwise `JsonUtility` would silently drop it
   - an **`mcs` compile check** against Unity API stubs, when Mono is installed
 - **Token budget** (`budget.py`, from GDD 3.2):
-  - per-agent caps: Scraper 45k, Architect 480k, Level Designer 885k
-  - 1.41M tokens total, with a $10 ceiling
+  - per-agent caps: Scraper 45k, Architect 480k, Level Designer 150k (cut from 885k for 10 levels)
+  - 675k tokens total, with a $10 ceiling
   - checked after every task; a run that goes over stops cleanly and keeps its partial output
 
 ## Setup
@@ -145,7 +149,7 @@ python main.py promote --unity-project ~/UnityProjects/AtomIO   # manual gate: c
 
 **Mock mode** replaces Claude with `MockLLM`, a real CrewAI `BaseLLM` that returns canned answers. Everything else runs for real:
 - agents, tasks, context passing and Pydantic parsing
-- tool calls: the Scraper calls the catalog and the license checker, the Level Designer reads the element groups, and the Architect runs the validation suite and reports its real result
+- tool calls: the Scraper calls the catalog and the license checker, the Level Designer reads the 10 levels and their groups, and the Architect runs the validation suite and reports its real result
 - callbacks, budget checks, tier expansion and the compile check
 
 Mock mode is how I check that the crew runs without crashing. The C# it writes is the reference implementation in `atomio_crew/mock_data/csharp/`, and it compiles cleanly against the stubs.
@@ -154,15 +158,16 @@ Sample console output (mock):
 ```
 == Atom.IO crew (mock) : Asset Scraper -> Lead Architect -> Level Designer -> Lead Architect ==
 Crew completed.
-Output: output/run_20261101-231731
+Output: output/run_20261112-204449
 Validation: PASSED (0 errors, 1 warnings)
-  warning groups not designed, will use fallback: ['unknown_properties']
-Tokens: 75,268 / 1,410,000 cap   cost ~$0.430 / $10 ceiling
+  warning compile check skipped: install Mono `mcs` to compile C# against Unity stubs
+Tokens: 93,981 / 675,000 cap   cost ~$0.531 / $10 ceiling
 ```
 (Mock token counts are estimated as about 4 characters per token, so they roughly match a live run.)
 
 ## Using the output in Unity
-1. Run `promote`. It copies `Assets/Scripts/AtomIO/` and `Assets/Resources/AtomIO/Tiers/` into the project and appends to `CHANGES.md`.
+1. Run `promote`. It copies `Assets/Scripts/AtomIO/`, `Assets/Resources/AtomIO/Tiers/` (removing stale tiers beyond Neon), the A4 content and the editor scene builder into the project, and appends to `CHANGES.md`.
+   The first time Unity opens the project afterwards, **Atom.IO > Build Game Scenes** runs by itself: it imports the TextMeshPro essentials if needed, generates sprites, prefabs, physics layers, the Lobby and Arena scenes and the build settings. Open `Assets/AtomIO/Scenes/Lobby` and press Play (WASD moves in the editor; the on-screen sticks work with the mouse).
 2. Follow `prefab_scene_notes` in `02_architect_review.json`:
    - Lobby and Arena scenes
    - Player, Electron, Enemy and EnergyOrb prefabs
@@ -180,8 +185,8 @@ atomio_crew/
   config/tasks.yaml         5 task prompts (the GDD 2.3 prompt contracts)
   crew.py                   builds LLMs, agents, tasks and the crew
   schemas.py                Pydantic contracts between agents
-  gdd_rules.py              GDD formulas + periodic table + element groups
-  tiers.py                  TierDesignSet -> 118 tier JSON files + fallback
+  gdd_rules.py              GDD formulas (energy bar) + the 10 elements + element groups
+  tiers.py                  TierDesignSet -> 10 level JSON files + fallback
   tools.py                  agent tools + shared run state
   validators.py             validation suite (+ mcs compile check)
   budget.py                 token caps and $ ceiling
@@ -192,7 +197,7 @@ sample_output/              output from a mock run, for graders
 ```
 
 ## Notes and limits
-- **Scope change from the GDD's token table:** the GDD estimated about 354 Level Designer calls, roughly 3 per element. The crew designs per element group plus landmark overrides and expands the rest in code, which uses far fewer tokens for the same 118 files.
+- **Scope change from the GDD's token table:** the GDD estimated about 354 Level Designer calls, roughly 3 per element. After the rescope to 10 levels the Level Designer designs every level by hand in one response, and its token cap was cut to match.
 - The asset catalog is a curated, offline list of real free packs (Kenney CC0, Unity first-party, one free Asset Store pack). Setting `SERPER_API_KEY` also gives the Scraper live web search. Check each URL and license before you download.
 - The `mcs` check compiles against stubs, not the real Unity engine. It catches C# errors and broken contracts, but the final compile still happens in Unity at the manual gate.
 - Model names live in `.env`, so you can switch models without changing code.

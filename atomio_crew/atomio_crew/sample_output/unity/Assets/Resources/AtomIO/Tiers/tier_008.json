@@ -1,10 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "atomic_number": 8,
   "symbol": "O",
   "name": "Oxygen",
   "group": "reactive_nonmetal",
-  "design_source": "group",
+  "level_name": "Flame Feeder",
+  "design_source": "level",
   "player": {
     "max_hp": 80,
     "electron_slots": 8,
@@ -14,12 +15,12 @@
   },
   "evolution": {
     "next_atomic_number": 9,
-    "cost_to_next": 74,
-    "base_fail_chance_pct": 0.317,
-    "pity_step_pct": 0.5
+    "energy_to_evolve": 74,
+    "bar_reset_value": 0,
+    "is_final_element": false
   },
   "enemy": {
-    "base_hp": 27.5,
+    "base_hp": 31.0,
     "hp_per_minute": 6.0,
     "contact_damage": 10,
     "move_speed": 3.2,
@@ -29,34 +30,42 @@
     "enemy_base_interval_s": 4.0,
     "enemy_min_interval_s": 0.6,
     "time_scale_k": 0.6,
-    "max_alive_enemies": 7,
-    "orb_base_interval_s": 1.5,
-    "electron_base_interval_s": 4.0
+    "max_alive_enemies": 12,
+    "orb_base_interval_s": 1.2
+  },
+  "electrons": {
+    "base_interval_s": 4.4,
+    "max_wild": 11,
+    "lifetime_s": 25.0,
+    "min_spawn_distance": 6.0
   },
   "energy": {
     "orb_base_value": 2.0,
-    "growth_per_minute": 1.25
+    "growth_per_minute": 1.2
   },
   "arena": {
-    "radius": 31.05,
-    "background_hex": "#0B1622",
-    "grid_hex": "#16324A",
-    "ambient_particle_asset": "Kenney Particle Pack"
+    "radius": 36.0,
+    "background_hex": "#1C0E06",
+    "grid_hex": "#4A2410",
+    "ambient_particle_asset": "Kenney Particle Pack",
+    "obstacle_pattern": "scatter",
+    "obstacle_count": 12,
+    "obstacle_size": 1.1
   },
   "core_visual": {
-    "primary_hex": "#7FD8FF",
-    "secondary_hex": "#E6F7FF",
-    "glow_intensity": 1.2,
-    "pattern": "pulse",
+    "primary_hex": "#FF8A3D",
+    "secondary_hex": "#FFE0C2",
+    "glow_intensity": 2.0,
+    "pattern": "swirl",
     "texture_asset": "Kenney Particle Pack",
-    "shader_note": "URP 2D Sprite-Lit with a soft radial glow sprite and a slow pulsing emission."
+    "shader_note": "Orange flame swirl with flickering emission."
   },
   "trait": {
-    "name": "Covalent Bond",
-    "description": "Electrons orbit faster, so it is easier to keep enemies at bay.",
+    "name": "Oxidizer",
+    "description": "Feeds every fire: stronger, faster strikes, thinner core.",
     "move_speed_mult": 1.0,
-    "orbit_speed_mult": 1.15,
-    "electron_damage_mult": 1.0,
-    "max_hp_mult": 1.0
+    "orbit_speed_mult": 1.1,
+    "electron_damage_mult": 1.15,
+    "max_hp_mult": 0.9
   }
 }

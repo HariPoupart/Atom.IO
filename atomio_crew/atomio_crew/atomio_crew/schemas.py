@@ -51,7 +51,7 @@ class ArchitectReview(BaseModel):
 
 
 class SpawnCurve(BaseModel):
-    """Tuning knobs. Per-tier numbers are derived from these + gdd_rules."""
+    """Tuning knobs. Per-level numbers are derived from these + gdd_rules."""
     enemy_base_interval_s: float = Field(description="Seconds between enemy spawns at t=0 (2-8)")
     enemy_min_interval_s: float = Field(description="Floor for the enemy spawn interval (0.3-3)")
     time_scale_k: float = Field(description="interval(t) = base / (1 + k * minutes_elapsed); k in 0.05-2")
@@ -59,14 +59,19 @@ class SpawnCurve(BaseModel):
     enemy_hp_per_minute: float = Field(description="Enemy HP added per minute survived (0-20)")
     enemy_move_speed: float = Field(description="Units/second (1-6)")
     enemy_sight_range: float = Field(description="Units (3-20)")
-    max_alive_enemies_base: int = Field(description="Max simultaneous enemies at tier 1 (3-40)")
-    max_alive_enemies_per_tier: float = Field(description="Extra simultaneous enemies per tier (0-1)")
+    max_alive_enemies_base: int = Field(description="Max simultaneous enemies at level 1 (3-40)")
+    max_alive_enemies_per_tier: float = Field(description="Extra simultaneous enemies per level (0-3)")
     orb_base_interval_s: float = Field(description="Seconds between natural energy-orb spawns (0.5-6)")
-    electron_base_interval_s: float = Field(description="Seconds between wild-electron spawns (1-10)")
+    electron_base_interval_s: float = Field(description="Seconds between wild-electron spawns at level 1 (1-10)")
+    electron_interval_per_tier: float = Field(description="Seconds added to the electron interval per level (0-0.5)")
+    max_wild_electrons_base: int = Field(description="Max wild electrons alive at once at level 1 (0-20)")
+    max_wild_electrons_per_tier: float = Field(description="Extra wild electrons allowed per level (0-2)")
+    electron_lifetime_s: float = Field(description="Seconds an uncollected wild electron lives before fading (10-40)")
+    electron_min_spawn_distance: float = Field(description="Minimum distance from the player for a new wild electron (3-12)")
     orb_base_value: float = Field(description="Energy per orb at t=0 (1-10)")
     energy_growth_per_minute: float = Field(description="Orb value multiplier per minute, exponential (1.0-1.5)")
-    arena_radius_base: float = Field(description="Arena radius at tier 1 (20-80)")
-    arena_radius_per_tier: float = Field(description="Arena radius growth per tier (0-0.5)")
+    arena_radius_base: float = Field(description="Arena radius at level 1 (15-60)")
+    arena_radius_per_tier: float = Field(description="Arena radius growth per level (0-3)")
 
 
 class CoreVisual(BaseModel):
@@ -84,6 +89,13 @@ class ArenaTheme(BaseModel):
     ambient_particle_asset: str = Field(description="Approved asset name or 'none'")
 
 
+class ArenaLayout(BaseModel):
+    """What makes each level's arena play differently."""
+    obstacle_pattern: str = Field(description="One of: none, ring, scatter, cross, spiral, lattice")
+    obstacle_count: int = Field(description="Number of static obstacles (0-16; 0 only with pattern 'none')")
+    obstacle_size: float = Field(description="Obstacle radius in units (0.5-3)")
+
+
 class Trait(BaseModel):
     name: str
     description: str
@@ -93,24 +105,20 @@ class Trait(BaseModel):
     max_hp_mult: float = Field(description="0.7-1.3")
 
 
-class GroupDesign(BaseModel):
-    group: str = Field(description="Element group key, e.g. noble_gas")
+class LevelDesign(BaseModel):
+    atomic_number: int = Field(description="1-10 (H..Ne); 0 for the fallback")
+    level_name: str = Field(description="Short arena name shown on screen, max 24 characters")
+    design_note: str = Field(description="One sentence: how this level feels different from the previous one")
     core_visual: CoreVisual
     arena_theme: ArenaTheme
+    arena_layout: ArenaLayout
     trait: Trait
-
-
-class TierOverride(BaseModel):
-    atomic_number: int
-    reason: str
-    core_visual: CoreVisual
 
 
 class TierDesignSet(BaseModel):
     spawn_curve: SpawnCurve
-    group_designs: list[GroupDesign]
-    tier_overrides: list[TierOverride] = Field(description="Signature looks for landmark elements")
-    fallback: GroupDesign = Field(description="Used for any tier/group that was not designed (group='fallback')")
+    level_designs: list[LevelDesign] = Field(description="Exactly one design per element, Z = 1..10")
+    fallback: LevelDesign = Field(description="Used if a level file is ever missing (atomic_number = 0)")
 
 
 # --------------------------------------------------------------------------- #

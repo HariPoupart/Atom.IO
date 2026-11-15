@@ -16,6 +16,10 @@ from .schemas import ArchitectReview, AssetManifest, CodeBundle, TierDesignSet
 
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 PATTERNS = {"solid", "rings", "swirl", "crystal", "noise", "pulse", "lattice"}
+OBSTACLE_PATTERNS = {"none", "ring", "scatter", "cross", "spiral", "lattice"}
+# Rescope guard: evolution has no cost and no failure chance any more (GDD 1.3.3).
+OBSOLETE_MECHANICS = ("FailChance", "fail_chance", "Pity", "pity_step", "EvolutionCost", "cost_to_next",
+                      "StarterEnergy", "TryEvolve")
 FREE_LICENSES = ("CC0", "CC-BY", "MIT", "UNITY-ASSET-STORE-EULA", "UNITY-PACKAGE", "OFL")
 # Things the shipped game must never use: runtime network calls (GDD 3.1.2)
 # and external dependencies not listed in the GDD (GDD 2.3).
@@ -25,9 +29,11 @@ SCRIPTS_ROOT = "Assets/Scripts/AtomIO/"
 RANGES = {  # SpawnCurve sanity bounds (mirrors the field descriptions)
     "enemy_base_interval_s": (2, 8), "enemy_min_interval_s": (0.3, 3), "time_scale_k": (0.05, 2),
     "enemy_hp_per_tier": (0, 10), "enemy_hp_per_minute": (0, 20), "enemy_move_speed": (1, 6),
-    "enemy_sight_range": (3, 20), "max_alive_enemies_base": (3, 40), "max_alive_enemies_per_tier": (0, 1),
+    "enemy_sight_range": (3, 20), "max_alive_enemies_base": (3, 40), "max_alive_enemies_per_tier": (0, 3),
     "orb_base_interval_s": (0.5, 6), "electron_base_interval_s": (1, 10), "orb_base_value": (1, 10),
-    "energy_growth_per_minute": (1.0, 1.5), "arena_radius_base": (20, 80), "arena_radius_per_tier": (0, 0.5),
+    "electron_interval_per_tier": (0, 0.5), "max_wild_electrons_base": (0, 20),
+    "max_wild_electrons_per_tier": (0, 2), "electron_lifetime_s": (10, 40), "electron_min_spawn_distance": (3, 12),
+    "energy_growth_per_minute": (1.0, 1.5), "arena_radius_base": (15, 60), "arena_radius_per_tier": (0, 3),
 }
 
 
@@ -85,6 +91,30 @@ def _check_visual(cv, where: str, approved: set[str], rep: Report) -> None:
         rep.err(f"{where}: texture_asset '{cv.texture_asset}' is not an approved asset")
 
 
+def _check_level(lv, where: str, approved: set[str], rep: Report) -> None:
+    _check_visual(lv.core_visual, where, approved, rep)
+    for f in ("background_hex", "grid_hex"):
+        if not HEX.match(getattr(lv.arena_theme, f)):
+            rep.err(f"{where}: arena_theme.{f} is not #RRGGBB")
+    amb = lv.arena_theme.ambient_particle_asset
+    if amb != "none" and amb not in approved:
+        rep.err(f"{where}: ambient_particle_asset '{amb}' is not an approved asset")
+    lay = lv.arena_layout
+    if lay.obstacle_pattern not in OBSTACLE_PATTERNS:
+        rep.err(f"{where}: obstacle_pattern '{lay.obstacle_pattern}' not in {sorted(OBSTACLE_PATTERNS)}")
+    if not 0 <= lay.obstacle_count <= 16:
+        rep.err(f"{where}: obstacle_count {lay.obstacle_count} outside 0-16")
+    if (lay.obstacle_pattern == "none") != (lay.obstacle_count == 0):
+        rep.err(f"{where}: obstacle_pattern 'none' must go with obstacle_count 0 (and only then)")
+    if not 0.5 <= lay.obstacle_size <= 3:
+        rep.err(f"{where}: obstacle_size {lay.obstacle_size} outside 0.5-3")
+    if len(lv.level_name) > 24 or not lv.level_name.strip():
+        rep.err(f"{where}: level_name must be 1-24 characters")
+    for f in ("move_speed_mult", "orbit_speed_mult", "electron_damage_mult", "max_hp_mult"):
+        if not 0.7 <= getattr(lv.trait, f) <= 1.3:
+            rep.err(f"{where}: trait.{f} outside 0.7-1.3")
+
+
 def check_design(d: TierDesignSet, approved: set[str], rep: Report) -> None:
     for k, (lo, hi) in RANGES.items():
         v = getattr(d.spawn_curve, k)
@@ -93,38 +123,28 @@ def check_design(d: TierDesignSet, approved: set[str], rep: Report) -> None:
     if d.spawn_curve.enemy_min_interval_s > d.spawn_curve.enemy_base_interval_s:
         rep.err("spawn_curve: enemy_min_interval_s must be <= enemy_base_interval_s")
 
-    seen = set()
-    for g in [*d.group_designs, d.fallback]:
-        where = f"group '{g.group}'"
-        if g is not d.fallback:
-            if g.group not in R.GROUPS:
-                rep.err(f"{where}: unknown group (valid: {R.GROUP_NAMES})")
-            if g.group in seen:
-                rep.err(f"{where}: designed twice")
-            seen.add(g.group)
-        _check_visual(g.core_visual, where, approved, rep)
-        for f in ("background_hex", "grid_hex"):
-            if not HEX.match(getattr(g.arena_theme, f)):
-                rep.err(f"{where}: arena_theme.{f} is not #RRGGBB")
-        amb = g.arena_theme.ambient_particle_asset
-        if amb != "none" and amb not in approved:
-            rep.err(f"{where}: ambient_particle_asset '{amb}' is not an approved asset")
-        for f in ("move_speed_mult", "orbit_speed_mult", "electron_damage_mult", "max_hp_mult"):
-            if not 0.7 <= getattr(g.trait, f) <= 1.3:
-                rep.err(f"{where}: trait.{f} outside 0.7-1.3")
-    used = {g.core_visual.texture_asset for g in [*d.group_designs, d.fallback]}
-    used |= {g.arena_theme.ambient_particle_asset for g in [*d.group_designs, d.fallback]}
-    used |= {o.core_visual.texture_asset for o in d.tier_overrides}
+    seen: set[int] = set()
+    for lv in d.level_designs:
+        where = f"level Z={lv.atomic_number}"
+        if not 1 <= lv.atomic_number <= R.MAX_ATOMIC_NUMBER:
+            rep.err(f"{where}: atomic number outside 1-{R.MAX_ATOMIC_NUMBER} (the game ends at Neon)")
+            continue
+        if lv.atomic_number in seen:
+            rep.err(f"{where}: designed twice")
+        seen.add(lv.atomic_number)
+        _check_level(lv, where, approved, rep)
+    _check_level(d.fallback, "fallback", approved, rep)
+
+    used = {lv.core_visual.texture_asset for lv in [*d.level_designs, d.fallback]}
+    used |= {lv.arena_theme.ambient_particle_asset for lv in [*d.level_designs, d.fallback]}
     if not used & approved:
         rep.err("Level Designer used none of the approved assets: sourced art never reaches the game")
-    missing = set(R.GROUP_NAMES) - seen
+    missing = sorted(set(range(1, R.MAX_ATOMIC_NUMBER + 1)) - seen)
     if missing:
-        rep.warn(f"groups not designed, will use fallback: {sorted(missing)}")
-    for o in d.tier_overrides:
-        if not 1 <= o.atomic_number <= R.MAX_ATOMIC_NUMBER:
-            rep.err(f"override for invalid atomic number {o.atomic_number}")
-        else:
-            _check_visual(o.core_visual, f"override Z={o.atomic_number}", approved, rep)
+        rep.warn(f"levels not designed, will use fallback: {[R.element(z)['symbol'] for z in missing]}")
+    names = [lv.level_name.lower() for lv in d.level_designs]
+    if len(names) != len(set(names)):
+        rep.warn("two levels share the same level_name")
 
 
 def check_tier_files(files: dict[str, dict], rep: Report) -> None:
@@ -138,8 +158,27 @@ def check_tier_files(files: dict[str, dict], rep: Report) -> None:
             rep.err(f"tier {z}: max_hp mismatch")
         if t["player"]["electron_slots"] != z:
             rep.err(f"tier {z}: electron_slots mismatch")
-        if z < R.MAX_ATOMIC_NUMBER and t["evolution"]["cost_to_next"] != R.evolution_cost(z):
-            rep.err(f"tier {z}: evolution cost mismatch")
+        ev = t["evolution"]
+        if ev["energy_to_evolve"] != R.energy_bar_capacity(z):
+            rep.err(f"tier {z}: energy bar size mismatch (GDD: 50 + 3Z, 0 at Neon)")
+        if ev["bar_reset_value"] != R.BAR_RESET_VALUE:
+            rep.err(f"tier {z}: the energy bar must empty to 0 after evolving")
+        if ev["is_final_element"] != (z == R.MAX_ATOMIC_NUMBER):
+            rep.err(f"tier {z}: is_final_element is wrong (the game ends at Neon)")
+        el = t.get("electrons")
+        if el is None:
+            rep.err(f"tier {z}: missing 'electrons' block (wild-electron spawning)")
+        elif z == 1 and el["max_wild"] != 0:
+            rep.err("tier 1: Hydrogen must spawn no wild electrons (its only slot is always full)")
+        elif z > 1 and el["max_wild"] < 1:
+            rep.err(f"tier {z}: max_wild must be at least 1 from Helium on (GDD 1.4.3 pickup lesson)")
+        for k in ("cost_to_next", "base_fail_chance_pct", "pity_step_pct"):
+            if k in ev:
+                rep.err(f"tier {z}: obsolete evolution key '{k}' (no cost / no failure since the rescope)")
+    extra = sorted(f for f in files if f.startswith("tier_") and f[5:8].isdigit()
+                   and int(f[5:8]) > R.MAX_ATOMIC_NUMBER)
+    if extra:
+        rep.err(f"tier files beyond Neon (Z>{R.MAX_ATOMIC_NUMBER}): {extra[:5]}{'...' if len(extra) > 5 else ''}")
     if "tier_fallback.json" not in files:
         rep.err("tier_fallback.json missing")
 
@@ -188,6 +227,9 @@ def check_code(bundle: CodeBundle, sample_tier: dict | None, rep: Report) -> Non
                 rep.err(f"{f.path}: forbidden dependency '{u}' (no runtime network / no external deps)")
         if not re.search(r"\bnamespace\s+AtomIO\b", code):
             rep.warn(f"{f.path}: not inside the AtomIO namespace")
+        for word in OBSOLETE_MECHANICS:
+            if word in code:
+                rep.err(f"{f.path}: uses '{word}', but evolution has no cost or failure chance (GDD 1.3.3 rescope)")
         stem = p.stem
         if not re.search(rf"\b(class|struct|interface|enum)\s+{re.escape(stem)}\b", code):
             rep.err(f"{f.path}: no type named '{stem}' (Unity requires MonoBehaviour name == file name)")
@@ -277,7 +319,7 @@ def run_all(manifest=None, review=None, design=None, tier_files=None, code=None)
     if tier_files is not None:
         check_tier_files(tier_files, rep)
     if code is not None:
-        sample = tier_files.get("tier_026.json") if tier_files else None
+        sample = tier_files.get(f"tier_{R.MAX_ATOMIC_NUMBER // 2:03d}.json") if tier_files else None
         if sample is None:
             rep.err("no tier JSON to check the C# against (Level Designer output missing)")
         check_code(code, sample, rep)

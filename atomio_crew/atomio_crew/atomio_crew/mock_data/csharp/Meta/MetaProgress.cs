@@ -3,96 +3,78 @@ using UnityEngine;
 
 namespace AtomIO.Meta
 {
-    public enum EvolveResult
-    {
-        Success,
-        Failed,
-        NotEnoughEnergy,
-        AlreadyMaxElement
-    }
-
     /// <summary>
-    /// Persistent progression: current element, banked energy, pity counter and tutorial flags.
+    /// Persistent progression: current element, energy bar progress and tutorial stage.
     /// Stored locally with PlayerPrefs (offline game, no accounts).
+    /// GDD 1.3.3 (rescope): every bit of energy fills the bar; a full bar evolves the player
+    /// to the next element and the bar empties to 0 (no carry-over, no cost, no failure).
+    /// The bar keeps its progress between runs.
     /// </summary>
     public static class MetaProgress
     {
-        private const string KeyZ = "atomio.z";
-        private const string KeyEnergy = "atomio.energy";
-        private const string KeyFailures = "atomio.failures_at_tier";
-        private const string KeyTutorial = "atomio.tutorial_stage";
+        private const string KeyZ = "atomio.v2.z";
+        private const string KeyBar = "atomio.v2.bar";
+        private const string KeyTutorial = "atomio.v2.tutorial_stage";
 
-        /// <summary>0 = first run (orbit damage), 1 = must evolve to He, 2 = throw / pickup lesson, 3 = done.</summary>
+        /// <summary>0 = first run as H (orbit damage + orbs), 1 = just became He (throw / pickup lesson due), 2 = done.</summary>
         public static int TutorialStage
         {
             get => PlayerPrefs.GetInt(KeyTutorial, 0);
             set { PlayerPrefs.SetInt(KeyTutorial, value); PlayerPrefs.Save(); }
         }
 
-        public static int AtomicNumber => PlayerPrefs.GetInt(KeyZ, 1);
+        public static int AtomicNumber => Mathf.Clamp(PlayerPrefs.GetInt(KeyZ, 1), 1, AtomFormulas.MaxAtomicNumber);
 
-        public static int Energy => PlayerPrefs.GetInt(KeyEnergy, AtomFormulas.StarterEnergy);
+        /// <summary>Energy currently in the bar.</summary>
+        public static float BarEnergy => PlayerPrefs.GetFloat(KeyBar, 0f);
 
-        public static int FailuresAtTier => PlayerPrefs.GetInt(KeyFailures, 0);
+        /// <summary>Size of the bar at the current element (50 + 3Z); 0 at Neon.</summary>
+        public static int BarCapacity => AtomFormulas.EnergyToEvolve(AtomicNumber);
 
-        public static bool HasWon => AtomicNumber >= AtomFormulas.MaxAtomicNumber;
+        public static float BarFill01 => BarCapacity > 0 ? Mathf.Clamp01(BarEnergy / BarCapacity) : 1f;
 
-        public static int NextCost => AtomFormulas.EvolutionCost(AtomicNumber);
+        public static bool HasWon => AtomFormulas.IsFinalElement(AtomicNumber);
 
-        public static float CurrentFailChance => AtomFormulas.FailChancePercent(AtomicNumber, FailuresAtTier);
-
-        public static void BankRunEnergy(int amount)
+        /// <summary>
+        /// Adds collected energy to the bar. Returns true when this filled the bar and the
+        /// player evolved; the bar is then reset to 0 and any overflow is discarded.
+        /// </summary>
+        public static bool AddEnergy(float amount)
         {
-            PlayerPrefs.SetInt(KeyEnergy, Energy + Mathf.Max(0, amount));
-            if (TutorialStage == 0)
+            if (HasWon || amount <= 0f)
             {
-                TutorialStage = 1; // first death: lobby now forces the H to He evolution
+                return false;
             }
 
-            PlayerPrefs.Save();
-        }
-
-        public static EvolveResult TryEvolve()
-        {
             int z = AtomicNumber;
-            if (z >= AtomFormulas.MaxAtomicNumber)
+            float bar = BarEnergy + amount;
+            if (bar < BarCapacity)
             {
-                return EvolveResult.AlreadyMaxElement;
-            }
-
-            int cost = AtomFormulas.EvolutionCost(z);
-            if (Energy < cost)
-            {
-                return EvolveResult.NotEnoughEnergy;
-            }
-
-            PlayerPrefs.SetInt(KeyEnergy, Energy - cost); // energy is spent either way (GDD 1.3.3)
-
-            float roll = Random.Range(0f, 100f);
-            bool failed = roll < AtomFormulas.FailChancePercent(z, FailuresAtTier);
-            if (failed)
-            {
-                PlayerPrefs.SetInt(KeyFailures, FailuresAtTier + 1);
-                PlayerPrefs.Save();
-                return EvolveResult.Failed;
+                PlayerPrefs.SetFloat(KeyBar, bar);
+                return false;
             }
 
             PlayerPrefs.SetInt(KeyZ, z + 1);
-            PlayerPrefs.SetInt(KeyFailures, 0);
-            if (TutorialStage == 1)
+            PlayerPrefs.SetFloat(KeyBar, AtomFormulas.BarResetValue);
+            if (z + 1 == 2 && TutorialStage == 0)
             {
-                TutorialStage = 2;
+                TutorialStage = 1; // first evolution: Helium unlocks the throw / pickup lesson
             }
 
             PlayerPrefs.Save();
-            return EvolveResult.Success;
+            return true;
+        }
+
+        /// <summary>Writes the bar to disk (called at run end; SetFloat alone is in memory).</summary>
+        public static void Save()
+        {
+            PlayerPrefs.Save();
         }
 
         public static void ResetAll()
         {
             PlayerPrefs.DeleteKey(KeyZ);
-            PlayerPrefs.DeleteKey(KeyEnergy);
-            PlayerPrefs.DeleteKey(KeyFailures);
+            PlayerPrefs.DeleteKey(KeyBar);
             PlayerPrefs.DeleteKey(KeyTutorial);
             PlayerPrefs.Save();
         }

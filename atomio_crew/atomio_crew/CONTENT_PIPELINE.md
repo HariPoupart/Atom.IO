@@ -1,6 +1,8 @@
 # Assignment 4: Atom.IO Dynamic Content Pipeline
 
-**Game: Atom.IO**, my capstone. It's an Android arcade .io game based on the Bohr atomic model: you start as Hydrogen and evolve up the periodic table to Oganesson (element 118).
+**Game: Atom.IO**, my capstone. It's an Android arcade .io game based on the Bohr atomic model: you start as Hydrogen and evolve up the periodic table to Neon (element 10), through 10 levels.
+
+> **Rescope (2026-11-12):** the game now ends at Neon, and evolution has no cost and no failure chance: an energy bar of 50 + 3Z fills with collected energy, a full bar evolves you on the spot and empties to 0. The pipeline was updated to match: 10 element cards, 6 group abilities (the groups found from H to Ne), new UI text fields (energy bar label, evolve banners, level intros, Helium tutorial, win at Neon), and a new rule check that blocks any text describing the removed mechanics (failure, pity, spending or losing energy, Oganesson/118). The `content/` folder now holds the mock run of the rescoped pipeline; re-run `python main.py generate` with your API key for a live version. The "What did the critic catch" section below describes the earlier live run of the 118-element version.
 
 The pipeline reads the Atom.IO GDD before writing anything. A **Writer agent** drafts content, and a **Critic agent** checks it against the GDD. The draft goes back for revision until the critic passes it (at most 3 rounds).
 
@@ -28,9 +30,10 @@ flowchart LR
 2. **Writer agent** returns JSON in a fixed schema (Pydantic), so the output can be loaded straight into Unity.
 3. **Critic** has two layers:
    - **Rule checks in code**, which the LLM can't talk its way around:
-     - every number has to be a GDD value (10 HP per proton, cost 50 + 3Z, 0.5% pity, 10/20 damage, 118)
+     - every number has to be a GDD value (10 HP per proton, bar 50 + 3Z, 10/20 damage, shells 2 and 8, Neon = 10)
+     - no removed mechanics: failure, pity, spending or losing energy, Oganesson / 118
      - UI character limits
-     - all 118 elements and all 11 groups covered
+     - all 10 elements and all 6 groups covered
      - correct element symbols
      - balance ranges for abilities
      - required `{placeholders}`
@@ -43,8 +46,8 @@ flowchart LR
 
 | Output | File | Where it's used in Atom.IO |
 |---|---|---|
-| **Element cards** for all 118 elements (title + one-line flavor text based on a real fact) | `content/element_cards.json` / `.md` | Lobby evolve screen, shown on every evolution (GDD 1.3.2, 1.4.4) |
-| **Tutorial, HUD and lobby text**: run-1 and run-2 tutorial hints, forced He evolution prompt, evolve success/fail, run over, win at Og, 8 loading tips | `content/ui_text.json` / `.md` | The GDD 1.4.3 tutorial and every lobby/arena message. It plugs into `ArenaHud` and `LobbyController` from Assignment 3. |
+| **Element cards** for all 10 elements (title + one-line flavor text based on a real fact) | `content/element_cards.json` / `.md` | Mid-run evolve banner and lobby, shown on every evolution (GDD 1.3.2, 1.4.4) |
+| **Tutorial, HUD and lobby text**: run-1 hints, first-evolution message, Helium (throw/pickup) hints, evolve banners, level intros, energy bar label, run over, win at Neon, 8 loading tips | `content/ui_text.json` / `.md` | The GDD 1.4.3 tutorial and every lobby/arena message. It plugs into `ArenaHud` and `LobbyController` from Assignment 3. |
 | **Element-group abilities**: one per group, each based on real chemistry, with trigger, effect, value and cooldown | `content/group_abilities.json` / `.md` | The GDD 1.4.5 bonus feature (third retention mechanism) |
 
 Unity-ready copies are written to `content/unity/Assets/Resources/AtomIO/Content/`. They use the same JsonUtility-friendly format as the tier files.
@@ -68,7 +71,7 @@ Mostly, yes. The critic gave all three outputs **4/5 for voice** in the live run
 
 **Where it's weaker** (the critic flagged this too): the late-game cards (Z=104–118) lean on "Named for…" and read like a list of dedications, just when the player is close to winning. A few ability descriptions are vague about durations ("for a moment"). These are minor issues, so they didn't block approval. They're the first things I'd polish by hand.
 
-## What did the critic catch? (live run)
+## What did the critic catch? (live run, 118-element version before the rescope)
 
 The full log is in `content/CRITIC_REPORT.md`. Totals: **28 issues across 8 rounds, 8 of them blocking.** All three outputs ended **approved** (element cards and abilities in round 3, UI text in round 2). The run took 14 Claude calls, about 172k tokens and **~$1.42**.
 

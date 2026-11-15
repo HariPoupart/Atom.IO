@@ -4,12 +4,14 @@ from __future__ import annotations
 import os
 
 # GDD 3.2 projections, used as hard caps per agent.
+# Rescope (10 levels instead of 118): the Level Designer's cap shrinks with the
+# number of levels it has to design; the other agents' work is unchanged.
 AGENT_TOKEN_CAPS = {
     "asset_scraper": 45_000,
     "lead_architect": 480_000,   # core (240k) + bonus features (240k)
-    "level_designer": 885_000,
+    "level_designer": 150_000,   # 10 hand-designed levels + spawn curve + fallback
 }
-TOTAL_TOKEN_CAP = 1_410_000
+TOTAL_TOKEN_CAP = sum(AGENT_TOKEN_CAPS.values())  # 675,000
 USD_CEILING = float(os.getenv("ATOMIO_USD_CEILING", "10"))
 
 # Per-million-token prices; override in .env to match the model you pick.

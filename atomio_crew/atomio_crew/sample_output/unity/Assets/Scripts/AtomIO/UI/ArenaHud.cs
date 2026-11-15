@@ -1,4 +1,6 @@
 using AtomIO.Arena;
+using AtomIO.Core;
+using AtomIO.Data;
 using AtomIO.Meta;
 using TMPro;
 using UnityEngine;
@@ -7,19 +9,47 @@ using UnityEngine.UI;
 namespace AtomIO.UI
 {
     /// <summary>
-    /// Top-left HUD: element, health bar, energy collected, time survived, electrons.
-    /// Also shows the tutorial hint for the first two runs (GDD 1.4.3).
+    /// Top-left HUD: element, level, health bar, energy bar (current / size), time survived and
+    /// electrons. Shows an evolve banner when the bar fills mid-run, the win banner at Neon,
+    /// and the tutorial hints (GDD 1.4.3): run 1 as H, then the throw / pickup lesson on first
+    /// becoming He.
     /// </summary>
     public class ArenaHud : MonoBehaviour
     {
+        private static readonly string[] Run1Hints =
+        {
+            "Drag the left stick to move your atom.",
+            "Your orbiting electron hurts enemies. Swing it into them!",
+            "Grab glowing energy orbs. Each one fills your energy bar.",
+            "Keep enemies off your core: each touch costs 10 HP.",
+        };
+
+        private static readonly string[] HeliumHints =
+        {
+            "Loose electrons drift in the arena. Touch one to fill a slot.",
+            "Holding 2 electrons? Drag the right stick to aim the newest.",
+            "Let go to throw it. A thrown electron deals 20 damage.",
+            "Your last electron always stays in orbit to guard you.",
+        };
+
         [SerializeField] private ArenaSession session;
         [SerializeField] private TMP_Text elementLabel;
+        [SerializeField] private TMP_Text levelLabel;
         [SerializeField] private Image healthFill;
         [SerializeField] private TMP_Text healthLabel;
+        [SerializeField] private Image energyFill;
         [SerializeField] private TMP_Text energyLabel;
         [SerializeField] private TMP_Text timeLabel;
         [SerializeField] private TMP_Text electronLabel;
         [SerializeField] private TMP_Text tutorialLabel;
+        [SerializeField] private TMP_Text bannerLabel;
+        [SerializeField] private float hintSeconds = 5f;
+        [SerializeField] private float bannerSeconds = 3f;
+
+        private string[] hints;
+        private int hintIndex;
+        private float nextHintAt;
+        private float bannerUntil;
 
         private void Start()
         {
@@ -29,15 +59,17 @@ namespace AtomIO.UI
                 return;
             }
 
-            var c = session.Config;
-            elementLabel.text = $"{c.symbol}  {c.name}  (Z={c.atomic_number})";
             session.Player.HealthChanged += OnHealth;
             session.Orbit.ElectronsChanged += OnElectrons;
-            session.EnergyChanged += OnEnergy;
+            session.BarChanged += OnBar;
+            session.Evolved += OnEvolved;
+            session.Won += OnWon;
+            ShowLevel(session.Config);
             OnHealth(session.Player.CurrentHp, session.Player.MaxHp);
             OnElectrons(session.Orbit.Count, session.Orbit.Slots);
-            OnEnergy(0f);
-            ShowTutorial();
+            OnBar(MetaProgress.BarEnergy, MetaProgress.BarCapacity);
+            ShowBanner($"Level {session.Config.atomic_number}: {session.Config.level_name}");
+            StartTutorial();
         }
 
         private void OnDestroy()
@@ -49,13 +81,43 @@ namespace AtomIO.UI
 
             session.Player.HealthChanged -= OnHealth;
             session.Orbit.ElectronsChanged -= OnElectrons;
-            session.EnergyChanged -= OnEnergy;
+            session.BarChanged -= OnBar;
+            session.Evolved -= OnEvolved;
+            session.Won -= OnWon;
         }
 
         private void Update()
         {
             int t = Mathf.FloorToInt(session.TimeSurvived);
             timeLabel.text = $"{t / 60:00}:{t % 60:00}";
+
+            if (bannerLabel != null && bannerLabel.gameObject.activeSelf && Time.time > bannerUntil)
+            {
+                bannerLabel.gameObject.SetActive(false);
+            }
+
+            if (hints != null && tutorialLabel != null && Time.time >= nextHintAt)
+            {
+                if (hintIndex >= hints.Length)
+                {
+                    hints = null;
+                    tutorialLabel.gameObject.SetActive(false);
+                    return;
+                }
+
+                tutorialLabel.gameObject.SetActive(true);
+                tutorialLabel.text = hints[hintIndex++];
+                nextHintAt = Time.time + hintSeconds;
+            }
+        }
+
+        private void ShowLevel(TierConfig c)
+        {
+            elementLabel.text = $"{c.symbol}  {c.name}  (Z={c.atomic_number})";
+            if (levelLabel != null)
+            {
+                levelLabel.text = $"Level {c.atomic_number}/{AtomFormulas.MaxAtomicNumber}: {c.level_name}";
+            }
         }
 
         private void OnHealth(int current, int max)
@@ -72,30 +134,61 @@ namespace AtomIO.UI
             }
         }
 
-        private void OnEnergy(float energy)
+        private void OnBar(float energy, int capacity)
         {
-            energyLabel.text = $"Energy {Mathf.FloorToInt(energy)}";
+            if (energyFill != null)
+            {
+                energyFill.fillAmount = capacity > 0 ? Mathf.Clamp01(energy / capacity) : 1f;
+            }
+
+            energyLabel.text = capacity > 0 ? $"Energy {Mathf.FloorToInt(energy)}/{capacity}" : "Energy MAX";
         }
 
-        private void ShowTutorial()
+        private void OnEvolved(TierConfig c)
         {
-            if (tutorialLabel == null)
+            ShowLevel(c);
+            ShowBanner($"Fusion complete! You are now {c.name}.\nLevel {c.atomic_number}: {c.level_name}");
+            if (MetaProgress.TutorialStage == 1)
+            {
+                StartTutorial();
+            }
+        }
+
+        private void OnWon()
+        {
+            ShowBanner("Neon reached! Two full shells: you climbed the whole table.");
+        }
+
+        private void ShowBanner(string text)
+        {
+            if (bannerLabel == null)
             {
                 return;
             }
 
-            switch (MetaProgress.TutorialStage)
+            bannerLabel.text = text;
+            bannerLabel.gameObject.SetActive(true);
+            bannerUntil = Time.time + bannerSeconds;
+        }
+
+        private void StartTutorial()
+        {
+            hints = null;
+            if (MetaProgress.TutorialStage == 0 && MetaProgress.AtomicNumber == 1)
             {
-                case 0:
-                    tutorialLabel.text = "Move into enemies: your orbiting electron damages them!";
-                    break;
-                case 2:
-                    tutorialLabel.text = "Drag the right stick and let go to throw a spare electron. Touch loose electrons to collect them.";
-                    MetaProgress.TutorialStage = 3;
-                    break;
-                default:
-                    tutorialLabel.gameObject.SetActive(false);
-                    break;
+                hints = Run1Hints;
+            }
+            else if (MetaProgress.TutorialStage == 1)
+            {
+                hints = HeliumHints;
+                MetaProgress.TutorialStage = 2;
+            }
+
+            hintIndex = 0;
+            nextHintAt = Time.time + (bannerLabel != null && bannerLabel.gameObject.activeSelf ? 1f : 0f);
+            if (hints == null && tutorialLabel != null)
+            {
+                tutorialLabel.gameObject.SetActive(false);
             }
         }
     }

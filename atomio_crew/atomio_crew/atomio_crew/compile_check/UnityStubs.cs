@@ -12,6 +12,7 @@ namespace UnityEngine
         public string name;
         public static T Instantiate<T>(T original, Vector3 position, Quaternion rotation) where T : Object => original;
         public static T Instantiate<T>(T original, Vector2 position, Quaternion rotation) where T : Object => original;
+        public static T Instantiate<T>(T original, Vector3 position, Quaternion rotation, Transform parent) where T : Object => original;
         public static void Destroy(Object obj) { }
         public static T FindFirstObjectByType<T>() where T : Object => null;
         public static implicit operator bool(Object o) => o != null;
@@ -30,8 +31,9 @@ namespace UnityEngine
         public void Invoke(string methodName, float time) { }
         public void CancelInvoke() { }
     }
-    public class GameObject : Object { public Transform transform; public void SetActive(bool v) { } public T GetComponent<T>() => default(T); }
-    public class Transform : Component { public Vector3 position; public Vector3 localScale; public Quaternion rotation; public Transform parent; }
+    public class GameObject : Object { public Transform transform; public bool activeSelf; public void SetActive(bool v) { } public T GetComponent<T>() => default(T); }
+    public class Transform : Component { public Vector3 position; public Vector3 localScale; public Quaternion rotation; public Transform parent; public void Rotate(float x, float y, float z) { } }
+    [AttributeUsage(AttributeTargets.Class)] public class DefaultExecutionOrder : Attribute { public DefaultExecutionOrder(int order) { } }
     public class RectTransform : Transform { public Vector2 anchoredPosition; public Vector2 sizeDelta; }
     public class ScriptableObject : Object { }
     public class TextAsset : Object { public string text; }
@@ -42,11 +44,18 @@ namespace UnityEngine
     public class LineRenderer : Renderer
     {
         public int positionCount;
+        public bool loop;
+        public bool useWorldSpace;
+        public Color startColor;
+        public Color endColor;
         public void SetPosition(int index, Vector3 position) { }
     }
+    public class AudioClip : Object { }
+    public class AudioSource : Behaviour { public static void PlayClipAtPoint(AudioClip clip, Vector3 position, float volume) { } }
     public class TrailRenderer : Renderer { public bool emitting; }
     public class ParticleSystem : Component { public void Play() { } public void Stop() { } }
     public enum RigidbodyType2D { Dynamic, Kinematic, Static }
+    public enum RigidbodyInterpolation2D { None, Interpolate, Extrapolate }
     public class Rigidbody2D : Component
     {
         public Vector2 linearVelocity;
@@ -56,6 +65,7 @@ namespace UnityEngine
         public RigidbodyType2D bodyType;
         public void MovePosition(Vector2 p) { }
         public void AddForce(Vector2 f) { }
+        public RigidbodyInterpolation2D interpolation;
     }
     public class Collider2D : Behaviour { public bool isTrigger; }
     public class CircleCollider2D : Collider2D { public float radius; }
@@ -90,6 +100,7 @@ namespace UnityEngine
         public static Vector3 operator +(Vector3 a, Vector3 b) => a;
         public static Vector3 operator -(Vector3 a, Vector3 b) => a;
         public static Vector3 operator *(Vector3 a, float d) => a;
+        public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 velocity, float smoothTime) => current;
     }
     public struct Quaternion { public static Quaternion identity => new Quaternion(); }
     public struct Color
@@ -100,6 +111,8 @@ namespace UnityEngine
         public static Color black => new Color(0, 0, 0);
         public static Color cyan => new Color(0, 1, 1);
         public static Color clear => new Color(0, 0, 0, 0);
+        public static Color gray => new Color(0.5f, 0.5f, 0.5f);
+        public static Color Lerp(Color a, Color b, float t) => a;
     }
     public static class ColorUtility { public static bool TryParseHtmlString(string s, out Color c) { c = Color.white; return true; } }
     public static class Mathf
@@ -114,6 +127,9 @@ namespace UnityEngine
         public static float Sin(float a) => a; public static float Cos(float a) => a;
         public static float Abs(float a) => a; public static float Sqrt(float a) => a;
         public static float Lerp(float a, float b, float t) => a;
+        public const float Rad2Deg = 57.29578f;
+        public static float LerpAngle(float a, float b, float t) => a; public static float Repeat(float t, float l) => t;
+        public static float Exp(float p) => p; public static float Atan2(float y, float x) => y;
         public static int RoundToInt(float f) => 0; public static int FloorToInt(float f) => 0; public static int CeilToInt(float f) => 0;
     }
     public static class Random

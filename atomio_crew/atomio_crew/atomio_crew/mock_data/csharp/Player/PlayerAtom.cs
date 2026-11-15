@@ -16,6 +16,7 @@ namespace AtomIO.Player
         [SerializeField] private SpriteRenderer coreRenderer;
         [SerializeField] private SpriteRenderer rimRenderer;
         [SerializeField] private float contactDamageCooldown = 0.5f;
+        [SerializeField] private float pulseAmplitude = 0.06f;
 
         public event Action<int, int> HealthChanged; // current, max
         public event Action Died;
@@ -30,6 +31,8 @@ namespace AtomIO.Player
         private Vector2 moveInput;
         private float moveSpeedMult = 1f;
         private float lastHitTime = -999f;
+        private float baseScale = 1f;
+        private string pattern = "solid";
 
         private void Awake()
         {
@@ -38,6 +41,8 @@ namespace AtomIO.Player
             body.freezeRotation = true;
         }
 
+        /// <summary>Applies a level's stats and look. Called at run start and on every evolution
+        /// (HP refills to the new maximum).</summary>
         public void Init(TierConfig config)
         {
             Config = config;
@@ -68,7 +73,7 @@ namespace AtomIO.Player
             // Keep the atom inside the circular arena.
             if (Config != null && Config.arena != null)
             {
-                float r = Config.arena.radius;
+                float r = Config.arena.radius - 0.5f;
                 if (body.position.sqrMagnitude > r * r)
                 {
                     body.position = body.position.normalized * r;
@@ -112,9 +117,24 @@ namespace AtomIO.Player
                 rimRenderer.color = rim;
             }
 
-            // Core grows slowly with the nucleus so heavy atoms read as "big".
-            float scale = 1f + 0.01f * AtomicNumber;
-            transform.localScale = new Vector3(scale, scale, 1f);
+            // Core grows with the nucleus: Neon reads clearly bigger than Hydrogen.
+            pattern = string.IsNullOrEmpty(visual.pattern) ? "solid" : visual.pattern;
+            baseScale = 1f + 0.06f * (AtomicNumber - 1);
+            transform.localScale = new Vector3(baseScale, baseScale, 1f);
+        }
+
+        private void Update()
+        {
+            // Light per-pattern animation; the Level Designer's shader notes are the full version.
+            if (pattern == "pulse")
+            {
+                float s = baseScale * (1f + pulseAmplitude * Mathf.Sin(Time.time * 4f));
+                transform.localScale = new Vector3(s, s, 1f);
+            }
+            else if (rimRenderer != null && (pattern == "rings" || pattern == "swirl"))
+            {
+                rimRenderer.transform.Rotate(0f, 0f, (pattern == "swirl" ? 180f : 60f) * Time.deltaTime);
+            }
         }
     }
 }

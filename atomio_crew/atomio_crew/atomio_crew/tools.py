@@ -36,6 +36,21 @@ STATE = RunState()
 FREE_ASSET_CATALOG = [
     {"name": "Kenney Particle Pack", "category": "vfx", "source_url": "https://kenney.nl/assets/particle-pack",
      "license": "CC0-1.0", "price_usd": 0, "tags": ["particles", "glow", "sparks", "energy", "orb", "trail"]},
+    {"name": "Wenrexa Magic Sphere Sprites", "category": "sprite", "source_url": "https://wenrexa.itch.io/item-magics",
+     "license": "CC0-1.0", "price_usd": 0,
+     "tags": ["sphere", "orb", "magic", "glow", "electron", "pickup", "shaded", "icons", "colored"],
+     "notes": "Pre-shaded magic sphere sprites, PNG 16-512 px, pay what you want (0 allowed), "
+              "author states commercial use is fine and the devlog says CC0."},
+    {"name": "Basic Glowy Shapes (Sunset Arena)", "category": "sprite",
+     "source_url": "https://unprecedented.itch.io/basic-glowy-shapes-assets-from-sunset-arena",
+     "license": "CC0-1.0", "price_usd": 0,
+     "tags": ["glow", "shapes", "neon", "circle", "electron", "arena", "minimal"],
+     "notes": "Tiny (27 kB) set of glowy shapes from an arena game; author: CC0, 'use them however you like'."},
+    {"name": "Basic 2D Shapes (Reactorcore)", "category": "sprite",
+     "source_url": "https://reactorcore.itch.io/basic-2d-shapes-primitive-128px",
+     "license": "CC0-1.0", "price_usd": 0,
+     "tags": ["circle", "shapes", "primitive", "soft edge", "tintable", "sphere", "electron"],
+     "notes": "92 flat 128 px shapes (circles, bursts, splats), dark and bright, soft-edge versions; CC0."},
     {"name": "Kenney Mobile Controls", "category": "input", "source_url": "https://kenney.nl/assets/mobile-controls",
      "license": "CC0-1.0", "price_usd": 0, "tags": ["joystick", "touch", "buttons", "mobile", "controls"]},
     {"name": "Kenney UI Pack", "category": "ui", "source_url": "https://kenney.nl/assets/ui-pack",
@@ -86,8 +101,9 @@ def license_check(license_id: str) -> str:
 # --------------------------------------------------------------------------- shared GDD tool
 @tool("gdd_formula_table")
 def gdd_formula_table(atomic_numbers: str) -> str:
-    """Return the fixed GDD numbers (HP, electron slots, evolution cost, failure %)
-    and element group for a comma-separated list of atomic numbers, e.g. '1,26,79,118'."""
+    """Return the fixed GDD numbers (HP, electron slots, energy bar size to evolve)
+    and element group for a comma-separated list of atomic numbers 1-10, e.g. '1,6,10'.
+    Evolution has no cost and no failure chance: a full bar evolves the player and empties to 0."""
     out = []
     for tok in atomic_numbers.split(","):
         tok = tok.strip()
@@ -96,24 +112,26 @@ def gdd_formula_table(atomic_numbers: str) -> str:
         z = int(tok)
         if 1 <= z <= R.MAX_ATOMIC_NUMBER:
             out.append({**R.element(z), "max_hp": R.max_hp(z), "electron_slots": z,
-                        "evolution_cost": R.evolution_cost(z),
-                        "base_fail_chance_pct": round(R.base_fail_chance_pct(z), 3)})
+                        "energy_to_evolve": R.energy_bar_capacity(z),
+                        "is_final_element": z == R.MAX_ATOMIC_NUMBER})
     return json.dumps(out)
 
 
 @tool("element_groups")
 def element_groups(_: str = "") -> str:
-    """List the 11 element groups Atom.IO designs for, with the atomic numbers in each."""
-    return json.dumps({g: {"count": len(zs), "atomic_numbers": zs,
-                           "examples": [R.element(z)["symbol"] for z in zs[:4]]}
-                       for g, zs in R.GROUPS.items()})
+    """List the 10 playable elements (H..Ne, one level each) and the 6 element groups they belong to."""
+    return json.dumps({
+        "levels": [{**R.element(z), "energy_to_evolve": R.energy_bar_capacity(z)}
+                   for z in range(1, R.MAX_ATOMIC_NUMBER + 1)],
+        "groups": {g: [R.element(z)["symbol"] for z in zs] for g, zs in R.GROUPS.items()},
+    })
 
 
 # --------------------------------------------------------------------------- Lead Architect validation tool
 @tool("run_validation_suite")
 def run_validation_suite(scope: str = "all") -> str:
     """Run the deterministic Atom.IO validation suite on everything produced so far
-    in this run (asset manifest, architect review, tier designs, expanded 118 tier
+    in this run (asset manifest, architect review, level designs, the 10 expanded tier
     JSON files, and C# code bundle). Input is ignored; pass 'all'.
     Returns JSON {suite, passed, errors, warnings}."""
     from .tiers import build_all
@@ -128,17 +146,17 @@ def run_validation_suite(scope: str = "all") -> str:
 
 
 @tool("tier_json_contract")
-def tier_json_contract(atomic_number: str = "26") -> str:
+def tier_json_contract(atomic_number: str = "5") -> str:
     """Return one tier JSON file exactly as the game will load it, built from the
     Level Designer's actual TierDesignSet in this run. Your C# serializable classes
     must declare a public field for every key (same names, same nesting).
-    Input: an atomic number (default 26)."""
+    Input: an atomic number 1-10 (default 5)."""
     from .tiers import build_tier
 
     if STATE.design is None:
         return ("ERROR: no TierDesignSet from the Level Designer in this run, so there is no tier "
                 "JSON contract to implement against. The pipeline cannot continue correctly.")
-    z = int(atomic_number) if str(atomic_number).strip().isdigit() else 26
+    z = int(atomic_number) if str(atomic_number).strip().isdigit() else 5
     return json.dumps(build_tier(min(max(z, 1), R.MAX_ATOMIC_NUMBER), STATE.design))
 
 

@@ -1,16 +1,17 @@
-"""Expand the Level Designer's TierDesignSet into one runtime JSON file per element.
+"""Expand the Level Designer's TierDesignSet into one runtime JSON file per level.
 
-The agent designs *groups* (11 of them), landmark overrides and one spawn curve;
-this module multiplies that out to all 118 tiers using the fixed GDD formulas.
-Any group the agent did not design is emitted with the fallback block, so no
-tier is ever skipped (GDD 2.3).
+Rescope: 10 levels (H..Ne), each designed individually by the Level Designer.
+The fixed GDD numbers (HP, slots, energy bar size, damage) always come from
+``gdd_rules``; the design only supplies style and tuning. A level the agent did
+not design is emitted with the fallback block, so no level is ever skipped
+(GDD 2.3).
 """
 from __future__ import annotations
 
 from . import gdd_rules as R
-from .schemas import GroupDesign, TierDesignSet
+from .schemas import LevelDesign, TierDesignSet
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def _r(x: float, nd: int = 3) -> float:
@@ -19,16 +20,11 @@ def _r(x: float, nd: int = 3) -> float:
 
 def build_tier(z: int, design: TierDesignSet) -> dict:
     el = R.element(z)
-    groups = {g.group: g for g in design.group_designs}
-    overrides = {o.atomic_number: o for o in design.tier_overrides}
+    levels = {lv.atomic_number: lv for lv in design.level_designs}
     sc = design.spawn_curve
 
-    gd: GroupDesign = groups.get(el["group"], design.fallback)
-    source = "group" if el["group"] in groups else "fallback"
-    core = gd.core_visual
-    if z in overrides:
-        core, source = overrides[z].core_visual, "override"
-
+    lv: LevelDesign = levels.get(z, design.fallback)
+    source = "level" if z in levels else "fallback"
     is_last = z == R.MAX_ATOMIC_NUMBER
     return {
         "schema_version": SCHEMA_VERSION,
@@ -36,6 +32,7 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
         "symbol": el["symbol"],
         "name": el["name"],
         "group": el["group"],
+        "level_name": lv.level_name if source == "level" else f"{el['name']} Arena",
         "design_source": source,
         "player": {
             "max_hp": R.max_hp(z),
@@ -46,9 +43,9 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
         },
         "evolution": {
             "next_atomic_number": 0 if is_last else z + 1,
-            "cost_to_next": 0 if is_last else R.evolution_cost(z),
-            "base_fail_chance_pct": 0.0 if is_last else _r(R.base_fail_chance_pct(z)),
-            "pity_step_pct": R.PITY_STEP_PCT,
+            "energy_to_evolve": R.energy_bar_capacity(z),
+            "bar_reset_value": R.BAR_RESET_VALUE,
+            "is_final_element": is_last,
         },
         "enemy": {
             "base_hp": _r(R.ENEMY_BASE_HP + sc.enemy_hp_per_tier * (z - 1), 1),
@@ -63,7 +60,13 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
             "time_scale_k": _r(sc.time_scale_k),
             "max_alive_enemies": int(sc.max_alive_enemies_base + sc.max_alive_enemies_per_tier * (z - 1)),
             "orb_base_interval_s": _r(sc.orb_base_interval_s),
-            "electron_base_interval_s": _r(sc.electron_base_interval_s),
+        },
+        "electrons": {
+            # Hydrogen's single slot is always full and pickup is taught at Helium, so H spawns none.
+            "base_interval_s": _r(sc.electron_base_interval_s + sc.electron_interval_per_tier * (z - 1)),
+            "max_wild": 0 if z == 1 else int(sc.max_wild_electrons_base + sc.max_wild_electrons_per_tier * (z - 1)),
+            "lifetime_s": _r(sc.electron_lifetime_s, 2),
+            "min_spawn_distance": _r(sc.electron_min_spawn_distance, 2),
         },
         "energy": {
             "orb_base_value": _r(sc.orb_base_value, 2),
@@ -71,12 +74,15 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
         },
         "arena": {
             "radius": _r(sc.arena_radius_base + sc.arena_radius_per_tier * (z - 1), 2),
-            "background_hex": gd.arena_theme.background_hex,
-            "grid_hex": gd.arena_theme.grid_hex,
-            "ambient_particle_asset": gd.arena_theme.ambient_particle_asset,
+            "background_hex": lv.arena_theme.background_hex,
+            "grid_hex": lv.arena_theme.grid_hex,
+            "ambient_particle_asset": lv.arena_theme.ambient_particle_asset,
+            "obstacle_pattern": lv.arena_layout.obstacle_pattern,
+            "obstacle_count": int(lv.arena_layout.obstacle_count),
+            "obstacle_size": _r(lv.arena_layout.obstacle_size, 2),
         },
-        "core_visual": core.model_dump(),
-        "trait": gd.trait.model_dump(),
+        "core_visual": lv.core_visual.model_dump(),
+        "trait": lv.trait.model_dump(),
     }
 
 
@@ -87,18 +93,20 @@ def build_all(design: TierDesignSet) -> tuple[dict[str, dict], dict]:
         files[f"tier_{z:03d}.json"] = build_tier(z, design)
 
     # Stand-alone fallback block, loaded by the game if a tier file is ever missing.
-    fb = build_tier(1, design.model_copy(update={"group_designs": [], "tier_overrides": []}))
+    fb = build_tier(1, design.model_copy(update={"level_designs": []}))
     fb.update({"atomic_number": 0, "symbol": "?", "name": "Fallback", "group": "fallback",
-               "design_source": "fallback"})
+               "level_name": "Unknown Arena", "design_source": "fallback"})
     files["tier_fallback.json"] = fb
 
     index = {
         "schema_version": SCHEMA_VERSION,
         "tier_count": R.MAX_ATOMIC_NUMBER,
+        "final_element": R.element(R.MAX_ATOMIC_NUMBER)["symbol"],
         "fallback_file": "tier_fallback",
         "design_sources": {s: sum(1 for t in files.values() if t["design_source"] == s and t["atomic_number"])
-                           for s in ("group", "override", "fallback")},
-        "tiers": [{"atomic_number": t["atomic_number"], "symbol": t["symbol"], "file": f[:-5]}
+                           for s in ("level", "fallback")},
+        "tiers": [{"atomic_number": t["atomic_number"], "symbol": t["symbol"], "level_name": t["level_name"],
+                   "file": f[:-5]}
                   for f, t in files.items() if t["atomic_number"]],
     }
     return files, index

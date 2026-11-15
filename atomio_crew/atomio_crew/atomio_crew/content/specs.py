@@ -27,9 +27,14 @@ BANNED_LORE = [  # invented-lore markers the style guide forbids (GDD has no sto
 ]
 RULE_BREAKERS = ["invincible", "immune", "immunity", "infinite", "unlimited", "never die", "can't die",
                  "throw all", "throw every", "last electron away"]
-# Every number the GDD fixes (failure chance starts at 0%), plus small counting numbers.
-ALLOWED_NUMBERS = {"0", "0.5", "1", "2", "3", "8", "10", "18", "20", "32", "50", "118"}
-PLACEHOLDERS = {"{element}", "{symbol}", "{cost}", "{energy}", "{next_fail_pct}", "{time}"}
+# Mechanics removed by the 2026-11-12 rescope: evolution has no cost and never fails (GDD 1.3.3).
+OBSOLETE_MECHANICS = [r"fail(?:s|ed|ure|ures)?", r"pity", r"spen(?:d|ds|t|ding)", r"refund\w*",
+                      r"(?:lose|lost|loses) (?:your |all |the )?energy", r"energy (?:is |was )?lost",
+                      r"oganesson", r"118"]
+# Every number the GDD fixes (10 HP/proton, bar = 50 + 3Z, 10/20 damage, shells 2 and 8,
+# 10 levels, Neon = 10, bar empties to 0), plus small counting numbers.
+ALLOWED_NUMBERS = {"0", "1", "2", "3", "8", "10", "20", "50"}
+PLACEHOLDERS = {"{element}", "{symbol}", "{energy}", "{goal}", "{level}", "{time}"}
 
 
 def issue(severity: str, item: str, problem: str, fix: str, gdd_ref: str = "") -> dict:
@@ -49,6 +54,13 @@ def _lore_and_rule_checks(item: str, text: str, out: list[dict]) -> None:
     for w in _word_hits(text, RULE_BREAKERS):
         out.append(issue("blocker", item, f"'{w}' contradicts the core rules",
                          "Keep effects temporary/bounded and never break the 1-electron rule", "1.4.2 balance note"))
+    low = text.lower()
+    for pat in OBSOLETE_MECHANICS:
+        m = re.search(rf"\b{pat}\b", low)
+        if m:
+            out.append(issue("blocker", item, f"'{m.group(0)}' describes a removed mechanic",
+                             "Evolution never costs energy and never fails: a full energy bar evolves you, then "
+                             "empties to 0. The game ends at Neon (10).", "1.3.3 (rescope)"))
 
 
 # --------------------------------------------------------------------------- 1) element cards
@@ -71,7 +83,7 @@ def check_element_cards(d: ElementCards) -> list[dict]:
         item = f"card Z={c.atomic_number}"
         seen[c.atomic_number] = seen.get(c.atomic_number, 0) + 1
         if not 1 <= c.atomic_number <= R.MAX_ATOMIC_NUMBER:
-            out.append(issue("blocker", item, "atomic number out of range", "Use 1-118"))
+            out.append(issue("blocker", item, "atomic number out of range", f"Use 1-{R.MAX_ATOMIC_NUMBER} (H..Ne)"))
             continue
         el = R.element(c.atomic_number)
         if c.symbol != el["symbol"]:
@@ -90,7 +102,7 @@ def check_element_cards(d: ElementCards) -> list[dict]:
     missing = [z for z in range(1, R.MAX_ATOMIC_NUMBER + 1) if z not in seen]
     if missing:
         out.append(issue("blocker", "cards", f"missing elements: {missing}",
-                         "Write exactly one card for every element 1-118", "1.1 core idea"))
+                         f"Write exactly one card for every element 1-{R.MAX_ATOMIC_NUMBER}", "1.1 core idea"))
     dupes = [z for z, n in seen.items() if n > 1]
     if dupes:
         out.append(issue("major", "cards", f"duplicate cards for {dupes}", "One card per element"))
@@ -100,30 +112,30 @@ def check_element_cards(d: ElementCards) -> list[dict]:
 def md_element_cards(d: ElementCards) -> str:
     rows = ["| Z | Symbol | Element | Group | Title | Flavor |", "|---|---|---|---|---|---|"]
     for c in sorted(d.cards, key=lambda c: c.atomic_number):
-        el = R.element(c.atomic_number) if 1 <= c.atomic_number <= 118 else {"name": "?", "group": "?"}
+        el = R.element(c.atomic_number) if 1 <= c.atomic_number <= R.MAX_ATOMIC_NUMBER else {"name": "?", "group": "?"}
         rows.append(f"| {c.atomic_number} | {c.symbol} | {el['name']} | {el['group'].replace('_', ' ')} "
                     f"| {c.title} | {c.flavor} |")
-    return "# Element cards (lobby evolve screen)\n\n" + "\n".join(rows) + "\n"
+    return "# Element cards (evolve banner and lobby)\n\n" + "\n".join(rows) + "\n"
 
 
 # --------------------------------------------------------------------------- 2) UI + tutorial text
 class UiText(BaseModel):
     tutorial_run1: list[str] = Field(description="4 hints for the first run as Hydrogen, max 80 chars each")
-    tutorial_evolve_prompt: str = Field(description="Lobby prompt forcing the H->He evolution, max 90 chars")
-    tutorial_run2: list[str] = Field(description="4 hints for the second run (throw + pickup), max 80 chars each")
-    evolve_success: list[str] = Field(description="3 variants, max 60 chars, must contain {element}")
-    evolve_fail: list[str] = Field(description="3 variants, max 80 chars, must contain {next_fail_pct}")
-    not_enough_energy: str = Field(description="max 70 chars, must contain {cost}")
+    tutorial_first_evolve: str = Field(description="Shown when the bar fills for the first time (H->He), max 90 chars")
+    tutorial_helium: list[str] = Field(description="4 hints shown on first becoming Helium (throw + pickup), max 80 chars")
+    evolve_banner: list[str] = Field(description="3 mid-run evolve banners, max 60 chars, must contain {element}")
+    level_intro: list[str] = Field(description="3 level-start lines, max 60 chars, must contain {level}")
+    energy_bar_label: str = Field(description="HUD bar label, max 30 chars, must contain {goal}")
     run_over: list[str] = Field(description="3 variants, max 60 chars, must contain {energy}")
-    win_oganesson: str = Field(description="Victory text for reaching element 118, max 140 chars")
+    win_neon: str = Field(description="Victory text for reaching Neon (element 10), max 140 chars")
     loading_tips: list[str] = Field(description="8 tips, max 90 chars, each teaching a real GDD mechanic")
 
 
 UI_LIMITS = {  # field: (count, max_chars, required placeholder)
-    "tutorial_run1": (4, 80, None), "tutorial_evolve_prompt": (None, 90, None),
-    "tutorial_run2": (4, 80, None), "evolve_success": (3, 60, "{element}"),
-    "evolve_fail": (3, 80, "{next_fail_pct}"), "not_enough_energy": (None, 70, "{cost}"),
-    "run_over": (3, 60, "{energy}"), "win_oganesson": (None, 140, None), "loading_tips": (8, 90, None),
+    "tutorial_run1": (4, 80, None), "tutorial_first_evolve": (None, 90, None),
+    "tutorial_helium": (4, 80, None), "evolve_banner": (3, 60, "{element}"),
+    "level_intro": (3, 60, "{level}"), "energy_bar_label": (None, 30, "{goal}"),
+    "run_over": (3, 60, "{energy}"), "win_neon": (None, 140, None), "loading_tips": (8, 90, None),
 }
 
 
@@ -146,8 +158,8 @@ def check_ui_text(d: UiText) -> list[dict]:
             for num in re.findall(r"(?<![\w.])\d+(?:\.\d+)?", text_no_ph):
                 if num not in ALLOWED_NUMBERS:
                     out.append(issue("blocker", item, f"number {num} is not a GDD value",
-                                     "Only state numbers the GDD fixes (10 HP/proton, 50 + 3Z, 0.5%, 10/20 dmg, 118)",
-                                     "1.3.1 / 1.3.3"))
+                                     "Only state numbers the GDD fixes (10 HP/proton, bar 50 + 3Z, 10/20 dmg, "
+                                     "shells 2 and 8, Neon = 10)", "1.3.1 / 1.3.3"))
             _lore_and_rule_checks(item, line, out)
     return out
 
@@ -219,7 +231,7 @@ def check_group_abilities(d: GroupAbilities) -> list[dict]:
     missing = [g for g in R.GROUP_NAMES if g not in seen]
     if missing:
         out.append(issue("blocker", "abilities", f"groups with no ability: {missing}",
-                         "Write exactly one ability for each of the 11 groups", "1.4.5 bonus features"))
+                         f"Write exactly one ability for each of the {len(R.GROUPS)} groups", "1.4.5 bonus features"))
     return out
 
 
@@ -250,25 +262,27 @@ class ContentSpec:
 SPECS: dict[str, ContentSpec] = {
     "element_cards": ContentSpec(
         key="element_cards", title="Element cards",
-        why="Shown on the lobby evolve screen for every one of the 118 evolutions.",
+        why="Shown on the mid-run evolve banner and in the lobby for each of the 10 elements.",
         gdd_sections=["1.1", "1.3.1", "1.4.4", "1.4.5", "3.1"],
-        task=("Write one evolve-screen card for EVERY element 1-118 (118 cards, in order). "
+        task=("Write one evolve card for EVERY element 1-10, Hydrogen to Neon (10 cards, in order). "
               "title: max 24 chars, a punchy nickname. flavor: ONE line, max 110 chars, built on a TRUE, "
               "well-known fact about that element (use, discovery, property or name origin). "
               "Copy atomic_number and symbol exactly from the element table. Vary sentence shapes."),
         model=ElementCards, checks=check_element_cards, to_md=md_element_cards,
         extra_context=lambda: "ELEMENT TABLE (Z|symbol|name|group):\n" + C.element_table(),
-        max_tokens=16000,
+        max_tokens=3000,
     ),
     "ui_text": ContentSpec(
         key="ui_text", title="Tutorial, HUD and lobby text",
-        why="Required by the GDD 1.4.3 tutorial and by every evolve / run-end screen.",
+        why="Required by the GDD 1.4.3 tutorial, the HUD energy bar, evolve banners and run-end screens.",
         gdd_sections=["1.3.1", "1.3.2", "1.3.3", "1.4.1", "1.4.2", "1.4.3"],
-        task=("Write the game's tutorial, lobby and run-end text. Follow GDD 1.4.3 exactly: run 1 teaches "
-              "moving and that ORBITING electrons damage enemies; then the lobby forces the H->He evolution; "
-              "run 2 teaches picking up wild electrons and throwing SPARE electrons. Placeholders allowed: "
-              "{element} {symbol} {cost} {energy} {next_fail_pct} {time}. Loading tips must each teach a real "
-              "mechanic with GDD-correct numbers."),
+        task=("Write the game's tutorial, HUD, evolve and run-end text. Follow GDD 1.3.3 and 1.4.3 exactly: "
+              "run 1 as Hydrogen teaches moving, that ORBITING electrons damage enemies and that energy orbs "
+              "fill the energy bar; when the bar fills the player evolves on the spot and the bar empties to 0; "
+              "on first becoming Helium the game teaches picking up wild electrons and throwing SPARE "
+              "electrons. Evolution has NO cost and can NEVER fail. The game has 10 levels and ends at Neon. "
+              "Placeholders allowed: {element} {symbol} {energy} {goal} {level} {time}. Loading tips must "
+              "each teach a real mechanic with GDD-correct numbers."),
         model=UiText, checks=check_ui_text, to_md=md_ui_text,
         extra_context=lambda: "",
         max_tokens=4000,
@@ -277,7 +291,8 @@ SPECS: dict[str, ContentSpec] = {
         key="group_abilities", title="Element-group abilities",
         why="GDD 1.4.4/1.4.5 bonus retention feature: each element group plays differently.",
         gdd_sections=["1.3.1", "1.4.2", "1.4.4", "1.4.5"],
-        task=("Design ONE ability for each of the 11 element groups. Base each on a real chemical property "
+        task=(f"Design ONE ability for each of the {len(R.GROUPS)} element groups found from Hydrogen to Neon. "
+              "Base each on a real chemical property "
               "of that group (e.g. noble gases: full outer shell; alkali metals: violently reactive). "
               f"trigger must be one of {sorted(TRIGGERS)}; effect one of {sorted(EFFECT_RANGES)} with value "
               f"inside its range {EFFECT_RANGES}. Passive abilities have cooldown_s 0. Abilities must not "
