@@ -13,7 +13,7 @@ namespace AtomIO.Core
         public const int EnemyContactDamage = 10;
         public const int OrbitingElectronDamage = 10;
         public const int ReleasedElectronDamage = 20;
-        public const int MinOrbitingElectrons = 1;
+        public const int MinOrbitingElectrons = 0; // no minimum: the last electron can be thrown (2026-11-15)
         public const int BarBase = 50;
         public const int BarPerProton = 3;
         public const int BarResetValue = 0;

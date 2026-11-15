@@ -29,7 +29,7 @@ namespace AtomIO.UI
             "Loose electrons drift in the arena. Touch one to fill a slot.",
             "Holding 2 electrons? Drag the right stick to aim the newest.",
             "Let go to throw it. A thrown electron deals 20 damage.",
-            "Your last electron always stays in orbit to guard you.",
+            "Throw your last electron and you're open to hits until you grab one.",
         };
 
         [SerializeField] private ArenaSession session;

@@ -38,7 +38,7 @@ def flawed(key: str) -> dict:
     elif key == "ui_text":
         d["loading_tips"][1] = "The energy bar always holds 50 energy, so fill it fast."
         d["loading_tips"][0] = "Each evolution adds 25 HP per proton."
-        d["tutorial_helium"][3] = "Out of spares? Throw your last one to finish off an enemy!"
+        d["tutorial_helium"][2] = "Let go to throw it: a thrown electron deals 10 damage."
         d["tutorial_first_evolve"] = "Spend your energy to evolve! Careful: failed fusions refund nothing."
     elif key == "group_abilities":
         ab = {a["group"]: a for a in d["abilities"]}
@@ -62,10 +62,10 @@ CRITIC_FINDINGS = {
             "severity": "blocker", "item": "loading_tips[1]", "gdd_ref": "1.3.3",
             "problem": "Contradicts the GDD: the bar holds 50 + 3 x current atomic number, not a flat 50.",
             "fix": "State the real formula: 50 plus 3 for every proton you have."}),
-        ("Throw your last one", {
-            "severity": "blocker", "item": "tutorial_helium[3]", "gdd_ref": "1.4.2 balance note",
-            "problem": "Contradicts the electron rule: the last electron always stays in orbit.",
-            "fix": "Teach that the last electron can't be thrown and protects the core."}),
+        ("thrown electron deals 10", {
+            "severity": "blocker", "item": "tutorial_helium[2]", "gdd_ref": "1.3.1",
+            "problem": "Contradicts the GDD: a thrown electron deals 20 damage (10 is the orbiting hit).",
+            "fix": "Say a thrown electron deals 20 damage."}),
     ],
     "group_abilities": [
         ("Halogens have a full outer shell", {

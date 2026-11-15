@@ -26,7 +26,7 @@ BANNED_LORE = [  # invented-lore markers the style guide forbids (GDD has no sto
     "magic", "curse", "dragon", "hero", "legendary warrior", "dark lord", "realm",
 ]
 RULE_BREAKERS = ["invincible", "immune", "immunity", "infinite", "unlimited", "never die", "can't die",
-                 "throw all", "throw every", "last electron away"]
+                 "never die", "can't die"]
 # Mechanics removed by the 2026-11-12 rescope: evolution has no cost and never fails (GDD 1.3.3).
 OBSOLETE_MECHANICS = [r"fail(?:s|ed|ure|ures)?", r"pity", r"spen(?:d|ds|t|ding)", r"refund\w*",
                       r"(?:lose|lost|loses) (?:your |all |the )?energy", r"energy (?:is |was )?lost",
@@ -297,7 +297,7 @@ SPECS: dict[str, ContentSpec] = {
               f"trigger must be one of {sorted(TRIGGERS)}; effect one of {sorted(EFFECT_RANGES)} with value "
               f"inside its range {EFFECT_RANGES}. Passive abilities have cooldown_s 0. Abilities must not "
               "duplicate the existing stat traits listed below, and must never let the player throw their "
-              "last electron or become permanently immune."),
+              "become permanently immune."),
         model=GroupAbilities, checks=check_group_abilities, to_md=md_group_abilities,
         extra_context=lambda: ("ELEMENT GROUPS:\n" + "\n".join(f"{g}: {[R.element(z)['symbol'] for z in zs]}"
                                                                for g, zs in R.GROUPS.items())

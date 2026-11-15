@@ -103,8 +103,8 @@ implement_core_scripts:
       is full the player evolves immediately mid-run (HP refills, +1 slot, new look, trait and
       arena level) and the bar empties to 0 with no carry-over. There is NO evolution cost and
       NO failure chance. The bar keeps its progress between runs. Player movement
-      from a left virtual stick; orbiting electrons (always keep at least 1, release only when
-      more than 1, aim on the newest electron, released hit = 20, orbiting hit = 10); wild
+      from a left virtual stick; orbiting electrons (any electron can be thrown, even the last one;
+      every run starts with 1; aim on the newest electron, released hit = 20, orbiting hit = 10); wild
       electron and energy orb pickup; enemies that chase in sight range and give up when the
       player escapes; contact damage 10; time-based spawner; pooled wild electrons that obey
       the tier's electrons block (interval, max_wild cap counting missed throws, lifetime with

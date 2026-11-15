@@ -39,7 +39,7 @@ Rules:
   MAY MODIFY. Return the COMPLETE modified file, keeping every existing behaviour; additive changes only.
 - Data files are loaded with Resources.Load<TextAsset>("path without .json") and JsonUtility (wrap arrays
   in a [Serializable] class whose field names match the JSON keys).
-- Respect GDD rules: the player always keeps at least 1 orbiting electron; no permanent immunity; the game
+- Respect GDD rules: any electron can be thrown, even the last one (no minimum); no permanent immunity; the game
   ends at Neon (Z=10); zero network calls."""
 
 

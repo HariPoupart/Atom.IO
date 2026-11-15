@@ -113,7 +113,7 @@ def _canned_code() -> dict:
         "MetaProgress": "PlayerPrefs save: element, energy bar progress, tutorial stage; bar full = evolve, bar to 0.",
         "LobbyController": "Lobby UI: element, energy bar, win message at Neon, start run.",
         "PlayerAtom": "Player nucleus: movement, HP = 10 x Z, trait multipliers, core colours.",
-        "ElectronOrbit": "Bohr shells (2 then 8: Neon fills both), slot cap = Z, keep >= 1, aim line, release; "
+        "ElectronOrbit": "Bohr shells (2 then 8: Neon fills both), slot cap = Z, no minimum (last one can be thrown), aim line, release; "
                          "smooth per-electron orbit set in LateUpdate (after the developer's demo script).",
         "Electron": "Glowing yellow sphere; wild (bob, pulse, lifetime fade) / orbiting / released states, "
                     "10 and 20 damage, pickup flash, returns to the pool.",

@@ -18,7 +18,7 @@ ENEMY_CONTACT_DAMAGE = 10          # "Collide with player core to inflict damage
 ORBITING_ELECTRON_DAMAGE = 10      # "orbiting (-10 hp)"
 RELEASED_ELECTRON_DAMAGE = 20      # "released (-20 hp)"
 ENEMY_BASE_HP = 10                 # "Enemy health starts at 10 and increases linearly"
-MIN_ORBITING_ELECTRONS = 1         # "The player always has at least 1 electron orbiting them"
+MIN_ORBITING_ELECTRONS = 0         # design change 2026-11-15: no minimum, the last electron can be thrown
 MAX_ATOMIC_NUMBER = 10             # Neon = final element and win condition (10 levels)
 
 # --- GDD 1.3.3 Evolution: energy bar ----------------------------------------------
@@ -79,6 +79,5 @@ def all_elements() -> list[dict]:
 
 
 def min_orbiting(z: int) -> int:
-    """Electrons that must stay in orbit. Hydrogen (1 slot) may throw its only one (design change
-    2026-11-15); every other element always keeps at least 1."""
-    return 0 if z == 1 else MIN_ORBITING_ELECTRONS
+    """Electrons that must stay in orbit: none for any element (design change 2026-11-15)."""
+    return MIN_ORBITING_ELECTRONS

@@ -9,12 +9,12 @@ namespace AtomIO.Player
 {
     /// <summary>
     /// Bohr-model electron shells around the player. Slots = atomic number.
-    /// Always keeps at least one electron; only fires when holding more than one.
+    /// Any electron can be thrown, even the last one; every run starts with one.
     /// Shells fill 2, then 8, like the Bohr model (Neon fills both).
     /// </summary>
     /// <summary>
     /// Bohr-model electron shells around the player. Slots = atomic number.
-    /// Always keeps at least one electron; only fires when holding more than one.
+    /// Any electron can be thrown, even the last one; every run starts with one.
     /// Shells fill 2, then 8, like the Bohr model (Neon fills both).
     ///
     /// Motion (after the developer's demo ElectronMovement script): positions are set directly
