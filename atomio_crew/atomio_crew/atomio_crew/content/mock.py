@@ -60,7 +60,7 @@ CRITIC_FINDINGS = {
     "ui_text": [
         ("always holds 50 energy", {
             "severity": "blocker", "item": "loading_tips[1]", "gdd_ref": "1.3.3",
-            "problem": "Contradicts the GDD: the bar holds 50 + 3 x current atomic number, not a flat 50.",
+            "problem": "Contradicts the GDD: the bar holds 50 + 3Z + 5(Z-1)^2 energy and grows every level, not a flat 50.",
             "fix": "State the real formula: 50 plus 3 for every proton you have."}),
         ("thrown electron deals 10", {
             "severity": "blocker", "item": "tutorial_helium[2]", "gdd_ref": "1.3.1",

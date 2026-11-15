@@ -52,7 +52,8 @@ design_tiers:
     1. ONE spawn_curve for the whole game (enemy spawn interval shrinks with time:
        interval = base / (1 + k * minutes); enemy HP starts at 10 and grows linearly per
        level and per minute; energy per orb grows exponentially per minute survived). The
-       energy bar needs 50 + 3Z energy per evolution (53 at H, 77 at F), so tune orb value
+       energy bar needs 50 + 3Z + 5(Z-1)^2 energy per evolution (53 at H, 397 at F) and every orb
+       holds a fixed 2 energy, so tune orb
        and frequency so H takes about one minute and later levels a few minutes each.
        Wild electrons: Hydrogen spawns none (its one slot is always full); from Helium on,
        set electron_base_interval_s + electron_interval_per_tier, max_wild_electrons_base +
@@ -98,7 +99,7 @@ implement_core_scripts:
       JsonUtility, so your serializable C# classes MUST have a public field for every key of
       that JSON (same names, same nesting). Core visuals must support every pattern and trait
       multiplier the Level Designer used, and the arena must build every obstacle_pattern.
-    - Implement: GDD formulas (HP = 10 x Z, slots = Z, energy bar size 50 + 3Z, final
+    - Implement: GDD formulas (HP = 10 x Z, slots = Z, energy bar size 50 + 3Z + 5(Z-1)^2, fixed 2-energy orbs, final
       element Neon Z=10); the energy bar: every bit of energy collected fills it, and when it
       is full the player evolves immediately mid-run (HP refills, +1 slot, new look, trait and
       arena level) and the bar empties to 0 with no carry-over. There is NO evolution cost and

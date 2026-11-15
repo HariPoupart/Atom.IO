@@ -24,6 +24,7 @@ namespace UnityEngine
         public T GetComponent<T>() => default(T);
         public T GetComponentInParent<T>() => default(T);
         public T GetComponentInChildren<T>() => default(T);
+        public T[] GetComponentsInChildren<T>() => new T[0];
     }
     public class Behaviour : Component { public bool enabled; }
     public class MonoBehaviour : Behaviour
@@ -52,7 +53,7 @@ namespace UnityEngine
     }
     public class AudioClip : Object { }
     public class AudioSource : Behaviour { public static void PlayClipAtPoint(AudioClip clip, Vector3 position, float volume) { } }
-    public class TrailRenderer : Renderer { public bool emitting; }
+    public class TrailRenderer : Renderer { public bool emitting; public Color startColor; public Color endColor; }
     public class ParticleSystem : Component { public void Play() { } public void Stop() { } }
     public enum RigidbodyType2D { Dynamic, Kinematic, Static }
     public enum RigidbodyInterpolation2D { None, Interpolate, Extrapolate }
@@ -97,6 +98,7 @@ namespace UnityEngine
         public Vector3(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
         public static Vector3 zero => new Vector3(0, 0, 0);
         public static Vector3 one => new Vector3(1, 1, 1);
+        public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDelta) => target;
         public static Vector3 operator +(Vector3 a, Vector3 b) => a;
         public static Vector3 operator -(Vector3 a, Vector3 b) => a;
         public static Vector3 operator *(Vector3 a, float d) => a;

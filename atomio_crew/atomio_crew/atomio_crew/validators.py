@@ -160,7 +160,7 @@ def check_tier_files(files: dict[str, dict], rep: Report) -> None:
             rep.err(f"tier {z}: electron_slots mismatch")
         ev = t["evolution"]
         if ev["energy_to_evolve"] != R.energy_bar_capacity(z):
-            rep.err(f"tier {z}: energy bar size mismatch (GDD: 50 + 3Z, 0 at Neon)")
+            rep.err(f"tier {z}: energy bar size mismatch (GDD: 50 + 3Z + 5(Z-1)^2, 0 at Neon)")
         if ev["bar_reset_value"] != R.BAR_RESET_VALUE:
             rep.err(f"tier {z}: the energy bar must empty to 0 after evolving")
         if ev["is_final_element"] != (z == R.MAX_ATOMIC_NUMBER):

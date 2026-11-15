@@ -31,7 +31,7 @@ RULE_BREAKERS = ["invincible", "immune", "immunity", "infinite", "unlimited", "n
 OBSOLETE_MECHANICS = [r"fail(?:s|ed|ure|ures)?", r"pity", r"spen(?:d|ds|t|ding)", r"refund\w*",
                       r"(?:lose|lost|loses) (?:your |all |the )?energy", r"energy (?:is |was )?lost",
                       r"oganesson", r"118"]
-# Every number the GDD fixes (10 HP/proton, bar = 50 + 3Z, 10/20 damage, shells 2 and 8,
+# Every number the GDD fixes (10 HP/proton, bar = 50 + 3Z + 5(Z-1)^2, orb = 2 energy, 10/20 damage, shells 2 and 8,
 # 10 levels, Neon = 10, bar empties to 0), plus small counting numbers.
 ALLOWED_NUMBERS = {"0", "1", "2", "3", "8", "10", "20", "50"}
 PLACEHOLDERS = {"{element}", "{symbol}", "{energy}", "{goal}", "{level}", "{time}"}
@@ -158,7 +158,7 @@ def check_ui_text(d: UiText) -> list[dict]:
             for num in re.findall(r"(?<![\w.])\d+(?:\.\d+)?", text_no_ph):
                 if num not in ALLOWED_NUMBERS:
                     out.append(issue("blocker", item, f"number {num} is not a GDD value",
-                                     "Only state numbers the GDD fixes (10 HP/proton, bar 50 + 3Z, 10/20 dmg, "
+                                     "Only state numbers the GDD fixes (10 HP/proton, bar 50 + 3Z + 5(Z-1)^2, 10/20 dmg, "
                                      "shells 2 and 8, Neon = 10)", "1.3.1 / 1.3.3"))
             _lore_and_rule_checks(item, line, out)
     return out

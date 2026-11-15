@@ -22,8 +22,11 @@ MIN_ORBITING_ELECTRONS = 0         # design change 2026-11-15: no minimum, the l
 MAX_ATOMIC_NUMBER = 10             # Neon = final element and win condition (10 levels)
 
 # --- GDD 1.3.3 Evolution: energy bar ----------------------------------------------
-BAR_BASE = 50                      # bar capacity = 50 + 3 x Z
+BAR_BASE = 50                      # bar capacity = 50 + 3 x Z + 5 x (Z-1)^2 (2026-11-15: later levels need more)
 BAR_PER_PROTON = 3
+BAR_CURVE = 5
+ORB_ENERGY = 2                     # every energy orb holds this fixed amount (2026-11-15)
+MAX_ORBS_PER_KILL = 15
 BAR_RESET_VALUE = 0                # a full bar evolves the player and empties to 0 (no carry-over)
 
 
@@ -37,9 +40,9 @@ def electron_slots(z: int) -> int:
 
 
 def energy_bar_capacity(z: int) -> int:
-    """Energy needed to fill the bar and evolve from element z to z+1: 50 + 3 * z.
-    The final element (Neon) has no bar: returns 0."""
-    return 0 if z >= MAX_ATOMIC_NUMBER else BAR_BASE + BAR_PER_PROTON * z
+    """Energy needed to fill the bar and evolve from element z to z+1: 50 + 3z + 5(z-1)^2
+    (53 at H ... 397 at F). The final element (Neon) has no bar: returns 0."""
+    return 0 if z >= MAX_ATOMIC_NUMBER else BAR_BASE + BAR_PER_PROTON * z + BAR_CURVE * (z - 1) ** 2
 
 
 def total_energy_to_win() -> int:

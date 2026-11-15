@@ -31,7 +31,7 @@
   "win_neon": "Neon reached: element 10. Two full shells, 2 + 8 electrons, and a glow worth a sign. You climbed the whole table!",
   "loading_tips": [
     "Each evolution adds 1 proton: +10 HP and one more electron slot.",
-    "Your bar needs 50 energy plus 3 for every proton you have.",
+    "Every new element's bar is bigger, so later evolutions take longer.",
     "A full bar evolves you on the spot, then empties back to 0.",
     "Orbiting electrons deal 10 damage. Thrown electrons deal 20.",
     "Enemies give up the chase if you escape their sight range.",

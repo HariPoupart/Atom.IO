@@ -20,6 +20,12 @@ namespace AtomIO.Combat
 
         public event Action<Enemy> Killed;
 
+        /// <summary>Raised for any enemy that dies (used by group abilities).</summary>
+        public static event Action<Enemy> AnyKilled;
+
+        /// <summary>Raised after an orbiting electron lands a hit (enemy, damage dealt).</summary>
+        public static event Action<Enemy, int> AnyOrbitHit;
+
         public float Hp { get; private set; }
 
         private Rigidbody2D body;
@@ -105,9 +111,14 @@ namespace AtomIO.Combat
 
             lastOrbitHit = Time.time;
             TakeDamage(damage);
+            AnyOrbitHit?.Invoke(this, damage);
         }
 
-        public void TakeDamage(int damage)
+        public void TakeDamage(int damage) => TakeDamage(damage, false);
+
+        /// <summary>Damage the enemy. A kill drops scattered orbs worth its energy; if the killing blow
+        /// came from a thrown electron, those orbs fly straight to the player.</summary>
+        public void TakeDamage(int damage, bool fromThrownElectron)
         {
             if (Hp <= 0f)
             {
@@ -117,13 +128,11 @@ namespace AtomIO.Combat
             Hp -= damage;
             if (Hp <= 0f)
             {
-                if (orbPrefab != null)
-                {
-                    var orb = Instantiate(orbPrefab, transform.position, Quaternion.identity);
-                    orb.SetValue(dropValue);
-                }
+                Transform suckTo = fromThrownElectron && target != null ? target.transform : null;
+                EnergyOrb.SpawnBurst(orbPrefab, transform.position, dropValue, suckTo);
 
                 Killed?.Invoke(this);
+                AnyKilled?.Invoke(this);
                 Destroy(gameObject);
             }
         }

@@ -75,8 +75,7 @@ namespace AtomIO.Arena
                 nextOrb = Time.time + config.ScaledIntervalAt(config.spawn.orb_base_interval_s, minutes);
                 if (orbs.Count < maxIdleOrbs && orbPrefab != null)
                 {
-                    var orb = Instantiate(orbPrefab, RandomPointInArena(0f), Quaternion.identity);
-                    orb.SetValue(config.OrbValueAt(minutes));
+                    var orb = Instantiate(orbPrefab, RandomPointInArena(0f), Quaternion.identity); // fixed energy
                     orbs.Add(orb);
                 }
             }

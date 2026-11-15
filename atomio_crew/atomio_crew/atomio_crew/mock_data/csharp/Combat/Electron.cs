@@ -1,3 +1,4 @@
+using System;
 using AtomIO.Arena;
 using AtomIO.Player;
 using UnityEngine;
@@ -37,12 +38,17 @@ namespace AtomIO.Combat
         [SerializeField] private float flashSeconds = 0.2f;
         [SerializeField] private AudioClip pickupClip;
 
+        /// <summary>Raised when an electron is thrown (used by group abilities).</summary>
+        public static event Action<Electron> AnyReleased;
+
         public ElectronState State { get; private set; } = ElectronState.Wild;
 
         private Rigidbody2D rb;
         private ElectronPool pool;
         private bool countedWild;
         private float damageMult = 1f;
+        private float releaseBoost = 1f;
+        private bool trailTinted;
         private int orbitDamage = 10;
         private int releaseDamage = 20;
         private float releasedAt;
@@ -60,7 +66,7 @@ namespace AtomIO.Combat
             rb.interpolation = RigidbodyInterpolation2D.None; // the orbit sets positions itself every frame
             GetComponent<CircleCollider2D>().isTrigger = true;
             baseScale = transform.localScale;
-            phase = Random.Range(0f, 6.28f);
+            phase = UnityEngine.Random.Range(0f, 6.28f);
             SetTrail(false);
         }
 
@@ -72,6 +78,7 @@ namespace AtomIO.Combat
             State = ElectronState.Orbiting; // the caller sets the real state right after
             rb.linearVelocity = Vector2.zero;
             transform.localScale = baseScale;
+            ClearBoost();
             SetTrail(false);
             SetLook(1f, haloAlphaOrbit);
         }
@@ -81,11 +88,47 @@ namespace AtomIO.Combat
             orbitDamage = orbitDmg;
             releaseDamage = releaseDmg;
             damageMult = mult;
+            ClearBoost();
             SetState(ElectronState.Orbiting);
             rb.linearVelocity = Vector2.zero;
             transform.localScale = baseScale;
             SetTrail(false);
             SetLook(1f, haloAlphaOrbit);
+        }
+
+        /// <summary>Group ability: this thrown electron hits harder (multiplier on release damage)
+        /// and gets an orange trail. Cleared when the electron is reused or becomes wild again.</summary>
+        public void BoostRelease(float multiplier)
+        {
+            releaseBoost = Mathf.Max(1f, multiplier);
+            if (trail != null)
+            {
+                var orange = new Color(1f, 0.55f, 0.1f, 1f);
+                trail.startColor = orange;
+                trail.endColor = new Color(orange.r, orange.g, orange.b, 0f);
+                trailTinted = true;
+            }
+        }
+
+        /// <summary>Group ability: moves a wild electron (shifts its bobbing anchor).</summary>
+        public void NudgeWild(Vector3 delta)
+        {
+            if (State == ElectronState.Wild)
+            {
+                wildAnchor += delta;
+            }
+        }
+
+        private void ClearBoost()
+        {
+            releaseBoost = 1f;
+            if (trailTinted && trail != null)
+            {
+                trail.startColor = color;
+                trail.endColor = new Color(color.r, color.g, color.b, 0f);
+            }
+
+            trailTinted = false;
         }
 
         /// <summary>Flash and sound when the player collects this electron.</summary>
@@ -112,6 +155,7 @@ namespace AtomIO.Combat
             releasedAt = Time.time;
             rb.linearVelocity = direction.normalized * releaseSpeed;
             SetTrail(true);
+            AnyReleased?.Invoke(this);
         }
 
         /// <summary>Lies loose in the arena: bobs, pulses and fades after the level's lifetime.</summary>
@@ -119,6 +163,7 @@ namespace AtomIO.Combat
         {
             SetState(ElectronState.Wild);
             rb.linearVelocity = Vector2.zero;
+            ClearBoost();
             SetTrail(false);
             wildSince = Time.time;
             wildAnchor = transform.position;
@@ -206,7 +251,7 @@ namespace AtomIO.Combat
 
             if (State == ElectronState.Released)
             {
-                enemy.TakeDamage(Mathf.RoundToInt(releaseDamage * damageMult));
+                enemy.TakeDamage(Mathf.RoundToInt(releaseDamage * damageMult * releaseBoost), true); // thrown kill: energy is sucked in
                 Despawn();
             }
             else
