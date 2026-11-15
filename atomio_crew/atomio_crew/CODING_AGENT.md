@@ -88,9 +88,55 @@ The latest report is copied to `agent_report/AGENT_REPORT.md`.
 | R18 | Ability indicator in the HUD | 1.4.5 | 3x2 + 0 + 2x1 + 0 - 1x1 = **7** | **Blocked** by R16 on the first scan, then becomes eligible after the re-scan |
 | R15 | Arena settings menu | 1.4.2 | 3x2 + 0 + 2x1 + 0 - 1x2 = **6** | GDD top-right "settings"; no data, more UI work |
 
-## Assignment README (to finish after the live run)
-1. **What feature the agent built:** see `agent_report/AGENT_REPORT.md` and the playtest.
-2. **Why the agent picked it:** the priority table above, plus the report's per-scan scores.
-3. **Manual changes before accepting the code:** fill in from the playtest and `git diff` in the Unity project.
+## Assignment README
+
+### 1. What feature the agent built
+Live run on Nov 15. The full log is in `agent_report/AGENT_REPORT.md`, and the backups and per-step diffs are in `output/agent_runs/run_20261115-003905/`.
+
+The agent built **all four missing features**, re-scanning after each one, and stopped with **"all requirements met"** (18/18). Every feature passed the compile check with **Unity's own compiler** on the first attempt. It took 4 Claude calls and about $0.80.
+
+| Order | Feature | Files |
+|---|---|---|
+| 1 | **Element-group abilities** (the main feature) | New: `Abilities/GroupAbilityDatabase.cs`, `Abilities/GroupAbilityController.cs`. Additive hooks: `PlayerAtom` (heal, shield), `Enemy` (`AnyKilled` event), `Electron` (orbit-hit/release events, damage boost), `ArenaSession` |
+| 2 | Element card in the lobby | `Content/ElementCardDatabase.cs`, `Content/LobbyElementCard.cs` |
+| 3 | Ability indicator in the HUD | `UI/AbilityHudIndicator.cs` |
+| 4 | Arena settings menu (pause, sound, exit) | `UI/SettingsMenu.cs` |
+
+**The group abilities, in the game:** each element group gets the ability the Assignment 4 pipeline wrote in `group_abilities.json`. The active ability switches when you evolve into a new group. All of them set themselves up at runtime, so no scene wiring is needed.
+
+| Group (elements) | Ability |
+|---|---|
+| Reactive nonmetal (H, C, N, O) | Orbit hits arc to a nearby enemy |
+| Noble gas (He, Ne) | A shield below 30% HP |
+| Alkali metal (Li) | A stronger thrown electron |
+| Alkaline earth (Be) | Heal when you pick up an orb |
+| Metalloid (B) | Orbs are pulled in |
+| Halogen (F) | Kills drop more energy |
+
+### 2. Why the agent selected it
+On the first scan, 14 of 18 GDD requirements were already implemented. Of the 4 gaps:
+- **R16 (group abilities)** scored **8**:
+  - importance 2: a GDD retention mechanism, sections 1.4.4 / 1.4.5
+  - +2 because it **unblocks** the HUD indicator
+  - +2 because players see it
+  - +1 because its data (`group_abilities.json`) already existed
+  - −3 for effort
+- **R17 (lobby card)** also scored 8. **The tie was broken because R16 unblocks another feature.**
+- **R18 (HUD indicator)** was **blocked** until R16 existed. After the re-scan found R16 done, R18 became eligible (7) and was built third.
+- **R15 (settings menu)** scored 6, the lowest, because it has no ready data and more UI work.
+
+### 3. Manual changes before accepting the code
+Every change is marked `// MANUAL FIX` in the code.
+1. **Two abilities did nothing** (metalloid `pickup_radius_mult` and halogen `energy_mult`). The agent had only shown Claude the first 1,500 characters of `group_abilities.json`, so Claude never saw those two entries. It said so in its own notes and made unknown effects log a warning instead of crashing. **Fix:**
+   - added the energy-multiplier effect: scale the orb a killed enemy drops
+   - treated `pickup_radius_mult` as a multiplier on a 2.5-unit pull radius, instead of a radius of 1.2 units
+   - **fixed the agent itself:** it now sends whole data files (`writer.py`, `DATA_LIMIT`)
+2. **The settings button sat on top of EXIT** (both in the top-right corner). Moved it to the left of EXIT. Claude had flagged the risk in its notes.
+3. **The lobby card covered the PLAY button** (800 × 230). Changed it to a 1240 × 150 strip under PLAY, with smaller fonts.
+4. **The HUD ability label sat bottom-centre, where the tutorial hints appear.** Moved it into the top-left HUD column, under the electron count.
+
+After these fixes, the whole project compiles cleanly against the real Unity libraries (24 runtime scripts).
+
+**Lesson:** compile checks catch API mistakes, but not missing *meaning*. The two broken abilities compiled fine. Next time, the gap judge should also read each finished feature against its acceptance criteria.
 
 > **Mock mode** (`--mock`) runs the whole loop offline on a sandbox copy of the scripts. It uses reference implementations, with one deliberate bug in R17's first attempt so the compile-and-retry path is visible. Live runs use Claude.

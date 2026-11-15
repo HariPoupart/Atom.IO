@@ -16,6 +16,7 @@ from ..validators import FORBIDDEN_USINGS, _strip_cs
 from .scanner import CodeIndex
 
 SCRIPTS_ROOT = "Assets/Scripts/AtomIO/"
+DATA_LIMIT = 12000  # chars of each data file shown to the model
 
 SYSTEM = """You are the Atom.IO Coding Agent, a senior Unity 6.3 (C#) engineer adding ONE missing feature \
 to an existing Android game. Output ONLY a JSON object:
@@ -65,7 +66,12 @@ def build_messages(req: dict, ix: CodeIndex, all_reqs: dict, feedback: list[str]
     for rel in req.get("data_files", []):
         p = ix.root / "Assets" / "Resources" / rel
         if p.exists():
-            data_txt += f"\n// Resources/{rel} (first 1500 chars)\n{p.read_text(encoding='utf-8')[:1500]}\n"
+            # Send the whole data file (these are small). A 1,500-char preview once hid two of the six
+            # group abilities from the model, so it never implemented them.
+            text = p.read_text(encoding="utf-8")
+            cut = len(text) > DATA_LIMIT
+            data_txt += (f"\n// Resources/{rel}{' (truncated: ' + str(len(text)) + ' chars total)' if cut else ''}\n"
+                         f"{text[:DATA_LIMIT]}\n")
     may_modify = [f.path for f in touch_files]
     user = (f"FEATURE {req['id']}: {req['title']} (GDD {req['gdd_ref']})\n{req['description']}\n"
             f"ACCEPTANCE CRITERIA: {json.dumps(req['acceptance'])}\n"
