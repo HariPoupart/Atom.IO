@@ -168,10 +168,8 @@ def check_tier_files(files: dict[str, dict], rep: Report) -> None:
         el = t.get("electrons")
         if el is None:
             rep.err(f"tier {z}: missing 'electrons' block (wild-electron spawning)")
-        elif z == 1 and el["max_wild"] != 0:
-            rep.err("tier 1: Hydrogen must spawn no wild electrons (its only slot is always full)")
-        elif z > 1 and el["max_wild"] < 1:
-            rep.err(f"tier {z}: max_wild must be at least 1 from Helium on (GDD 1.4.3 pickup lesson)")
+        elif el["max_wild"] < 1:
+            rep.err(f"tier {z}: max_wild must be at least 1 (wild electrons spawn from level 1)")
         for k in ("cost_to_next", "base_fail_chance_pct", "pity_step_pct"):
             if k in ev:
                 rep.err(f"tier {z}: obsolete evolution key '{k}' (no cost / no failure since the rescope)")

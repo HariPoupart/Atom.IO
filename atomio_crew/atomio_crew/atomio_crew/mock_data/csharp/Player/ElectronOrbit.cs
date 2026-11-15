@@ -65,7 +65,8 @@ namespace AtomIO.Player
         public void Init(TierConfig config)
         {
             Slots = config.player.electron_slots;
-            minOrbiting = Mathf.Max(1, config.player.min_orbiting_electrons);
+            // Hydrogen (min 0) may throw its only electron; every other element keeps at least 1.
+            minOrbiting = Mathf.Max(0, config.player.min_orbiting_electrons);
             orbitDamage = config.player.orbiting_electron_damage;
             releaseDamage = config.player.released_electron_damage;
             damageMult = config.trait != null ? config.trait.electron_damage_mult : 1f;
@@ -73,7 +74,7 @@ namespace AtomIO.Player
 
             // Every run starts with the guaranteed electron(s).
             var pool = ElectronPool.Instance;
-            while (orbiters.Count < minOrbiting)
+            while (orbiters.Count < Mathf.Max(1, minOrbiting)) // every run / level starts with an electron
             {
                 Electron e = pool != null ? pool.Get(transform.position) : null;
                 if (e == null && electronPrefab != null)

@@ -35,7 +35,7 @@ User interface (phone held horizontally): Top left: player info (current element
 Arena interactive objects: Enemies are randomly spawned far from the player and follow them when in sight range. Electrons are idle, spawned around the map. Energy orbs are idle, spawned around the map and dropped on enemy death.
 What the player sees and does: The player explores the arena map where they find enemies, electrons and energy orbs. Enemies chase the player when they see them and give up when the player escapes. The player collects energy orbs, shoots electrons at enemies, collects wild electrons and repeats until they die.
 The player sees their core as a large circle, with their electrons orbiting around it as shown by the Bohr model. When aiming, a drag vector appears on the latest electron obtained to help the player aim.
-Balance note: The player always has at least 1 electron orbiting them. They can only release electrons if they have more than one.
+Balance note (updated 2026-11-15): Hydrogen can throw its only electron and collect it (or a wild one) back; wild electrons spawn from level 1. From Helium on, the player always has at least 1 electron orbiting them. They can only release electrons if they have more than one.
 
 ## 1.4.3 Player tutorial
 When the player enters the Arena the first time as a hydrogen, the first run serves as a tutorial to show that orbiting electrons damage enemies and that energy orbs fill the energy bar. Hydrogen's bar is the smallest (53 energy), so the first evolution into Helium comes quickly. The moment the player first becomes Helium, they are shown how to throw spare electrons and how to pick up spawned ones.

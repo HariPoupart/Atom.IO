@@ -37,7 +37,7 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
         "player": {
             "max_hp": R.max_hp(z),
             "electron_slots": R.electron_slots(z),
-            "min_orbiting_electrons": R.MIN_ORBITING_ELECTRONS,
+            "min_orbiting_electrons": R.min_orbiting(z),
             "orbiting_electron_damage": R.ORBITING_ELECTRON_DAMAGE,
             "released_electron_damage": R.RELEASED_ELECTRON_DAMAGE,
         },
@@ -64,7 +64,7 @@ def build_tier(z: int, design: TierDesignSet) -> dict:
         "electrons": {
             # Hydrogen's single slot is always full and pickup is taught at Helium, so H spawns none.
             "base_interval_s": _r(sc.electron_base_interval_s + sc.electron_interval_per_tier * (z - 1)),
-            "max_wild": 0 if z == 1 else int(sc.max_wild_electrons_base + sc.max_wild_electrons_per_tier * (z - 1)),
+            "max_wild": int(sc.max_wild_electrons_base + sc.max_wild_electrons_per_tier * (z - 1)),
             "lifetime_s": _r(sc.electron_lifetime_s, 2),
             "min_spawn_distance": _r(sc.electron_min_spawn_distance, 2),
         },

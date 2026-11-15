@@ -76,3 +76,9 @@ def element(z: int) -> dict:
 
 def all_elements() -> list[dict]:
     return [element(z) for z in range(1, MAX_ATOMIC_NUMBER + 1)]
+
+
+def min_orbiting(z: int) -> int:
+    """Electrons that must stay in orbit. Hydrogen (1 slot) may throw its only one (design change
+    2026-11-15); every other element always keeps at least 1."""
+    return 0 if z == 1 else MIN_ORBITING_ELECTRONS
