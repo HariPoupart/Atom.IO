@@ -39,7 +39,10 @@ namespace AtomIO.Player
         [SerializeField] private float baseDegreesPerSecond = 120f;
         [SerializeField] private float settleSpeed = 6f;       // how fast electrons glide into their slot
         [Header("Valence tuning (2026-11-15)")]
-        [SerializeField] private float spinMultiplier = 1.75f;  // electrons orbit 75% faster (120 -> 210 deg/s)
+        // Renamed from spinMultiplier (was 1.75, too fast to aim) so an old saved value can't override it.
+        [SerializeField] private float orbitSpinMultiplier = 1.15f; // inner shell: 120 -> ~138 deg/s
+        [Tooltip("1 = every shell moves at the same speed along its circle, so outer shells turn more slowly.")]
+        [SerializeField, Range(0f, 1f)] private float outerShellSlowdown = 1f;
         [SerializeField] private float extraShellGap = 0.8f;    // shell 1 sits 0.8 units further from the core
         [SerializeField] private float extraShellSpacing = 0.25f; // and shells are spread a little wider
         [SerializeField] private LineRenderer aimLine;
@@ -58,7 +61,7 @@ namespace AtomIO.Player
         private int releaseDamage = 20;
         private float damageMult = 1f;
         private float orbitSpeedMult = 1f;
-        private float baseAngle;
+        private readonly float[] shellAngles = new float[4]; // each shell spins on its own angle
         private Vector2 aimDirection;
 
         private void Awake()
@@ -121,7 +124,7 @@ namespace AtomIO.Player
             orbiters.Add(new Orbiter
             {
                 electron = electron,
-                offset = startAngle - baseAngle * ShellDirection(ShellOf(index)),
+                offset = startAngle - ShellAngle(ShellOf(index)) * ShellDirection(ShellOf(index)),
                 radius = Mathf.Max(CoreRadius(), rel.magnitude),
             });
             ElectronsChanged?.Invoke(orbiters.Count, Slots);
@@ -156,7 +159,7 @@ namespace AtomIO.Player
         {
             orbiters.RemoveAll(o => o.electron == null || o.electron.State != ElectronState.Orbiting);
 
-            baseAngle = Mathf.Repeat(baseAngle + baseDegreesPerSecond * spinMultiplier * orbitSpeedMult * Time.deltaTime, 360f);
+            float innerDegPerSec = baseDegreesPerSecond * orbitSpinMultiplier * orbitSpeedMult;
             float blend = 1f - Mathf.Exp(-settleSpeed * Time.deltaTime);
             Vector2 center = transform.position;
             float coreRadius = CoreRadius();
@@ -169,12 +172,18 @@ namespace AtomIO.Player
                 int inShell = Mathf.Min(capacity, orbiters.Count - index);
                 float shellRadius = coreRadius + firstShellGap + extraShellGap + shell * (shellSpacing + extraShellSpacing);
                 float dir = ShellDirection(shell);
+                // Outer shells turn more slowly so their electrons don't whip around much faster than
+                // the inner shell's (same speed along the circle when outerShellSlowdown = 1).
+                float innerRadius = coreRadius + firstShellGap + extraShellGap;
+                float slow = Mathf.Lerp(1f, innerRadius / Mathf.Max(0.01f, shellRadius), outerShellSlowdown);
+                int si = Mathf.Min(shell, shellAngles.Length - 1);
+                shellAngles[si] = Mathf.Repeat(shellAngles[si] + innerDegPerSec * slow * Time.deltaTime, 360f);
                 for (int i = 0; i < inShell; i++)
                 {
                     var o = orbiters[index + i];
                     o.offset = Mathf.LerpAngle(o.offset, 360f * i / inShell, blend);
                     o.radius = Mathf.Lerp(o.radius, shellRadius, blend);
-                    float a = (baseAngle * dir + o.offset) * Mathf.Deg2Rad;
+                    float a = (shellAngles[si] * dir + o.offset) * Mathf.Deg2Rad;
                     o.electron.SetOrbitPosition(center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * o.radius);
                 }
 
@@ -207,6 +216,8 @@ namespace AtomIO.Player
 
             return shell;
         }
+
+        private float ShellAngle(int shell) => shellAngles[Mathf.Min(shell, shellAngles.Length - 1)];
 
         private static float ShellDirection(int shell) => shell % 2 == 0 ? 1f : -1f; // alternate spin per shell
 
