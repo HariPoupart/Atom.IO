@@ -17,6 +17,12 @@ namespace AtomIO.Combat
         [SerializeField] private float giveUpRangeMultiplier = 1.5f;
         [SerializeField] private float wanderSpeedFactor = 0.35f;
         [SerializeField] private EnergyOrb orbPrefab;
+        [Header("Hit reaction (orbiting electrons)")]
+        [SerializeField] private float hitKnockback = 7f;     // pushed away from the player
+        [SerializeField] private float hitStunSeconds = 0.25f; // stops chasing while knocked back
+        [SerializeField] private float hitFlashSeconds = 0.12f;
+        [SerializeField] private Color hitFlashColor = Color.white;
+        [SerializeField] private float edgeMargin = 0.6f;      // stays this far inside the arena edge
 
         public event Action<Enemy> Killed;
 
@@ -38,12 +44,20 @@ namespace AtomIO.Combat
         private float lastOrbitHit = -999f;
         private Vector2 wanderDirection;
         private float nextWanderChange;
+        private SpriteRenderer sprite;
+        private Color spriteColor;
+        private Vector3 baseScale;
+        private Vector2 knockVelocity;
+        private float stunUntil = -1f;
+        private float flashUntil = -1f;
 
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();
             body.gravityScale = 0f;
             body.freezeRotation = true;
+            sprite = GetComponentInChildren<SpriteRenderer>();
+            baseScale = transform.localScale;
         }
 
         public void Init(PlayerAtom player, float hp, float speed, float sight, int damage, float orbValue)
@@ -64,6 +78,15 @@ namespace AtomIO.Combat
                 return;
             }
 
+            if (Time.time < stunUntil)
+            {
+                // Knocked back by an orbiting electron: slide away, slowing down, then resume.
+                body.linearVelocity = knockVelocity;
+                knockVelocity *= 0.85f;
+                KeepInsideArena();
+                return;
+            }
+
             Vector2 toPlayer = (Vector2)target.transform.position - body.position;
             float dist = toPlayer.magnitude;
 
@@ -80,6 +103,7 @@ namespace AtomIO.Combat
             if (chasing)
             {
                 body.linearVelocity = toPlayer.normalized * moveSpeed;
+                KeepInsideArena();
                 return;
             }
 
@@ -90,6 +114,74 @@ namespace AtomIO.Combat
             }
 
             body.linearVelocity = wanderDirection * moveSpeed * wanderSpeedFactor;
+            KeepInsideArena();
+        }
+
+        /// <summary>The arena is a circle centred on the origin: never let an enemy leave it.
+        /// An enemy at the edge is put back inside, loses its outward speed, and a wanderer turns around.</summary>
+        private void KeepInsideArena()
+        {
+            var session = ArenaSession.Instance;
+            if (session == null || session.Config == null || session.Config.arena == null)
+            {
+                return;
+            }
+
+            float r = Mathf.Max(1f, session.Config.arena.radius - edgeMargin);
+            Vector2 p = body.position;
+            if (p.sqrMagnitude <= r * r)
+            {
+                return;
+            }
+
+            Vector2 n = p.normalized;
+            body.position = n * r;
+            transform.position = new Vector3(n.x * r, n.y * r, transform.position.z);
+            Vector2 v = body.linearVelocity;
+            float outward = Vector2.Dot(v, n);
+            if (outward > 0f)
+            {
+                body.linearVelocity = v - n * outward;
+            }
+
+            knockVelocity -= n * Mathf.Max(0f, Vector2.Dot(knockVelocity, n));
+            if (Vector2.Dot(wanderDirection, n) > 0f)
+            {
+                wanderDirection = -n;
+            }
+        }
+
+        private void Update()
+        {
+            // Hit feedback: white flash and a quick squash while recently hit.
+            if (sprite != null && Time.time >= flashUntil && flashUntil > 0f)
+            {
+                sprite.color = spriteColor;
+                transform.localScale = baseScale;
+                flashUntil = -1f;
+            }
+        }
+
+        /// <summary>Reaction to an orbiting-electron hit: flash, squash, knockback away from the player
+        /// and a short stun so the enemy visibly bounces off the electron shell.</summary>
+        private void ReactToHit()
+        {
+            if (sprite != null)
+            {
+                if (flashUntil < 0f)
+                {
+                    spriteColor = sprite.color; // remember the real colour and size (they may be set after spawn)
+                    baseScale = transform.localScale;
+                }
+
+                sprite.color = hitFlashColor;
+                transform.localScale = new Vector3(baseScale.x * 1.2f, baseScale.y * 0.8f, baseScale.z);
+            }
+
+            flashUntil = Time.time + hitFlashSeconds;
+            Vector2 away = target != null ? body.position - (Vector2)target.transform.position : UnityEngine.Random.insideUnitCircle;
+            knockVelocity = (away.sqrMagnitude > 0.0001f ? away.normalized : Vector2.right) * hitKnockback;
+            stunUntil = Time.time + hitStunSeconds;
         }
 
         private void OnCollisionStay2D(Collision2D collision)
@@ -112,6 +204,10 @@ namespace AtomIO.Combat
             lastOrbitHit = Time.time;
             TakeDamage(damage);
             AnyOrbitHit?.Invoke(this, damage);
+            if (Hp > 0f)
+            {
+                ReactToHit();
+            }
         }
 
         public void TakeDamage(int damage) => TakeDamage(damage, false);

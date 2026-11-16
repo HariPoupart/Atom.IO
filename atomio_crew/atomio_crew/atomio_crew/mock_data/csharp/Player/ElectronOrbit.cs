@@ -9,12 +9,12 @@ namespace AtomIO.Player
 {
     /// <summary>
     /// Bohr-model electron shells around the player. Slots = atomic number.
-    /// Any electron can be thrown, even the last one; every run starts with one.
+    /// Always keeps at least one electron; only fires when holding more than one.
     /// Shells fill 2, then 8, like the Bohr model (Neon fills both).
     /// </summary>
     /// <summary>
     /// Bohr-model electron shells around the player. Slots = atomic number.
-    /// Any electron can be thrown, even the last one; every run starts with one.
+    /// Always keeps at least one electron; only fires when holding more than one.
     /// Shells fill 2, then 8, like the Bohr model (Neon fills both).
     ///
     /// Motion (after the developer's demo ElectronMovement script): positions are set directly
@@ -38,6 +38,10 @@ namespace AtomIO.Player
         [SerializeField] private float shellSpacing = 0.6f;
         [SerializeField] private float baseDegreesPerSecond = 120f;
         [SerializeField] private float settleSpeed = 6f;       // how fast electrons glide into their slot
+        [Header("Valence tuning (2026-11-15)")]
+        [SerializeField] private float spinMultiplier = 1.75f;  // electrons orbit 75% faster (120 -> 210 deg/s)
+        [SerializeField] private float extraShellGap = 0.8f;    // shell 1 sits 0.8 units further from the core
+        [SerializeField] private float extraShellSpacing = 0.25f; // and shells are spread a little wider
         [SerializeField] private LineRenderer aimLine;
         [SerializeField] private float aimLineLength = 3f;
 
@@ -152,7 +156,7 @@ namespace AtomIO.Player
         {
             orbiters.RemoveAll(o => o.electron == null || o.electron.State != ElectronState.Orbiting);
 
-            baseAngle = Mathf.Repeat(baseAngle + baseDegreesPerSecond * orbitSpeedMult * Time.deltaTime, 360f);
+            baseAngle = Mathf.Repeat(baseAngle + baseDegreesPerSecond * spinMultiplier * orbitSpeedMult * Time.deltaTime, 360f);
             float blend = 1f - Mathf.Exp(-settleSpeed * Time.deltaTime);
             Vector2 center = transform.position;
             float coreRadius = CoreRadius();
@@ -163,7 +167,7 @@ namespace AtomIO.Player
             {
                 int capacity = 2 * (shell + 1) * (shell + 1); // 2, 8, ...
                 int inShell = Mathf.Min(capacity, orbiters.Count - index);
-                float shellRadius = coreRadius + firstShellGap + shell * shellSpacing;
+                float shellRadius = coreRadius + firstShellGap + extraShellGap + shell * (shellSpacing + extraShellSpacing);
                 float dir = ShellDirection(shell);
                 for (int i = 0; i < inShell; i++)
                 {
