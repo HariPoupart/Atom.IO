@@ -78,6 +78,7 @@ namespace UnityEngine
         public Vector2(float x, float y) { this.x = x; this.y = y; }
         public static Vector2 zero => new Vector2(0, 0);
         public static Vector2 right => new Vector2(1, 0);
+        public static Vector2 MoveTowards(Vector2 current, Vector2 target, float maxDelta) => target;
         public static float Dot(Vector2 a, Vector2 b) => a.x * b.x + a.y * b.y;
         public static Vector2 one => new Vector2(1, 1);
         public float magnitude => (float)Math.Sqrt(x * x + y * y);
@@ -121,6 +122,7 @@ namespace UnityEngine
     public static class ColorUtility { public static bool TryParseHtmlString(string s, out Color c) { c = Color.white; return true; } }
     public static class Mathf
     {
+        public static float MoveTowards(float current, float target, float maxDelta) => target;
         public const float Deg2Rad = 0.0174533f;
         public const float PI = 3.14159265f;
         public static float Max(float a, float b) => a; public static int Max(int a, int b) => a;

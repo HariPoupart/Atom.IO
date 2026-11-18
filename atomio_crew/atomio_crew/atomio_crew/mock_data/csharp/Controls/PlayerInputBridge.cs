@@ -45,9 +45,20 @@ namespace AtomIO.Controls
 
         private void OnMove(Vector2 v) => player.SetMoveInput(v);
 
-        private void OnAim(Vector2 v) => orbit.Aim(v);
+        private void OnAim(Vector2 v)
+        {
+            orbit.Aim(v);
+            player.SetAiming(v.sqrMagnitude > 0.01f && orbit.CanRelease); // slow down while lining up a throw
+        }
 
-        private void OnFire(Vector2 v) => orbit.Release(v);
+        private void OnFire(Vector2 v)
+        {
+            player.SetAiming(false);
+            if (orbit.Release(v))
+            {
+                player.ApplyThrowRecoil(v); // the atom is kicked backwards
+            }
+        }
 
 #if UNITY_EDITOR && ENABLE_INPUT_SYSTEM
         private void Update()
