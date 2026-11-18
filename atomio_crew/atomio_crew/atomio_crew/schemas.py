@@ -54,7 +54,7 @@ class SpawnCurve(BaseModel):
     """Tuning knobs. Per-level numbers are derived from these + gdd_rules."""
     enemy_base_interval_s: float = Field(description="Seconds between enemy spawns at t=0 (2-8)")
     enemy_min_interval_s: float = Field(description="Floor for the enemy spawn interval (0.3-3)")
-    time_scale_k: float = Field(description="interval(t) = base / (1 + k * minutes_elapsed); k in 0.05-2")
+    time_scale_k: float = Field(description="interval(t) = base / (1 + k * minutes_elapsed); k in 0.05-4")
     enemy_hp_per_tier: float = Field(description="Enemy HP added per player atomic number (0-10)")
     enemy_hp_per_minute: float = Field(description="Enemy HP added per minute survived (0-20)")
     enemy_move_speed: float = Field(description="Units/second (1-6)")

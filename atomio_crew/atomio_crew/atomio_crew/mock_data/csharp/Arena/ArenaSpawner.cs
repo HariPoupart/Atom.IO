@@ -18,6 +18,15 @@ namespace AtomIO.Arena
         [SerializeField] private float minEnemyDistanceFromPlayer = 12f;
         [SerializeField] private int maxIdleOrbs = 40;
 
+        [Header("Difficulty ramp (target: an average run lasts about a minute)")]
+        [Tooltip("Seconds before the first enemy appears.")]
+        [SerializeField] private float startGraceSeconds = 1.5f;
+        [Tooltip("The level's max enemies alive grows by this fraction per minute survived (1 = doubles after 1 min).")]
+        [SerializeField] private float aliveCapGrowthPerMinute = 1f;
+        [Tooltip("New enemies are this much faster per minute survived (0.4 = +40% after 1 min).")]
+        [SerializeField] private float enemySpeedGrowthPerMinute = 0.4f;
+        [SerializeField] private float maxEnemySpeedMultiplier = 1.8f;
+
         private readonly List<Enemy> enemies = new List<Enemy>();
         private readonly List<EnergyOrb> orbs = new List<EnergyOrb>();
         private readonly List<Electron> wildElectrons = new List<Electron>();
@@ -32,7 +41,7 @@ namespace AtomIO.Arena
         {
             session = arenaSession;
             config = arenaSession.Config;
-            nextEnemy = Time.time + 2f; // short grace period at run start
+            nextEnemy = Time.time + startGraceSeconds; // short grace period at run start
             nextOrb = Time.time;
             nextElectron = Time.time + 1f;
             active = true;
@@ -64,7 +73,8 @@ namespace AtomIO.Arena
             if (Time.time >= nextEnemy)
             {
                 nextEnemy = Time.time + config.EnemyIntervalAt(minutes);
-                if (enemies.Count < config.spawn.max_alive_enemies)
+                int cap = Mathf.RoundToInt(config.spawn.max_alive_enemies * (1f + aliveCapGrowthPerMinute * minutes));
+                if (enemies.Count < cap)
                 {
                     SpawnEnemy(minutes);
                 }
@@ -124,7 +134,7 @@ namespace AtomIO.Arena
             enemy.Init(
                 session.Player,
                 config.EnemyHpAt(minutes),
-                config.enemy.move_speed,
+                config.enemy.move_speed * Mathf.Min(maxEnemySpeedMultiplier, 1f + enemySpeedGrowthPerMinute * minutes),
                 config.enemy.sight_range,
                 config.enemy.contact_damage,
                 config.OrbValueAt(minutes) * 3f);

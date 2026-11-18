@@ -27,7 +27,7 @@ FORBIDDEN_USINGS = ("System.Net", "UnityEngine.Networking", "Newtonsoft", "Anthr
 SCRIPTS_ROOT = "Assets/Scripts/AtomIO/"
 
 RANGES = {  # SpawnCurve sanity bounds (mirrors the field descriptions)
-    "enemy_base_interval_s": (2, 8), "enemy_min_interval_s": (0.3, 3), "time_scale_k": (0.05, 2),
+    "enemy_base_interval_s": (2, 8), "enemy_min_interval_s": (0.3, 3), "time_scale_k": (0.05, 4),
     "enemy_hp_per_tier": (0, 10), "enemy_hp_per_minute": (0, 20), "enemy_move_speed": (1, 6),
     "enemy_sight_range": (3, 20), "max_alive_enemies_base": (3, 40), "max_alive_enemies_per_tier": (0, 3),
     "orb_base_interval_s": (0.5, 6), "electron_base_interval_s": (1, 10), "orb_base_value": (1, 10),
