@@ -36,6 +36,9 @@ namespace AtomIO.Arena
         /// <summary>Fired when the player reaches the final element (Neon).</summary>
         public event Action Won;
 
+        /// <summary>Fired each time energy is collected (amount), before the bar is updated.</summary>
+        public event Action<float> EnergyCollected;
+
         public TierConfig Config { get; private set; }
         public float TimeSurvived { get; private set; }
         public float RunEnergy { get; private set; }
@@ -116,18 +119,34 @@ namespace AtomIO.Arena
                 return;
             }
 
+            EnergyCollected?.Invoke(amount);
+
             RunEnergy += amount;
             bool evolved = MetaProgress.AddEnergy(amount);
-            if (evolved && LoadLevel(MetaProgress.AtomicNumber))
+            BarChanged?.Invoke(MetaProgress.BarEnergy, MetaProgress.BarCapacity);
+            if (!evolved)
             {
-                Evolved?.Invoke(Config);
-                if (Config.evolution.is_final_element)
+                return;
+            }
+
+            // Evolution ends the run (2026-11-17): show the banner, protect the player for the short
+            // delay, then return to the lobby, where a popup explains the new element and its power.
+            var next = TierConfigLoader.Load(MetaProgress.AtomicNumber);
+            if (next != null)
+            {
+                Evolved?.Invoke(next);
+                if (next.evolution.is_final_element)
                 {
                     Won?.Invoke();
                 }
             }
 
-            BarChanged?.Invoke(MetaProgress.BarEnergy, MetaProgress.BarCapacity);
+            if (player != null)
+            {
+                player.GrantShield(returnDelay + 1f);
+            }
+
+            EndRun();
         }
 
         /// <summary>Hooked to the top-right exit button.</summary>

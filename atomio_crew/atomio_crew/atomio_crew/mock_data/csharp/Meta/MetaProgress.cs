@@ -15,6 +15,7 @@ namespace AtomIO.Meta
         private const string KeyZ = "atomio.v2.z";
         private const string KeyBar = "atomio.v2.bar";
         private const string KeyTutorial = "atomio.v2.tutorial_stage";
+        private const string KeyPendingEvolution = "atomio.v2.pending_evolution";
 
         /// <summary>0 = first run as H (orbit damage + orbs), 1 = just became He (throw / pickup lesson due), 2 = done.</summary>
         public static int TutorialStage
@@ -34,6 +35,15 @@ namespace AtomIO.Meta
         public static float BarFill01 => BarCapacity > 0 ? Mathf.Clamp01(BarEnergy / BarCapacity) : 1f;
 
         public static bool HasWon => AtomFormulas.IsFinalElement(AtomicNumber);
+
+        /// <summary>Element the player just evolved into and hasn't seen the lobby popup for (0 = none).</summary>
+        public static int PendingEvolution => PlayerPrefs.GetInt(KeyPendingEvolution, 0);
+
+        public static void ClearPendingEvolution()
+        {
+            PlayerPrefs.DeleteKey(KeyPendingEvolution);
+            PlayerPrefs.Save();
+        }
 
         /// <summary>
         /// Adds collected energy to the bar. Returns true when this filled the bar and the
@@ -56,6 +66,7 @@ namespace AtomIO.Meta
 
             PlayerPrefs.SetInt(KeyZ, z + 1);
             PlayerPrefs.SetFloat(KeyBar, AtomFormulas.BarResetValue);
+            PlayerPrefs.SetInt(KeyPendingEvolution, z + 1); // the lobby shows the new-element popup
             if (z + 1 == 2 && TutorialStage == 0)
             {
                 TutorialStage = 1; // first evolution: Helium unlocks the throw / pickup lesson
@@ -76,6 +87,7 @@ namespace AtomIO.Meta
             PlayerPrefs.DeleteKey(KeyZ);
             PlayerPrefs.DeleteKey(KeyBar);
             PlayerPrefs.DeleteKey(KeyTutorial);
+            PlayerPrefs.DeleteKey(KeyPendingEvolution);
             PlayerPrefs.Save();
         }
     }

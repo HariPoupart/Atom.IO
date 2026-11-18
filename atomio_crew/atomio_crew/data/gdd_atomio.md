@@ -10,3 +10,4 @@ TUTORIAL: The first run as H teaches that orbiting electrons damage enemies and 
 RETENTION: Fast evolutions with the next one always visible on the bar, then building a full-shell orbiting-electron "defense" (2, then 8). Bonus: each element has its own level and look, and element groups get distinct abilities.
 CONSTRAINTS: No runtime API or network calls. All AI work happens at editor time, and tier JSON is pre-generated per element before the build. No external dependencies beyond the GDD. Every change is validated at a manual gate and logged in CHANGES.md.
 DIFFICULTY: an average run should last about one minute; enemy spawns speed up quickly, the number alive grows, and new enemies get faster and tougher over time.
+EVOLUTION ENDS THE RUN: on evolving, the player returns to the lobby and a popup explains the new element and its power.

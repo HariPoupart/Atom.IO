@@ -153,12 +153,8 @@ namespace AtomIO.UI
 
         private void OnEvolved(TierConfig c)
         {
-            ShowLevel(c);
-            ShowBanner($"Fusion complete! You are now {c.name}.\nLevel {c.atomic_number}: {c.level_name}");
-            if (MetaProgress.TutorialStage == 1)
-            {
-                StartTutorial();
-            }
+            // The run ends on evolution; the lobby popup explains the new element.
+            ShowBanner($"Fusion complete! You are now {c.name}.\nBack to the lab...");
         }
 
         private void OnWon()
