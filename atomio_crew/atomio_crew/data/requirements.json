@@ -437,14 +437,14 @@
   },
   {
    "id": "R17",
-   "title": "Element card in the lobby",
+   "title": "Element card text (shown in the evolution popup)",
    "gdd_ref": "1.3.2 / 1.4.4",
    "category": "ui",
-   "description": "The lobby shows the current element's card (title and flavor from the generated element_cards.json) and which element comes next, so the next evolution is always in sight.",
+   "description": "Loads the element cards (title and flavor from the generated element_cards.json). Since 2026-11-17 the card is not shown on the lobby screen; its text appears in the evolution popup (R19).",
    "acceptance": [
     "Loads Resources/AtomIO/Content/element_cards.json",
-    "Shows title + flavor for the current element",
-    "Shows the next element (or 'complete' at Neon)"
+    "Card text available for the evolution popup",
+    "Not displayed on the lobby screen"
    ],
    "evidence": {
     "types": [
