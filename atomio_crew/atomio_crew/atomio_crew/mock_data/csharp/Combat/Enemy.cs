@@ -34,6 +34,13 @@ namespace AtomIO.Combat
 
         public float Hp { get; private set; }
 
+        /// <summary>Every live enemy (so abilities never need FindObjectsByType).</summary>
+        public static readonly System.Collections.Generic.List<Enemy> Active = new System.Collections.Generic.List<Enemy>();
+
+        private void OnEnable() => Active.Add(this);
+
+        private void OnDisable() => Active.Remove(this);
+
         private Rigidbody2D body;
         private PlayerAtom target;
         private float moveSpeed;
@@ -57,6 +64,7 @@ namespace AtomIO.Combat
             body.gravityScale = 0f;
             body.freezeRotation = true;
             sprite = GetComponentInChildren<SpriteRenderer>();
+            body.interpolation = RigidbodyInterpolation2D.Interpolate; // smooth on screen between physics steps
             baseScale = transform.localScale;
         }
 
@@ -186,8 +194,8 @@ namespace AtomIO.Combat
 
         private void OnCollisionStay2D(Collision2D collision)
         {
-            var player = collision.collider.GetComponentInParent<PlayerAtom>();
-            if (player != null)
+            var rb = collision.rigidbody; // cheaper than GetComponentInParent every physics step
+            if (rb != null && rb.TryGetComponent<PlayerAtom>(out var player))
             {
                 player.TakeContactDamage(contactDamage);
             }

@@ -86,10 +86,17 @@ namespace AtomIO.UI
             session.Won -= OnWon;
         }
 
+        private int shownSeconds = -1;
+
         private void Update()
         {
+            // Only rebuild the text when the shown second changes (was every frame: garbage + TMP mesh rebuild).
             int t = Mathf.FloorToInt(session.TimeSurvived);
-            timeLabel.text = $"{t / 60:00}:{t % 60:00}";
+            if (t != shownSeconds)
+            {
+                shownSeconds = t;
+                timeLabel.text = $"{t / 60:00}:{t % 60:00}";
+            }
 
             if (bannerLabel != null && bannerLabel.gameObject.activeSelf && Time.time > bannerUntil)
             {

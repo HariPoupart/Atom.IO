@@ -22,6 +22,7 @@ namespace UnityEngine
         public Transform transform;
         public GameObject gameObject;
         public T GetComponent<T>() => default(T);
+        public bool TryGetComponent<T>(out T component) { component = default(T); return false; }
         public T GetComponentInParent<T>() => default(T);
         public T GetComponentInChildren<T>() => default(T);
         public T[] GetComponentsInChildren<T>() => new T[0];
@@ -32,7 +33,7 @@ namespace UnityEngine
         public void Invoke(string methodName, float time) { }
         public void CancelInvoke() { }
     }
-    public class GameObject : Object { public Transform transform; public bool activeSelf; public void SetActive(bool v) { } public T GetComponent<T>() => default(T); }
+    public class GameObject : Object { public Transform transform; public bool activeSelf; public T AddComponent<T>() => default(T); public void SetActive(bool v) { } public T GetComponent<T>() => default(T); }
     public class Transform : Component { public Vector3 position; public Vector3 localScale; public Quaternion rotation; public Transform parent; public void Rotate(float x, float y, float z) { } }
     [AttributeUsage(AttributeTargets.Class)] public class DefaultExecutionOrder : Attribute { public DefaultExecutionOrder(int order) { } }
     public class RectTransform : Transform { public Vector2 anchoredPosition; public Vector2 sizeDelta; }
@@ -68,9 +69,13 @@ namespace UnityEngine
         public void AddForce(Vector2 f) { }
         public RigidbodyInterpolation2D interpolation;
     }
-    public class Collider2D : Behaviour { public bool isTrigger; }
+    public class Collider2D : Behaviour { public bool isTrigger; public Rigidbody2D attachedRigidbody; }
     public class CircleCollider2D : Collider2D { public float radius; }
-    public class Collision2D { public Collider2D collider; public GameObject gameObject; }
+    public class Collision2D { public Collider2D collider; public Rigidbody2D rigidbody; public GameObject gameObject; }
+    public static class Application { public static int targetFrameRate; public static bool isMobilePlatform; }
+    public static class QualitySettings { public static int vSyncCount; }
+    public enum RuntimeInitializeLoadType { AfterSceneLoad, BeforeSceneLoad, AfterAssembliesLoaded, BeforeSplashScreen, SubsystemRegistration }
+    [AttributeUsage(AttributeTargets.Method)] public class RuntimeInitializeOnLoadMethodAttribute : Attribute { public RuntimeInitializeOnLoadMethodAttribute() { } public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType t) { } }
 
     public struct Vector2
     {

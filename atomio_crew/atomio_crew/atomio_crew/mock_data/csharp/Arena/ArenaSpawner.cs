@@ -28,7 +28,6 @@ namespace AtomIO.Arena
         [SerializeField] private float maxEnemySpeedMultiplier = 1.8f;
 
         private readonly List<Enemy> enemies = new List<Enemy>();
-        private readonly List<EnergyOrb> orbs = new List<EnergyOrb>();
         private readonly List<Electron> wildElectrons = new List<Electron>();
         private ArenaSession session;
         private TierConfig config;
@@ -67,7 +66,6 @@ namespace AtomIO.Arena
 
             float minutes = session.Minutes;
             enemies.RemoveAll(e => e == null);
-            orbs.RemoveAll(o => o == null);
             wildElectrons.RemoveAll(e => e == null || !e.gameObject.activeSelf || e.State != ElectronState.Wild);
 
             if (Time.time >= nextEnemy)
@@ -83,10 +81,9 @@ namespace AtomIO.Arena
             if (Time.time >= nextOrb)
             {
                 nextOrb = Time.time + config.ScaledIntervalAt(config.spawn.orb_base_interval_s, minutes);
-                if (orbs.Count < maxIdleOrbs && orbPrefab != null)
+                if (EnergyOrb.Active.Count < maxIdleOrbs && orbPrefab != null) // counts dropped orbs too
                 {
-                    var orb = Instantiate(orbPrefab, RandomPointInArena(0f), Quaternion.identity); // fixed energy
-                    orbs.Add(orb);
+                    EnergyOrb.Spawn(orbPrefab, RandomPointInArena(0f)); // pooled, fixed energy
                 }
             }
 

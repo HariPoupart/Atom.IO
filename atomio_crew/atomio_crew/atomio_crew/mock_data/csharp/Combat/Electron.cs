@@ -243,7 +243,7 @@ namespace AtomIO.Combat
                 return;
             }
 
-            var enemy = other.GetComponentInParent<Enemy>();
+            var enemy = EnemyOf(other);
             if (enemy == null)
             {
                 return;
@@ -267,11 +267,19 @@ namespace AtomIO.Combat
                 return;
             }
 
-            var enemy = other.GetComponentInParent<Enemy>();
+            var enemy = EnemyOf(other);
             if (enemy != null)
             {
                 enemy.TryTakeOrbitHit(Mathf.RoundToInt(orbitDamage * damageMult));
             }
+        }
+
+        /// <summary>Enemy on the other collider, via its Rigidbody2D (much cheaper than
+        /// GetComponentInParent, which runs for every overlapping pair every physics step).</summary>
+        private static Enemy EnemyOf(Collider2D other)
+        {
+            var rb = other.attachedRigidbody;
+            return rb != null && rb.TryGetComponent<Enemy>(out var e) ? e : null;
         }
 
         private void SetState(ElectronState next)
