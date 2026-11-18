@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AtomIO.Data;
 using AtomIO.Meta;
 using AtomIO.Player;
@@ -26,6 +27,8 @@ namespace AtomIO.Arena
         [SerializeField] private Camera arenaCamera;
         [SerializeField] private string lobbySceneName = "Lobby";
         [SerializeField] private float returnDelay = 1.5f;
+        [Tooltip("On death the game freezes this long (real time) before returning to the lobby. 0 = return instantly.")]
+        [SerializeField] private float deathFreezeSeconds = 0.8f;
 
         /// <summary>Bar energy, bar capacity (0 at Neon).</summary>
         public event Action<float, int> BarChanged;
@@ -157,7 +160,28 @@ namespace AtomIO.Arena
 
         private void OnPlayerDied()
         {
-            EndRun();
+            if (!Running)
+            {
+                return;
+            }
+
+            Running = false;
+            spawner.Stop();
+            MetaProgress.Save(); // the bar keeps its progress between runs
+            if (deathFreezeSeconds <= 0f)
+            {
+                ReturnToLobby(); // teleport straight back
+                return;
+            }
+
+            Time.timeScale = 0f; // freeze everything on the death frame
+            StartCoroutine(ReturnAfterFreeze());
+        }
+
+        private IEnumerator ReturnAfterFreeze()
+        {
+            yield return new WaitForSecondsRealtime(deathFreezeSeconds);
+            ReturnToLobby();
         }
 
         private void EndRun()
@@ -175,6 +199,7 @@ namespace AtomIO.Arena
 
         private void ReturnToLobby()
         {
+            Time.timeScale = 1f; // never carry a freeze (or the pause menu) into the lobby
             SceneManager.LoadScene(lobbySceneName);
         }
     }
